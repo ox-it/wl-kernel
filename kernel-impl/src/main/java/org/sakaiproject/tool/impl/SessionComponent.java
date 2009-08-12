@@ -1271,7 +1271,7 @@ public abstract class SessionComponent implements SessionManager
 				try
 				{
 					// wait for it to die
-					m_maintenanceChecker.join();
+					m_maintenanceChecker.join(100);
 				}
 				catch (InterruptedException ignore)
 				{
