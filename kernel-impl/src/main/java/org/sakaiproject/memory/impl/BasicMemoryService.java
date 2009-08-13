@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -93,7 +94,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
-
+	
+	/**
+	 * @return the ServerConfigurationService collaborator
+	 */
+	protected abstract ServerConfigurationService serverConfigurationService();
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -469,10 +475,16 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			return cacheManager.getEhcache(name);
 		} 
 		cacheManager.addCache(name);
-		return cacheManager.getEhcache(name);
+		Ehcache cache = cacheManager.getEhcache(name);
 		
-		
-		
+		// Not look for any custom configuration.
+		String config = serverConfigurationService().getString(name);
+		if (config != null && config.length() > 0) {
+			M_log.debug("Found configuration for cache: "+ name+ " of: "+ config);
+			new CacheInitializer().configure(config).initialize(
+					cache.getCacheConfiguration());
+		}
+		return cache;
 		
 		/*
 		

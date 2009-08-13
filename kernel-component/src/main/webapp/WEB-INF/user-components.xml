@@ -33,13 +33,12 @@
 		<property name="providerName" value="org.sakaiproject.user.api.UserDirectoryProvider"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
- 		<property name="cacheMinutes"><value>5</value></property>
- 		<property name="cacheCleanerMinutes"><value>15</value></property>
  		<property name="caseSensitiveId"><value>false</value></property>
  		<property name="separateIdEid"><value>true</value></property>
 
  		<!-- This is s LRU cache managed by the memory service currently using ehcache -->
- 		<property name="cache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.cache" /></property>
+ 		
+ 		<property name="idEidCache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.cache" /></property>
 
         <property name="databaseBeans">
            <map>
@@ -111,13 +110,18 @@
 		<property name="timeToLive" value="120" />
 	</bean>
 
-	<!-- Memory cache for user lookup. -->
-	<bean id="org.sakaiproject.user.api.UserDirectoryService.cache"
+	<!-- Define an alias so that old cache settings (though sakai.properties) still work. -->
+	<alias name="org.sakaiproject.user.api.UserDirectoryService.idEidCache"
+		alias="org.sakaiproject.user.api.UserDirectoryService.cache"/>
+
+	<!-- Memory cache for user ID/EID lookup. -->
+	<bean id="org.sakaiproject.user.api.UserDirectoryService.idEidCache"
 	     class="org.springframework.cache.ehcache.EhCacheFactoryBean">
  		<property name="cacheManager">
     		<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
   		</property>
   		<property name="cacheName">
+  			<!-- Keep old name so it's familiar to people -->
     		<value>org.sakaiproject.user.api.UserDirectoryService</value>
   		</property>
         <property name="maxElementsInMemory" value="100000" />
