@@ -216,4 +216,9 @@ public interface UsageSessionService
 	 * @return number of invalid sessions closed
 	 */
 	int closeSessionsOnInvalidServers(List<String> validServerIds);
+	
+	/**
+	 * Remove old inactive sessions.
+	 */
+	void cleanupSessions();
 }
