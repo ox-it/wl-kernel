@@ -192,6 +192,11 @@ public class MockUsageSessionService implements UsageSessionService
 		return false;
 	}
 
+	public void cleanupSessions() {
+		// TODO Auto-generated method stub
+
+	}
+
 	public UsageSession getActiveUserSession(String userId) {
 		// TODO Auto-generated method stub
 		return null;
