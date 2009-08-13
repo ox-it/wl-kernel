@@ -40,4 +40,14 @@ public interface ClusterEventTrackingServiceSql
 	 * returns the sql statement which retrieves the largest event id from the sakai_event table.
 	 */
 	String getMaxEventIdSql();
+	
+	/**
+	 * returns the sql statement which deletes old events past a point in time.
+	 */
+	String getDeleteOldEventSql();
+	
+	/**
+	 * returns the sql statement which inserts olds events into another table.
+	 */
+	String getInsertOldEventSql();
 }
