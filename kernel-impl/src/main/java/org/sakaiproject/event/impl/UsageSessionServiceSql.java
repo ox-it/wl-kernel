@@ -63,4 +63,8 @@ public interface UsageSessionServiceSql
 	 */
 	String getOpenSessionsOnInvalidServersSql(List<String> validServerIds);
 	
+	/**
+	 * @return the SQL statement which removes all old sessions.
+	 */
+	String getCleanOldSessionsSql();
 }

@@ -213,4 +213,8 @@ public interface UsageSessionService
 	 */
 	int closeSessionsOnInvalidServers(List<String> validServerIds);
 
+	/**
+	 * Remove old inactive sessions.
+	 */
+	void cleanupSessions();
 }
