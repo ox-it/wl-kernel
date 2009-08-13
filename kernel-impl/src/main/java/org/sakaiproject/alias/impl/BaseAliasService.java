@@ -204,6 +204,10 @@ public abstract class BaseAliasService implements AliasService, StorageUser, Obs
 		Reference ref = entityManager().newReference(target);
 		if (ref.getType().equals(SiteService.APPLICATION_ID))
 		{
+			// Support page aliases.
+			if (SiteService.PAGE_SUBTYPE.equals(ref.getSubType())) {
+				return siteService().allowUpdateSite(ref.getContainer());
+			}
 			return siteService().allowUpdateSite(ref.getId());
 		}
 
