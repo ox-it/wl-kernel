@@ -45,4 +45,13 @@ public interface MultiRefCache extends Cache
 	 *        AuthzGroup ids that, if the changed, will invalidate this entry.
 	 */
 	void put(Object key, Object payload, int duration, String ref, Collection azgIds);
+	
+	/**
+	 * Cache an object that depends on more than just the key. This doesn't just work for
+	 * authz but anything.
+	 * @param key The key with which to find the payload.
+	 * @param payload The cached object.
+	 * @param dependRefs All the references that this cached object depends on.
+	 */
+	void put(Object key, Object payload, String ref, Collection dependRefs);
 }

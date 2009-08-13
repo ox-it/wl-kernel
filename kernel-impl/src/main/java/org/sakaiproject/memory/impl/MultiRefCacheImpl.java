@@ -148,21 +148,29 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 				azgRefs.add(m_authzGroupService.authzGroupReference(azgId));
 			}
 		}
-
-		// create our extended cache entry for the cache map - the reference strings are recorded
-		super.put(key, new MultiRefCacheEntry(payload, duration, ref, azgRefs));
-
+		put(key, payload, ref, azgRefs);
+	}
+	
+	public void put(Object key, Object payload, String ref, Collection dependRefs)
+	{
+		if(M_log.isDebugEnabled())
+		{
+			M_log.debug("put(Object " + key + ", Object " + payload
+					+", Dependent Refs " + dependRefs + ")");
+		}
+		if (disabled()) return;
+		// Durations don't work any more (hence 0 duration).
+		super.put(key, new MultiRefCacheEntry(payload, 0, ref, dependRefs));
 		if (ref != null)
 		{
 			addRefCachedKey(ref, key);
 		}
-
-		if (azgRefs != null)
+		if (dependRefs != null)
 		{
-			for (Iterator i = azgRefs.iterator(); i.hasNext();)
+			for (Iterator i = dependRefs.iterator(); i.hasNext();)
 			{
-				String azgRef = (String) i.next();
-				addRefCachedKey(azgRef, key);
+				String dependRef = (String) i.next();
+				addRefCachedKey(dependRef, key);
 			}
 		}
 	}
