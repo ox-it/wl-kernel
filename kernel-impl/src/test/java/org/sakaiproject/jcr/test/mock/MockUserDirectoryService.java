@@ -551,6 +551,11 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return null;
 	}
 
+	public User getUserByAid(String aid) throws UserNotDefinedException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public List<User> searchExternalUsers(String criteria, int first, int last) {
 		// TODO Auto-generated method stub
 		return null;
