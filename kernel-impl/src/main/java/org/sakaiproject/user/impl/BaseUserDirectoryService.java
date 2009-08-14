@@ -1287,8 +1287,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	@SuppressWarnings("unchecked")
 	public Collection findUsersByEmail(String email)
 	{
-		// check internal users
-		Collection users = m_storage.findUsersByEmail(email);
+		Collection users = new ArrayList();
 
 		// add in provider users
 		if (m_provider != null)
@@ -1320,6 +1319,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 		}
 
+		// Append any matching internal users.
+		users.addAll(m_storage.findUsersByEmail(email));
+		
 		return users;
 	}
 
