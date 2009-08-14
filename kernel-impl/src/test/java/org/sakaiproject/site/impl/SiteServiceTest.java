@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -38,6 +39,9 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -154,6 +158,12 @@ public class SiteServiceTest extends DbSiteService
 
 	@Override
 	protected ActiveToolManager activeToolManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected DevolvedSakaiSecurity devolvedSakaiSecurity() {
 		// TODO Auto-generated method stub
 		return null;
 	}
