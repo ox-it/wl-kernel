@@ -133,7 +133,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			// accept, so now lookup the user in our database.
 			try
 			{
-				User user = userDirectoryService().getUserByEid(evidence.getIdentifier());
+				User user = userDirectoryService().getUserByAid(evidence.getIdentifier());
 
 				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 				return rv;

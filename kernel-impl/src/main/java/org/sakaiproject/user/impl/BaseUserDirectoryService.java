@@ -59,6 +59,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
@@ -594,7 +595,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		String id = m_storage.checkMapForId(eid);
 		if (id != null) return id;
 
-		// Try the provider.
+		// Try the provider. - should we switch to Aid here?
 		UserEdit user = getProvidedUserByEid(id, eid);
 		if (user != null)
 		{
@@ -728,6 +729,34 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		putCachedUser(userReference(user.getId()), user);
 
 		return user;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public User getUserByAid(String aid) throws UserNotDefinedException
+	{
+		if (serverConfigurationService().getBoolean("login.has.aid", false))
+		{
+			if (m_provider instanceof AuthenticationIdUDP)
+			{
+				UserEdit user = new BaseUserEdit();
+				if (((AuthenticationIdUDP)m_provider).getUserbyAid(aid, user))
+				{
+					String id = m_storage.checkMapForId(user.getEid());
+					user.setId(id);
+					ensureMappedIdForProvidedUser(user);
+					putCachedUser(user.getReference(), user);
+					return user;
+				}
+				throw new UserNotDefinedException(aid);
+			}
+			else
+			{
+				M_log.warn("login.has.aid is true but UserDirectoryProvider doesn't implement AuthenticationIdUDP");
+			}
+		}
+		return getUserByEid(aid);
 	}
 
 	/**
@@ -1484,7 +1513,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// locally stored users.
 			try
 			{
-				user = (UserEdit)getUserByEid(loginId);
+				user = (UserEdit)getUserByAid(loginId);
 			} catch (UserNotDefinedException e)
 			{
 				return null;
