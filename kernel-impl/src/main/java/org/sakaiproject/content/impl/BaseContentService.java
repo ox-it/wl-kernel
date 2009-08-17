@@ -5560,7 +5560,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		if(this.m_prioritySortEnabled)
 		{
-			// ((BasicGroupAwareEdit) edit).setPriority();
+		    ((BasicGroupAwareEdit) edit).setPriority();
 		}
 		
 		// update the properties for update
@@ -9974,7 +9974,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					m_properties = new BaseResourcePropertiesEdit(element);
 					if(m_prioritySortEnabled)
 					{
-						// setPriority();
+					    setPriority();
 					}
 				}
 				// look for groups 
@@ -11045,7 +11045,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					m_properties = new BaseResourcePropertiesEdit(element);
 					if(m_prioritySortEnabled)
 					{
-						// setPriority();
+					    setPriority();
 					}
 				}
 				// look for groups
