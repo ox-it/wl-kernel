@@ -138,6 +138,13 @@ public class RequestFilter implements Filter
 	 */
 	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
 
+	
+	/**
+	 * System property to only set cookies on secure requests and flag the cookie as being secure only se browsers only send it with
+	 * secure requests.
+	 */
+	public static final String SYSTEM_COOKIE_SECURE = "sakai.secure.cookie.only";
+	
 	/**
 	 * Config parameter (in bytes) to control the threshold at which to store uploaded files on-disk (temporarily) instead of
 	 * in-memory. Default is 1024 bytes.
@@ -244,6 +251,9 @@ public class RequestFilter implements Filter
 
 	/** The servlet context for the filter. */
 	protected ServletContext m_servletContext = null;
+	
+	/** Only send cookies over https and set the secure flag */
+	protected boolean m_secureCookie = false;
 
 	/**
 	 * Wraps a request object so we can override some standard behavior.
@@ -633,11 +643,23 @@ public class RequestFilter implements Filter
 							c = new Cookie(SESSION_COOKIE, sessionId);
 							c.setPath("/");
 							c.setMaxAge(-1);
-							if (req.isSecure() == true)
+							// Handle secure only cookies.
+							if (m_secureCookie)
 							{
 								c.setSecure(true);
+								if (req.isSecure())
+								{
+									resp.addCookie(c);
+								}
+								else
+			 					{
+									M_log.error("Didn't set cookie '"+ SESSION_COOKIE+ "' as system property '"+ SYSTEM_COOKIE_SECURE+ "' is true and requst isn't secure.");
+								}
 							}
-							resp.addCookie(c);
+							else
+							{
+								resp.addCookie(c);
+			 				}
 						}
 					}
 
@@ -830,6 +852,11 @@ public class RequestFilter implements Filter
 		if (filterConfig.getInitParameter(CONFIG_MAX_PER_FILE) != null)
 		{
 			m_uploadMaxPerFile = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_MAX_PER_FILE)).booleanValue();
+		}
+		
+		if (System.getProperty(SYSTEM_COOKIE_SECURE) != null)
+		{
+			m_secureCookie = Boolean.valueOf(System.getProperty(SYSTEM_COOKIE_SECURE));
 		}
 
 		// Note: if set to continue processing max exceeded uploads, we only support per-file max, not overall max
@@ -1179,11 +1206,23 @@ public class RequestFilter implements Filter
 				c = new Cookie(SESSION_COOKIE, sessionId);
 				c.setPath("/");
 				c.setMaxAge(-1);
-				if (req.isSecure() == true)
+				// Handle secure only cookies.
+				if (m_secureCookie)
 				{
 					c.setSecure(true);
+					if (req.isSecure())
+					{
+						res.addCookie(c);
+					}
+					else
+ 					{
+						M_log.error("Didn't set cookie '"+ SESSION_COOKIE+ "' as system property '"+ SYSTEM_COOKIE_SECURE+ "' is true and requst isn't secure.");
+					}
 				}
-				res.addCookie(c);
+				else
+				{
+					res.addCookie(c);
+ 				}
 			}
 		}
 
