@@ -4594,7 +4594,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		newResource.setContent(m_storage.streamDeletedResourceBody(deleResource));
 		try {
 			addProperties(newResource.getPropertiesEdit(), deleResource.getProperties());
-			commitResource(newResource);
+			commitResource(newResource, NotificationService.NOTI_NONE);
 			
 		} catch (ServerOverloadException e) {
 			M_log.debug("ServerOverloadException " + e);
