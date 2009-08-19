@@ -22,13 +22,18 @@
 package org.sakaiproject.site.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -137,4 +142,11 @@ public class SiteServiceTest extends DbSiteService
 	{
 		return null;
 	}
+
+	@Override
+	protected DevolvedSakaiSecurity devolvedSakaiSecurity() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
