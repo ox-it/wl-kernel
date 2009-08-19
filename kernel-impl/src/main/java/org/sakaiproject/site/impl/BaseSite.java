@@ -610,9 +610,10 @@ public class BaseSite implements Site
 		{
 			siteString = "/" + controllingPortal + "/";
 		}
-		return siteService
-				.serverConfigurationService().getPortalUrl()
-				+ siteString + m_id;
+		BaseSiteService siteService = ((BaseSiteService) (SiteService.getInstance()));
+		String alias = siteService.lookupSiteAlias(m_id);
+		return siteService.serverConfigurationService().getPortalUrl()
+				+ siteString + alias;
 	}
 
 	/**
