@@ -98,6 +98,11 @@ public interface ResourceToolAction
 		REPLACE_CONTENT,
 		
 		/**
+		 * Restore the content of the folder.    
+		 */
+		RESTORE,
+		
+		/**
 		 * Revise metadata -- Handled by Resources tool.  Requires content.revise.any permission 
 		 * 		(or content.revise.own if user is creator).
 		 */
@@ -200,6 +205,7 @@ public interface ResourceToolAction
 	public static final String PASTE_COPIED = "paste_copied";
 	public static final String PERMISSIONS = "revise_permissions";
 	public static final String REORDER = "revise_order";
+	public static final String RESTORE = "restore";
 	public static final String EXPAND = "expand";
 	public static final String COLLAPSE = "collapse";
 	public static final String COMPRESS_ZIP_FOLDER = "compress_zip_folder";

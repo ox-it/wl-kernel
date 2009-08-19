@@ -101,6 +101,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(ResourceToolAction.REORDER, new FolderReorderAction());
 		actions.put(ResourceToolAction.PERMISSIONS, new FolderPermissionsAction());
 		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
+		actions.put(ResourceToolAction.RESTORE, new FolderRestoreAction());
 		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
 		
 		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
@@ -134,6 +135,14 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		}
 		
 
+	}
+
+	protected ContentHostingService getContentService() {
+		if(contentService == null)
+		{
+			contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+		}
+		return contentService;
 	}
 	
 	public class FolderPasteCopyAction implements ServiceLevelAction
@@ -1411,6 +1420,45 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 	        return typeId;
         }
 		
+	}
+
+	public class FolderRestoreAction implements ServiceLevelAction {
+		
+		public void cancelAction(Reference reference) {
+			// TODO Auto-generated method stub
+		}
+		
+		public void finalizeAction(Reference reference) {
+			// TODO Auto-generated method stub		
+		}
+		
+		public void initializeAction(Reference reference) {
+		}
+		
+		public boolean isMultipleItemAction() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		public boolean available(ContentEntity entity) {
+			return !getContentService().getAllDeletedResources(entity.getId()).isEmpty();
+		}
+		
+		public ActionType getActionType() {
+			return ResourceToolAction.ActionType.RESTORE;
+		}
+		
+		public String getId() {
+			return ResourceToolAction.RESTORE;
+		}
+		
+		public String getLabel() {
+			return rb.getString("action.restore"); 
+		}
+		
+		public String getTypeId() {
+			return typeId;
+		}
 	}
 	
 	public class FolderCompressAction implements ServiceLevelAction {
