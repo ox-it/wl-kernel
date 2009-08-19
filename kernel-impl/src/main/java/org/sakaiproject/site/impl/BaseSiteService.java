@@ -48,6 +48,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -71,6 +72,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
+import org.sakaiproject.site.api.SiteAliasProvider;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -134,6 +136,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 	/** A list of observers watching site save events **/
 	protected List<SiteAdvisor> siteAdvisors;
+	
+	/** ID of the bean to be used for the site alias provider ID. It's looked up in the component manager. */
+	private String siteAliasProviderId;
+	
+	/** Allows other people to decide how site aliases should be managed.*/
+	protected SiteAliasProvider siteAliasProvider;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -478,6 +486,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			functionManager().registerFunction(SECURE_UPDATE_SITE_MEMBERSHIP);
 			functionManager().registerFunction(SECURE_UPDATE_GROUP_MEMBERSHIP);
 			functionManager().registerFunction(SECURE_ADD_COURSE_SITE);
+			
+			if (siteAliasProviderId != null && siteAliasProvider == null)
+			{
+				siteAliasProvider = (SiteAliasProvider) ComponentManager.get(siteAliasProviderId);
+				if (siteAliasProvider == null)
+				{
+					M_log.warn("Couldn't find site alias provider: "+ siteAliasProviderId);
+				}
+			}
 		}
 		catch (Exception t)
 		{
@@ -3026,5 +3043,23 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public boolean removeSiteAdvisor(SiteAdvisor siteAdvisor)
 	{
 		return siteAdvisors.remove(siteAdvisor);
+	}
+	
+	public String lookupSiteAlias(String siteId)
+	{
+		if (siteAliasProvider != null)
+		{
+			String alias = siteAliasProvider.lookupAlias(siteId);
+			return (alias != null)?alias:siteId;
+		}
+		return siteId;
+	}
+
+	public String getSiteAliasProviderId() {
+		return siteAliasProviderId;
+	}
+
+	public void setSiteAliasProviderId(String siteAliasProviderId) {
+		this.siteAliasProviderId = siteAliasProviderId;
 	}
 }
