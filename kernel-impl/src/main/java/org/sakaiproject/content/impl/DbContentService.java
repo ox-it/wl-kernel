@@ -2063,11 +2063,16 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
-					if (((BaseResourceEdit) resource).m_contentLength <= 0)
+					long length = ((BaseResourceEdit) resource).m_contentLength;
+					if (length <= 0)
 					{
-						M_log.warn("streamResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
+						if (length < 0)
+						{
+							M_log.warn("streamResourceBody(): negative content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
 								+ resource.getId());
-						return null;
+							return null;
+						}
+						return new ByteArrayInputStream(new byte[0]);
 					}
 
 					// if we have been configured to use an external file system
