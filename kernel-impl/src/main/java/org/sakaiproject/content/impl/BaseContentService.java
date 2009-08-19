@@ -1950,7 +1950,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 	} // addProperties
-
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Collections
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -4444,7 +4444,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
 	 */
 	public void removeResource(ContentResourceEdit edit) throws PermissionException
-	{
+	{ 
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
@@ -4465,14 +4465,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
         try {
-		String uuid = this.getUuid(id);
+			String uuid = this.getUuid(id);
 		String userId = sessionManager.getCurrentSessionUserId().trim();
-		addResourceToDeleteTable(edit, uuid, userId);
+			addResourceToDeleteTable(edit, uuid, userId);
 			edit.setContentLength(0);  // we stop removing it entry from the DB 
         } catch (ServerOverloadException soe) {
         	M_log.debug("removeResource: could not save deleted resource, restore for this resource is not possible " + soe );	
         }
-
+        
 		// complete the edit
 		m_storage.removeResource(edit);
 
@@ -4515,7 +4515,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	{
 		BaseResourceEdit edit = (BaseResourceEdit) editDeletedResource(id); 
 		removeDeletedResource(edit);
-
+	
 	} // removeResource
 	
 	/**
@@ -6629,7 +6629,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				} else {
 					// we have a text/url mime type, but the body is too long to issue as a redirect
 					throw new EntityNotDefinedException(ref.getReference());
-				}
+					}
 			}
 
 			else
@@ -9158,7 +9158,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		            {
 		                role.allowFunction(AUTH_RESOURCE_READ);
 		                changed = true;
-		            }
+				}
 				}
 				catch (RoleAlreadyDefinedException ignore)
 				{
@@ -10299,7 +10299,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						} else {
 							// acl acts as a white list for availability
 							available = acl.contains(sessionManager.getCurrentSessionUserId());
-						}
+			}
 					} else {
 						available = Boolean.parseBoolean(satisfiesRule);
 					}
@@ -11964,7 +11964,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			return (relative ? m_serverConfigurationService.getAccessPath() : m_serverConfigurationService.getAccessUrl()) 
 			+ Web.escapeUrl(getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
-			+ convertIdToUserEid(m_id));
+					+ convertIdToUserEid(m_id));
 		}
 
 		/**
