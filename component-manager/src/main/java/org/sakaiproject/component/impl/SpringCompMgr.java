@@ -260,7 +260,9 @@ public class SpringCompMgr implements ComponentManager {
 	 */
 	public void close() {
 		m_hasBeenClosed = true;
-		m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STOPPING));
+		if (m_ac.isActive()) {
+			m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STOPPING));
+		}
 		m_ac.close();
 	}
 
