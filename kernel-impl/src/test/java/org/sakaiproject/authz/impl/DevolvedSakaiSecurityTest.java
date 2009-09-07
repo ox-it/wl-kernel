@@ -9,13 +9,13 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.test.SakaiTestBase;
+import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
-public class DevolvedSakaiSecurityTest extends SakaiTestBase {
+public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 	
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(DevolvedSakaiSecurityTest.class)) {
