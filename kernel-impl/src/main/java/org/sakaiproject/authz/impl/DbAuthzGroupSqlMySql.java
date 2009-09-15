@@ -21,37 +21,13 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * methods for accessing authz data in a mysql database.
  */
 public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 {
-	/**
-	 * returns the sql statement to delete the realm functions from the sakai_realm_rl_fn table for a given realm id..
-	 */
-	public String getDeleteRealmRoleFunction()
-	{
-		return "delete SAKAI_REALM_RL_FN from SAKAI_REALM_RL_FN inner join SAKAI_REALM on SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY where REALM_ID = ?";
-	}
-
-	/**
-	 * returns the sql statement to delete the realm groups from the sakai_realm_rl_gr table for a given realm id.
-	 */
-	public String getDeleteRealmRoleGroup()
-	{
-		return "delete SAKAI_REALM_RL_GR from SAKAI_REALM_RL_GR inner join SAKAI_REALM on SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM.REALM_KEY where REALM_ID = ?";
-	}
-
-	/**
-	 * returns the sql statement to delete the realm providers from the sakai_realm_provider table for a given realm id.
-	 */
-	public String getDeleteRealmProvider()
-	{
-		return "delete SAKAI_REALM_PROVIDER from SAKAI_REALM_PROVIDER inner join SAKAI_REALM on SAKAI_REALM_PROVIDER.REALM_KEY = SAKAI_REALM.REALM_KEY where REALM_ID = ?";
-	}
-
 	/**
 	 * returns the sql statement to write a row into the sakai_function_role table.
 	 */
@@ -80,12 +56,6 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 		return "DELETE RRG FROM SAKAI_REALM_RL_GR RRG" + " INNER JOIN SAKAI_REALM R ON RRG.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
 				+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRG.ROLE_KEY = RR.ROLE_KEY AND RR.ROLE_NAME = ?"
 				+ " WHERE RRG.USER_ID = ? AND RRG.ACTIVE = ? AND RRG.PROVIDED = ?";
-	}
-
-	public String getDeleteRoleDescriptionSql()
-	{
-		return "DELETE RRD FROM SAKAI_REALM_ROLE_DESC RRD" + " INNER JOIN SAKAI_REALM R ON RRD.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-				+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRD.ROLE_KEY = RR.ROLE_KEY AND RR.ROLE_NAME = ?";
 	}
 
 	public String getDeleteRealmRoleFunction2Sql()
