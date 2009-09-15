@@ -198,7 +198,7 @@ public abstract class SakaiSecurity implements SecurityService
 		else
 		{
 			// TODO: string constants stolen from site -ggolden
-			if (authzGroupService().isAllowed(userId, "site.upd", "/site/!admin"))
+			if (authzGroupService().isAllowed(userId, SiteService.SECURE_UPDATE_SITE, "/site/!admin"))
 			{
 				rv = true;
 			}
