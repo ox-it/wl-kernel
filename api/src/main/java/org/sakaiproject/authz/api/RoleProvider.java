@@ -1,5 +1,6 @@
 package org.sakaiproject.authz.api;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -25,7 +26,14 @@ public interface RoleProvider {
 	/**
 	 * Get a nice user visible display name for a role ID.
 	 * @param role The role we want a display name for.
-	 * @return The nice display name.
+	 * @return The nice display name. If it doesn't know about the role then it should return <code>null</code>.
 	 */
 	public String getDisplayName(String role);
+	
+	/**
+	 * Get all the additional roles available. This is designed to allow
+	 * user interfaces to provide lists of available roles.
+	 * @return A Collection of role IDs.
+	 */
+	public Collection<String> getAllAdditionalRoles();
 }
