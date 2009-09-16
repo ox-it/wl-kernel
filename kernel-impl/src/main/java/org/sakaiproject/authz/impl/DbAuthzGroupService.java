@@ -1450,13 +1450,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((lock == null) || (realmId == null)) return false;
 
-			// does the user have any roles granted that include this lock, based on grants or anon/auth?
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
+			Set roles = getEmptyRoles(userId);
 
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realm=" + realmId);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId);
 
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth);
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roles);
 			Object[] fields = new Object[3];
 			fields[0] = userId;
 			fields[1] = lock;
@@ -1505,7 +1504,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if (lock == null) return false;
 
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			if (realms == null || realms.size() < 1)
 			{
@@ -1515,13 +1513,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				return false;
 			}
 			
+			Set roles = getEmptyRoles(userId);
+			
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realms=" + realms);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realms=" + realms);
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
 
 			// any of the grant or role realms
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth, inClause);
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roles, inClause);
 			Object[] fields = new Object[2 + (2 * realms.size())];
 			int pos = 0;
 
@@ -1669,6 +1669,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			return rv;
+		}
+
+		/**
+		 * Gets the roles which shouldn't have members but a user belongs to.
+		 * @param userId
+		 * @return A set of role IDs. By convention these should all start with a dot (".").
+		 */
+		private Set<String> getEmptyRoles(String userId)
+		{
+			Set<String> roles = new HashSet<String>();
+			roles.add(ANON_ROLE);
+			if ((userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId)))
+			{
+				roles.add(AUTH_ROLE);
+			}
+			return roles;
 		}
 
 		/**

@@ -78,11 +78,11 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 		return "DELETE SAKAI_REALM_ROLE_DESC FROM SAKAI_REALM_ROLE_DESC INNER JOIN SAKAI_REALM ON SAKAI_REALM_ROLE_DESC.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?";
 	}
 
-	public String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause)
+	public String getCountRealmRoleFunctionSql(Set<String> roles, String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN,SAKAI_REALM force index "
 				+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY " + "and " + inClause
-				+ getCountRealmRoleFunctionEndSql(anonymousRole, authorizationRole, authorized, inClause);
+				+ getCountRealmRoleFunctionEndSql(roles, inClause);
 	}
 
 	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)

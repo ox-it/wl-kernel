@@ -23,6 +23,7 @@ package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * database methods.
@@ -31,11 +32,11 @@ public interface DbAuthzGroupSql
 {
 	String getCountRealmFunctionSql();
 
-	String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
+	String getCountRealmRoleFunctionEndSql(Set<String> roles, String inClause);
 
-	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized);
+	String getCountRealmRoleFunctionSql(Set<String> roles);
 
-	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
+	String getCountRealmRoleFunctionSql(Set<String> roles, String inClause);
 
 	String getCountRealmRoleSql();
 	
