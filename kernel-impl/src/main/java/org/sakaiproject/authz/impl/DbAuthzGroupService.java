@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -1485,22 +1486,28 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((lock == null) || (realmId == null)) return false;
 
-			// does the user have any roles granted that include this lock, based on grants or anon/auth?
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
+			Set<String> roles = getEmptyRoles(userId);
 
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realm=" + realmId);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
+						" roles="+ StringUtils.join(roles, ','));
 
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth);
-			Object[] fields = new Object[3];
-			fields[0] = userId;
-			fields[1] = lock;
-			fields[2] = realmId;
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roles);
+			Object[] fields = new Object[3 + roles.size()];
+			int pos = 0;
+			for (String role : roles)
+			{
+				fields[pos++] = role;
+			}
+			fields[pos++] = userId;
+			fields[pos++] = lock;
+			fields[pos++] = realmId;
+
 
 			// checks to see if the user is the current user and has the roleswap variable set in the session
 			String roleswap = SecurityService.getUserEffectiveRole(realmId);
 			
-            if (roleswap != null && auth && userId.equals(sessionManager().getCurrentSessionUserId()))
+            if (roleswap != null && roles.contains(AUTH_ROLE) && userId.equals(sessionManager().getCurrentSessionUserId()))
             {
             	fields[0] = roleswap; // set the field to the student role for the alternate sql
             	statement = dbAuthzGroupSql.getCountRoleFunctionSql(); // set the function for our alternate sql
@@ -1540,7 +1547,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if (lock == null) return false;
 
-			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			if (realms == null || realms.size() < 1)
 			{
@@ -1550,14 +1556,17 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				return false;
 			}
 			
+			Set<String> roles = getEmptyRoles(userId);
+			
 			if (M_log.isDebugEnabled())
-				M_log.debug("isAllowed: auth=" + auth + " userId=" + userId + " lock=" + lock + " realms=" + realms);
+				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realms=" + realms
+						+ " roles="+ StringUtils.join(roles, ','));
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
 
 			// any of the grant or role realms
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth, inClause);
-			Object[] fields = new Object[2 + (2 * realms.size())];
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roles, inClause);
+			Object[] fields = new Object[2 + (2 * realms.size()) + roles.size()];
 			int pos = 0;
 
 			// for roleswap
@@ -1585,6 +1594,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			for (String realmId : realms)
 			{
 				fields[pos++] = realmId;
+			}
+			for (String role : roles)
+			{
+				fields[pos++] = role;
 			}
 
 			// Would be better to get this initially to make the code more efficient, but the realms collection
