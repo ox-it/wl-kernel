@@ -43,6 +43,7 @@ import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -86,6 +87,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 	/** A provider of additional Abilities for a userId. */
 	protected GroupProvider m_provider = null;
+	
+	/** A provider of additional roles for a userId. */
+	protected RoleProvider m_roleProvider = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -202,6 +206,17 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		m_provider = provider;
 	}
 
+	/**
+	 * Configuration: set the role provider helper service.
+	 * 
+	 * @param roleProvider
+	 *        the role provider helper service.
+	 */
+	public void setRoleProvider(RoleProvider roleProvider)
+	{
+		m_roleProvider = roleProvider;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -276,6 +291,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			if (m_provider == null)
 			{
 				m_provider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
+			}
+			
+			// try and find a role provider.
+			if (m_roleProvider == null)
+			{
+				m_roleProvider = (RoleProvider) ComponentManager.get(RoleProvider.class.getName());
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));

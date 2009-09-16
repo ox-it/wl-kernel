@@ -1684,6 +1684,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			{
 				roles.add(AUTH_ROLE);
 			}
+			// Get additional roles from provider
+			if ((userId != null) && (m_roleProvider != null))
+			{
+				roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+			}
 			return roles;
 		}
 
