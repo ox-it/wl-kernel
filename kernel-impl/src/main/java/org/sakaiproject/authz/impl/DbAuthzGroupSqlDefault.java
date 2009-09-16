@@ -42,11 +42,21 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		sql.append(" and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? ");
 				// granted in any of the grant or role realms
 		sql.append(" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) ");
-		for (String role : roles)
+		sql.append(" or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME IN (");
+		Iterator<String> rolesIt = roles.iterator();
+		if (rolesIt.hasNext())
 		{
-			sql.append(" or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + role + "') ");
+			sql.append("'");
+			sql.append(rolesIt.next());
+			sql.append("'");
+			while(rolesIt.hasNext())
+			{
+				sql.append(", '");
+				sql.append(rolesIt.next());
+				sql.append("'");
+			}
 		}
-		sql.append(")");
+		sql.append(") ) )");
 		return sql.toString();
 	}
 
