@@ -2357,7 +2357,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public boolean equals(Object obj)
 		{
 			if (!(obj instanceof User)) return false;
-			return ((User) obj).getId().equals(getId());
+			// ID might not be defined if the user is a provided one and we attempting to search for it.
+			return (getId() != null && getId().equals(((User)obj).getId())) ||
+				(getEid() != null && getEid().equals(((User)obj).getEid()));
 		}
 
 		/**
