@@ -2477,11 +2477,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public boolean equals(Object obj)
 		{
 			if (!(obj instanceof User)) return false;
-			//its possible that the user object has no id set
-			if (((User) obj).getId() == null) {
-				return false;
-			}
-			return ((User) obj).getId().equals(getId());
+			// ID might not be defined if the user is a provided one and we attempting to search for it.
+			return (getId() != null && getId().equals(((User)obj).getId())) ||
+				(getEid() != null && getEid().equals(((User)obj).getEid()));
 		}
 
 		/**
@@ -2555,7 +2553,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			{
 				m_eid = eid;
 				m_sortName = null;
-			}
+		}
 		}
 
 		/**
