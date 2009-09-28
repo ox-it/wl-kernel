@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
@@ -212,8 +211,13 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 			azgs = ref.getAuthzGroups(userId);
 		}
 
-		Set<String> expandedAzgs = new HashSet<String>();
+		Collection<String> expandedAzgs = new HashSet<String>();
 		for (String ref: (Collection<String>)azgs) {
+			// If we're in roleswap don't use adminsites as we just want to be a role in the current site.
+			if (ref.startsWith(SiteService.REFERENCE_ROOT) && getUserEffectiveRole(ref) != null) {
+				expandedAzgs = azgs;
+				break;
+			}
 			String adminRealm = getAdminRealm(ref);
 			if (adminRealm != null) {
 				if (log.isDebugEnabled()) {
