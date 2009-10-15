@@ -65,7 +65,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 {
 	protected String typeId = ResourceType.TYPE_FOLDER;
 	protected String helperId = "sakai.resource.type.helper";
-	// private static final String RESOURCES_ZIP_ENABLE = "resources.zip.enable"; //sakai.properties hack
+	private static final String RESOURCES_ZIP_ENABLE = "resources.zip.enable"; //sakai.properties hack
 	
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
@@ -107,11 +107,9 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
 		// Disable property setting masking problematic code per will of the Community.
 		// See Jira KNL-155/SAK-800 for more details.
-		/*
 		if (ServerConfigurationService.getBoolean(RESOURCES_ZIP_ENABLE,false)) {
 			actions.put(ResourceToolAction.COMPRESS_ZIP_FOLDER, new FolderCompressAction());
 		}
-		*/
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
