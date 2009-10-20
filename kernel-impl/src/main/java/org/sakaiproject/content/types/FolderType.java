@@ -103,6 +103,8 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
 		actions.put(ResourceToolAction.RESTORE, new FolderRestoreAction());
 		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
+		actions.put(ResourceToolAction.MAKE_SITE_PAGE, new MakeSitePageAction(typeId, helperId));
+
 		
 		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
 		// Disable property setting masking problematic code per will of the Community.

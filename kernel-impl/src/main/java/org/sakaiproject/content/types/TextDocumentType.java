@@ -87,6 +87,7 @@ public class TextDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
 		actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
+		actions.put(ResourceToolAction.MAKE_SITE_PAGE, new MakeSitePageAction(typeId, helperId));
 
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())

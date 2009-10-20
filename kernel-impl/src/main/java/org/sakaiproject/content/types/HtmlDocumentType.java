@@ -772,6 +772,7 @@ public class HtmlDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
 		actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new HtmlDocumentDeleteAction());
+		actions.put(ResourceToolAction.MAKE_SITE_PAGE, new MakeSitePageAction(typeId, helperId));
 
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())

@@ -89,6 +89,8 @@ public class FileUploadType extends BaseResourceType
 		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
 		actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FileUploadDeleteAction());
+		actions.put(ResourceToolAction.MAKE_SITE_PAGE, new MakeSitePageAction(typeId, helperId));
+
 		
 		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
 		// Disable property setting masking problematic code per will of the Community.
