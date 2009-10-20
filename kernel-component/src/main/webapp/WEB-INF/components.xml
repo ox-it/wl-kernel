@@ -29,4 +29,10 @@ Uncomment to enable JCR Content
      <import resource="util-components.xml" />
      <import resource="messagebundle-components.xml" />
 
+     <bean class="org.sakaiproject.util.LocaleLogger"
+            init-method="init"
+            lazy-init="false"
+            singleton="true">
+     </bean>
+
 </beans>
