@@ -2068,7 +2068,7 @@ public class DbContentService extends BaseContentService
 					{
 						if (length < 0)
 						{
-							M_log.warn("streamResourceBody(): negative content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
+							M_log.warn("streamDeletedResourceBody(): negative content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
 								+ resource.getId());
 							return null;
 						}
@@ -2107,11 +2107,16 @@ public class DbContentService extends BaseContentService
 				}
 				else
 				{
-					if (((BaseResourceEdit) resource).m_contentLength <= 0)
+					long length = ((BaseResourceEdit) resource).m_contentLength;
+					if (length <= 0)
 					{
-						M_log.warn("streamResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
+						if (length < 0)
+						{
+							M_log.warn("streamResourceBody(): negative content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
 								+ resource.getId());
-						return null;
+							return null;
+						}
+						return new ByteArrayInputStream(new byte[0]);
 					}
 
 					// if we have been configured to use an external file system
@@ -2138,7 +2143,7 @@ public class DbContentService extends BaseContentService
 		 * 
 		 * @param resource -
 		 *        the resource for the stream It is a non-fatal error for the file not to be readible as long as the resource's expected length is
-		 *        zero. A zero length body is indicated by returning null. We check for the body length *after* we try to read the file. If the file
+		 *        zero. We check for the body length *after* we try to read the file. If the file
 		 *        is readible, we simply read it and return it as the body.
 		 */
 
