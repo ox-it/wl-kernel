@@ -357,4 +357,28 @@ public class AuthzGroupService
         return service.getAuthzUsersInGroups(groupIds);
     }
 
+	
+	public static Set<String> getAdditionalRoles()
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return null;
+
+		return service.getAdditionalRoles();
+	}
+
+	public static String getRoleName(String roleId)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return null;
+
+		return service.getRoleName(roleId);
+	}
+
+	public static boolean isRoleAssignable(String roleId)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return false;
+
+		return service.isRoleAssignable(roleId);
+	}
 }
