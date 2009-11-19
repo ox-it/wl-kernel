@@ -254,4 +254,19 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		return false;
 	}
 
+	public Set<String> getAdditionalRoles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getRoleName(String roleId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isRoleAssignable(String roleId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
