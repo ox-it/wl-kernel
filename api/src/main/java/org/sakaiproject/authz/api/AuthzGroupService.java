@@ -425,4 +425,25 @@ public interface AuthzGroupService extends EntityProducer
 	 * must not be "compound IDs", as defined by the GroupProvider's String[] unpackId(String id) method.
 	 */
 	public Set getProviderIds(String authzGroupId); 
+
+	/**
+	 * Gets a set of additional roles that can be added to an authz group. These roles shouldn't be assigned to members but
+	 * users are part of the role through some other means (eg being a member of staff).
+	 * @return The set of role IDs that can be used, if no additional roles can be granted it should return an empty set.
+	 */
+	public Set<String> getAdditionalRoles();
+	
+	/**
+	 * Check if the supplied role can be assigned to a user.
+	 * @param roleId The role ID to check.
+	 * @return <code>true</code> if the role can be assigned to a user.
+	 */
+	public boolean isRoleAssignable(String roleId);
+	
+	/**
+	 * Get a nice display name for role. 
+	 * @param roleId The role ID to check (eg .auth)
+	 * @return A display name for the role, if there is no better name the original roleId should be returned.
+	 */
+	public String getRoleName(String roleId);
 }
