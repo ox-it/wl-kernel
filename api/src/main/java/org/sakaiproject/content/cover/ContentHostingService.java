@@ -22,9 +22,11 @@
 package org.sakaiproject.content.cover;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -1101,6 +1103,14 @@ public class ContentHostingService
 		if (service == null) return null;
 		
 		return service.getResourcesOfType(resourceType, pageSize, page);
+	}
+
+	public static Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+		
+		return service.getContextResourcesOfType(resourceType, contextIds);
 	}
 
 	public static void restoreResource(String resourceId) throws PermissionException, IdUsedException, IdUnusedException, 

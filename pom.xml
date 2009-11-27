@@ -281,17 +281,17 @@
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots</id>
-            <name>Sakai Snapshot repository</name>
-            <url>dav:http://source.sakaiproject.org/maven2-snapshots</url>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
             <layout>default</layout>
         </snapshotRepository>
         <repository>
-           <uniqueVersion>false</uniqueVersion>
-           <id>sakai-maven2</id>
-           <name>Sakai maven2 repository</name>
-           <url>dav:https://source.sakaiproject.org/maven2</url>
-           <layout>default</layout>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
         </repository>
         <site>
             <id>sakai-site</id>
@@ -360,6 +360,7 @@
             </snapshots>
             </repository>
         -->
+        <!--
         <repository>
             <id>apache-repo</id>
             <name>apache-repo</name>
@@ -371,6 +372,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        -->
     </repositories>
     <dependencyManagement>
         <dependencies>
@@ -466,7 +468,7 @@
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
-                <version>2.1_3</version>
+                <version>2.2</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -686,6 +688,7 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <configuration>
                     <aggregate>true</aggregate>
@@ -794,6 +797,7 @@
                 <artifactId>dashboard-maven-plugin</artifactId>
             </plugin>
             <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changelog-plugin</artifactId>
                 <configuration>
                     <type>range</type>
@@ -823,7 +827,7 @@
                 </includes>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test/respources</directory>
+                <directory>${basedir}/src/test/resources</directory>
                 <includes>
                     <include>**/*</include>
                 </includes>
@@ -890,7 +894,7 @@
                 <inherited>true</inherited>
                 <groupId>org.sakaiproject.maven.plugins</groupId>
                 <artifactId>sakai</artifactId>
-                <version>1.1</version>
+                <version>1.2.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <deployDirectory>

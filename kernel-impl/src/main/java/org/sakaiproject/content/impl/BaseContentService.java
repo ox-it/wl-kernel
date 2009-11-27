@@ -4656,16 +4656,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		String content_type = edit.getContentType();
 		String resource_type = edit.getResourceType();
 		byte[] content = null;
-		try
-		{
-			content = edit.getContent();
-		}
-		catch (ServerOverloadException e)
-		{
-			String this_method = this + ".addResourceToDeleteTable()";
-			M_log.warn("\n\n" + this_method + "\n" + this_method + ": Unable to access file in server filesystem\n" + this_method
-					+ ": May be orphaned file: " + id + "\n" + this_method + "\n\n");
-		}
+
+		// KNL-245 do not read the resource body, as this is not subsequently written out
+		
 		ResourceProperties properties = edit.getProperties();
 
 		ContentResource newResource = addDeleteResource(id, 
@@ -12407,12 +12400,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
 		 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
 		 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.  
-		 * @param resourceType
-		 * @param pageSize
-		 * @param page
-		 * @return
+		 *
+		 * @param resourceType select resources where CONTENT_RESOURCE.RESOURCE_TYPE_ID equals resourceType
+		 * @param pageSize (page) size of results
+		 * @param page (page) increment of results
+		 * @return collection of ContentResource
 		 */
 		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
+		
+		/**
+		 * Retrieve a collection of ContentResource objects of a particular resource-type in a set of contexts.
+		 *
+		 * @param resourceType select resources where CONTENT_RESOURCE.RESOURCE_TYPE_ID equals resourceType
+		 * @param contextIds	 select resources where CONTENT_RESOURCE.CONTEXT in [context,...]
+		 * @return collection of ContentResource
+		 */
+		public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);
 		
 	} // Storage
 

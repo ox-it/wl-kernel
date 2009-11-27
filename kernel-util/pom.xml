@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/kernel-util</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/kernel-util</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/kernel-util</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-util</url>
   </scm>
 
   <packaging>jar</packaging>

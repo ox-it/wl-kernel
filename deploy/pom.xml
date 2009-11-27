@@ -12,9 +12,9 @@
   <artifactId>deploy</artifactId>
   <version>1.0.12ox1-SNAPSHOT</version>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/deploy</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/deploy</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/uct_1.0.10/deploy</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/deploy</url>
   </scm>
 
   <packaging>pom</packaging>

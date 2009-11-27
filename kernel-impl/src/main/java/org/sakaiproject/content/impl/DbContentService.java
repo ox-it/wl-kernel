@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,7 +112,9 @@ public class DbContentService extends BaseContentService
 	/** Table name for entity-group relationships. */
 	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
-	
+	/** maximum items for 'select where in' sql statement (Oracle limitation) **/
+	public static final int MAX_IN_QUERY = 1000;
+
 	/**
 	 * If true, we do our locks in the remote database, otherwise we do them here.
 	 */
@@ -322,13 +325,20 @@ public class DbContentService extends BaseContentService
 	public void init()
 	{
 
+		if (m_sqlService == null) {
+			M_log.error("init(): no sqlService found");
+			return;
+		}
+		
 		try
 		{
-			if ( m_sqlService != null ) {
-				setContentServiceSql(m_sqlService.getVendor());
-			}
+			// system property to manually set conversion completion status.
+			filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);				
+
+			setContentServiceSql(m_sqlService.getVendor());
+				
 			// if we are auto-creating our schema, check and create
-			if ( m_sqlService != null && m_autoDdl)
+			if (m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
 
@@ -337,87 +347,79 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
+			} 
+			
+			// Check for the existence of the FILE_SIZE column
+			filesizeColumnExists = filesizeColumnExists();
 				
+			if (!filesizeColumnExists)
+			{
+				addNewColumns();
 				filesizeColumnExists = filesizeColumnExists();
-				
-				if(!filesizeColumnExists)
+			}
+			
+			if (filesizeColumnExists && !readyToUseFilesizeColumn())
+			{
+				// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+				// start doing the conversion
+				if (convertToContextQueryForCollectionSize)
 				{
-					addNewColumns();
-					filesizeColumnExists = filesizeColumnExists();
-				}
-				if(filesizeColumnExists && ! readyToUseFilesizeColumn())
-				{
-					// if the convert flag is set to add CONTEXT and FILE_SIZE columns
-					// start doing the conversion
-					if(convertToContextQueryForCollectionSize)
-					{
-						populateNewColumns();
-					}
+					populateNewColumns();
 				}
 			}
-			if ( m_sqlService != null ) {
-				try
-				{
-					validateUTF8Db();
-				}
-				catch (Exception ex)
-				{
-					M_log.fatal("Check on Database Failed ", ex);
-					M_log
-							.fatal("===========================================================");
-					M_log
-							.fatal("WARNING \n"
-									+ "  The connection from this instance of Sakai to the database\n"
-									+ "  has been tested and found to corrupt UTF-8 Data. \n"
-									+ "  In order for Sakai to operate correctly you must ensure that your \n"
-									+ "  database setup is correct for UTF-8 data. This includes both the \n"
-									+ "  JDBC connection to the database and the underlying storage in the \n"
-									+ "  database.\n"
-									+ "  The test that was performed on your database create a table\n"
-									+ "  wrote some data to that table and read it back again. On reading \n"
-									+ "  that data back it found some form of corruption, reported above.\n"
-									+ "\n"
-									+ " More information on database setup for sakai can be found at \n"
-									+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
-									+ "\n"
-									+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
-				}
-				if ( migrateData ) {
-					M_log.info("Migration of data to the Binary format will be performed by this node ");
-				} else {
-					M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
-					
-				}
-				filesizeColumnExists = filesizeColumnExists();
+
+			try
+			{
+				validateUTF8Db();
+			}
+			catch (Exception ex)
+			{
+				M_log.fatal("Check on Database Failed ", ex);
+				M_log
+						.fatal("===========================================================");
+				M_log
+						.fatal("WARNING \n"
+								+ "  The connection from this instance of Sakai to the database\n"
+								+ "  has been tested and found to corrupt UTF-8 Data. \n"
+								+ "  In order for Sakai to operate correctly you must ensure that your \n"
+								+ "  database setup is correct for UTF-8 data. This includes both the \n"
+								+ "  JDBC connection to the database and the underlying storage in the \n"
+								+ "  database.\n"
+								+ "  The test that was performed on your database create a table\n"
+								+ "  wrote some data to that table and read it back again. On reading \n"
+								+ "  that data back it found some form of corruption, reported above.\n"
+								+ "\n"
+								+ " More information on database setup for sakai can be found at \n"
+								+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
+								+ "\n"
+								+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
+			}
+			
+			if ( migrateData ) {
+				M_log.info("Migration of data to the Binary format will be performed by this node ");
+			} else {
+				M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
+				
 			}
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
 			// This MUST happen before super.init() calls newStorage()
 			// (since that's when obj refs to the contentHostingHandlerResovler are passed around).
-			if (!ServerConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
+			if (!m_serverConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
 				this.contentHostingHandlerResolver = null;
 
 			super.init();
 
-			// convert?
-			if ( m_sqlService != null ) {
-				if (m_convertToFile)
-				{
-					m_convertToFile = false;
-					convertToFile();
-				}
-	
-				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
-						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
-				
-				
-				
-				
-				
-				
+			// convert to filesystem storage?
+			if (m_convertToFile)
+			{
+				m_convertToFile = false;
+				convertToFile();
 			}
-			
-			
+
+			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
+					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
+					
 		}
 		catch (Throwable t)
 		{
@@ -572,28 +574,19 @@ public class DbContentService extends BaseContentService
 			String sql = contentServiceSql.getFilesizeColumnExistsSql();
 			List list = m_sqlService.dbRead(sql);
 			ok = list != null && ! list.isEmpty();
-		}
+		}		
 		return ok;
 	}
 	
 	public boolean readyToUseFilesizeColumn()
 	{
-		if(!filesizeColumnExists)
-		{
-			// do nothing
-		}
-		else if(filesizeColumnReady)
-		{
-			// do nothing
-		}
-		else 
+		if (filesizeColumnExists && !filesizeColumnReady)
 		{
 			long now = TimeService.newTime().getTime();
 			if(now > filesizeColumnCheckExpires)
 			{
 				// cached value has expired -- time to renew
-				int filesizeColumnCheckNullCount = countNullFilesizeValues();
-				if(filesizeColumnCheckNullCount > 0)
+				if(hasNullFilesizeValues())
 				{
 					filesizeColumnCheckExpires = now + TWENTY_MINUTES;
 					M_log.debug("Conversion of the ContentHostingService database tables is needed to improve performance");
@@ -609,25 +602,11 @@ public class DbContentService extends BaseContentService
 		return filesizeColumnReady;
 	}
 	
-
-	protected int countNullFilesizeValues() 
+	protected boolean hasNullFilesizeValues() 
 	{
-		int count = 0;
-		String sql = contentServiceSql.getFilesizeColumnCountSql();
+		String sql = contentServiceSql.getFilesizeExistsSql();
 		List list = m_sqlService.dbRead(sql);
-		if(list != null && ! list.isEmpty())
-		{
-			try
-			{
-				String value = (String) list.get(0);
-				count = Integer.parseInt(value);
-			}
-			catch(Exception e)
-			{
-				// ignore
-			}
-		}
-		return count;
+		return (list != null && !list.isEmpty());
 	}
 
 	/**
@@ -2517,7 +2496,49 @@ public class DbContentService extends BaseContentService
 
 		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 		{
-			List resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
+			if(pageSize > MAXIMUM_PAGE_SIZE)
+				pageSize = MAXIMUM_PAGE_SIZE;
+		
+			String key = "getResourcesOfType@" + resourceType + ":" + pageSize + ":" + page;
+			List resources = (List) ThreadLocalManager.get(key);
+
+			if (resources == null) {
+				resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
+				if (resources != null) {
+					ThreadLocalManager.set(key, resources);
+				}
+			}
+			
+			return resources;
+		}
+  
+		public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds) 
+		{
+			if ( resourceType == null || contextIds == null || contextIds.size() == 0 )
+				return null;
+				
+			ArrayList resources = new ArrayList();
+			StringBuilder sqlWhere = new StringBuilder("WHERE RESOURCE_TYPE_ID = '"+resourceType+"' AND CONTEXT IN (");
+			int numContext = 0;
+			
+			for ( Iterator it=contextIds.iterator(); it.hasNext(); )
+			{
+				sqlWhere.append("'");
+				sqlWhere.append( (String)it.next() );
+				sqlWhere.append("'");
+				if ( numContext+1<contextIds.size() )
+					sqlWhere.append(",");
+				  
+				// run query if at end of context list (or at MAX_IN_QUERY)
+				if ( (numContext % MAX_IN_QUERY == 0 && numContext > 0) ||
+					  (numContext+1 == contextIds.size()) )
+				{
+					sqlWhere.append(")");
+					resources.addAll( this.m_resourceStore.getSelectedResourcesWhere( sqlWhere.toString() ) );
+					sqlWhere = new StringBuilder("WHERE RESOURCE_TYPE_ID = '"+resourceType+"' AND CONTEXT IN (");
+				}
+				numContext++;
+			}
 			
 			return resources;
 		}
@@ -3435,55 +3456,19 @@ public class DbContentService extends BaseContentService
 	}
 
 	/**
-	 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
-	 * contain no more than the number of items specified as the pageSize, where pageSize is a non-negative 
-	 * number less than or equal to 1028. The resources will be selected in ascending order by resource-id.
-	 * If the resources of the specified resource-type in the ContentHostingService in ascending order by 
-	 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
-	 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
-	 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.
-	 * This method finds the resources the current user has access to from a "page" of all resources
-	 * of the specified type. If that page contains no resources the current user has access to, the 
-	 * method returns an empty collection.  If the page does not exist (i.e. there are fewer than 
-	 * ((page+1)*page_size) resources of the specified type), the method returns null.    
-	 * @param resourceType
-	 * @param pageSize
-	 * @param page
-	 * @return
-	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
+	 *	 {@inheritDoc}
+	 */
+	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextids) 
+	{
+		return m_storage.getContextResourcesOfType(resourceType, contextids);
+	}
+	
+	/**
+	 *	 {@inheritDoc}
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 	{
-		Collection<ContentResource> results = null;
-		
-		if(pageSize > MAXIMUM_PAGE_SIZE)
-		{
-			pageSize = MAXIMUM_PAGE_SIZE;
-		}
-		Collection<ContentResource> resources = m_storage.getResourcesOfType(resourceType, pageSize, page);
-		
-		if(resources == null || resources.isEmpty())
-		{
-			// return null
-		}
-		else
-		{
-			results = new ArrayList<ContentResource>();
-			for(ContentResource resource : resources)
-			{
-				if(resource == null)
-				{
-					continue;
-				}
-				if(unlockCheck(AUTH_RESOURCE_READ, resource.getId()))
-				{
-					results.add(resource);
-					ThreadLocalManager.set("findResource@" + resource.getId(), resource);
-				}
-			}
-		}
-		
-		return results;
+		return  m_storage.getResourcesOfType(resourceType, pageSize, page);
 	}
 	
 }
