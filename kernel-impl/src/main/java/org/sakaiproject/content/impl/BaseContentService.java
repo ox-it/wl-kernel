@@ -11607,14 +11607,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// return the body bytes
 			byte[] rv = m_body;
 
-			if ((rv == null) && (m_contentLength > 0))
+			if ((rv == null))
 			{
 				// todo: try to get the body from the stream
-				
-				
-				// TODO: we do not store the body with the object, so as not to cache the body bytes -ggolden
-				rv = m_storage.getResourceBody(this);
-				// m_body = rv;
+				if (m_contentLength == 0)
+				{
+					rv = new byte[0];
+				}
+				else if (m_contentLength > 0)
+				{
+					// TODO: we do not store the body with the object, so as not to cache the body bytes -ggolden
+					rv = m_storage.getResourceBody(this);
+					// m_body = rv;
+				}
 			}
 
 			return rv;
