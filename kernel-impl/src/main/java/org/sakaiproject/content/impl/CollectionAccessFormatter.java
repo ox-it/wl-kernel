@@ -282,6 +282,7 @@ public class CollectionAccessFormatter
 					}
 				}
 
+				String contentUrl = null;
 				if (isCollection)
 				{
 					xs = xs.substring(0, xs.length() - 1);
@@ -289,6 +290,7 @@ public class CollectionAccessFormatter
 				}
 				else
 				{
+					contentUrl = content.getUrl();
 					xs = xs.substring(xs.lastIndexOf('/') + 1);
 				}
 
@@ -351,7 +353,7 @@ public class CollectionAccessFormatter
 							else
 								desc = "<div class=\"textPanel\">" + Validator.escapeHtml(desc) + "</div>";
 							String resourceType = contentResource.getResourceType().replace('.', '_');
-							out.println("<li class=\"file\"><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank class=\""
+							out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
 									+ resourceType+"\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 									+ "</a>" + desc + "</li>");
