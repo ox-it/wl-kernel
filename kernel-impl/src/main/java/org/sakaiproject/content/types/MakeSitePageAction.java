@@ -20,18 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.content.types;
 
-import java.util.List;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.util.BaseInteractionAction;
+import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
-public class MakeSitePageAction implements InteractionAction {
+public class MakeSitePageAction implements ServiceLevelAction {
 
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.type.types";
@@ -49,13 +47,11 @@ public class MakeSitePageAction implements InteractionAction {
 		this.helperId = helperId;
 	}
 	
-	public String initializeAction(Reference reference) {
-		return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		
+	public void initializeAction(Reference reference) {
 	}
 
 	public boolean available(ContentEntity entity) {
-		return true;
+		return !ContentHostingService.isInDropbox(entity.getId());
 	}
 
 	public ActionType getActionType() {
@@ -74,20 +70,18 @@ public class MakeSitePageAction implements InteractionAction {
 		return this.typeId;
 	}
 
-	public void cancelAction(Reference reference, String initializationId) {
+	public void cancelAction(Reference reference) {
+		// TODO Auto-generated method stub
 		
 	}
 
-	public void finalizeAction(Reference reference, String initializationId) {
-		// Need to refresh the portal.
+	public void finalizeAction(Reference reference) {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public String getHelperId() {
-		return this.helperId;
-	}
-
-	public List getRequiredPropertyKeys() {
-		return null;
+	public boolean isMultipleItemAction() {
+		return false;
 	}
 	
 }
