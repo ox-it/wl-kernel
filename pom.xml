@@ -273,9 +273,9 @@
         </contributor>
     </contributors>
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x</url>
+        <connection>scm:git:git://git-repo.oucs.ox.ac.uk/git/repos/local-version/sakai/kernel.git</connection>
+        <developerConnection>scm:git:ssh://git-repo.oucs.ox.ac.uk/~git/repos/local-version/sakai/kernel.git</developerConnection>
+        <url>http://git-repo.oucs.ox.ac.uk/cgi-bin/gitweb.cgi?p=repos/local-version/sakai/kernel.git</url>
     </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>

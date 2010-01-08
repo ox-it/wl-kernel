@@ -16,11 +16,5 @@
     <url>http://www.sakaiproject.org/</url>
   </organization>
   <inceptionYear>2008</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-site</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-site</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.0.x/kernel-site</url>
-  </scm>
-
   <packaging>jar</packaging>
 </project>
