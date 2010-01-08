@@ -5,7 +5,7 @@
     <artifactId>kernel</artifactId>
     <packaging>pom</packaging>
     <name>Sakai Kernel</name>
-    <version>1.0.12ox1</version>
+    <version>1.0.12ox2-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
