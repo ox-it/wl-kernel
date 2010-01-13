@@ -2,6 +2,7 @@ package org.sakaiproject.util;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -77,23 +78,38 @@ public class OptimisticLogin implements Filter {
 	 * @return true if it does.
 	 */
 	private boolean hasCookie(HttpServletRequest request) {
-		boolean hasCookie = false;
+		boolean hasValidCookie = false;
 		boolean multipleMatches = false;
-		String domain = request.getServerName();
 		if (request.getCookies() != null) {
 			for (Cookie cookie : request.getCookies()) {
 				if (cookieName.equals(cookie.getName())) {
 					// If found multiple cookie.
-					multipleMatches = hasCookie;
-					// IE seems to send too many cookies.
-					hasCookie = true;
+					multipleMatches = hasValidCookie;
+					// If we've already found it once, don't try again.
+					if (!hasValidCookie){
+						String value = cookie.getValue();
+						if (value != null && value.length() > 0) {
+							long now = System.currentTimeMillis();
+							try {
+								long expires = Long.parseLong(value);
+								if (log.isDebugEnabled()) {
+									log.debug("Webauth session expires "+ new Date(expires).toString()+ " which is in "+ (expires - now)+ "ms"); 
+								}
+								if (expires > now) {
+									hasValidCookie = true;
+								}
+							} catch (NumberFormatException nfe) {
+								log.warn("Cookie doesn't have a good expiry time: "+ value);
+							}
+						}
+					}
 				}
 			}
 			if (multipleMatches && log.isDebugEnabled()) {
 				log.debug("Multiple cookies for '" + cookieName + "' found.");
 			}
 		}
-		return hasCookie;
+		return hasValidCookie;
 	}
 
 }
