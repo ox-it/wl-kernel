@@ -4631,6 +4631,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw e;
 		} 
 		try {
+			// If you're storing the file in DB this breaks as it removes the restored file.
 			removeDeletedResource(deleResource);
 			// close the edit object
 			((BaseResourceEdit) deleResource).closeEdit();
@@ -4664,28 +4665,34 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		String id = edit.getId();
 		String content_type = edit.getContentType();
 		String resource_type = edit.getResourceType();
-		byte[] content = null;
+		ResourceProperties properties = edit.getProperties();
+		InputStream content = null;
 		try
 		{
-			// TODO This needs to stream resource
-			content = edit.getContent();
-		}
-		catch (ServerOverloadException e)
-		{
-			String this_method = this + ".addResourceToDeleteTable()";
-			M_log.warn("\n\n" + this_method + "\n" + this_method + ": Unable to access file in server filesystem\n" + this_method
-					+ ": May be orphaned file: " + id + "\n" + this_method + "\n\n");
-		}
-		ResourceProperties properties = edit.getProperties();
-
-		ContentResource newResource = addDeleteResource(id, 
+			content = edit.streamContent();
+			addDeleteResource(id,
 				content_type, content, resource_type, edit.getReleaseDate(), edit.getRetractDate(), 
 				properties, uuid, userId,
 				NotificationService.NOTI_OPTIONAL);
+		}
+		finally
+		{
+			if (content != null)
+			{
+				try
+				{
+					content.close();
+				}
+				catch (IOException e)
+				{
+					M_log.warn("Failed to close when saving deleted content stream.", e);
+				}
+			}
+		}
 		
 	}
 
-	public ContentResource addDeleteResource(String id, String type, byte[] content, String resourceType, 
+	public ContentResource addDeleteResource(String id, String type, InputStream inputStream, String resourceType,
 			Time releaseDate, Time retractDate, ResourceProperties properties, String uuid,
 			String userId, int priority) throws PermissionException, ServerOverloadException
 			{
@@ -4715,9 +4722,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		edit.setResourceType(resourceType);
 		edit.setReleaseDate(releaseDate);
 		edit.setRetractDate(retractDate);
-		if (content != null)
+		if (inputStream != null)
 		{
-			edit.setContent(content);
+			edit.setContent(inputStream);
 		}
 		addProperties(edit.getPropertiesEdit(), properties);
 

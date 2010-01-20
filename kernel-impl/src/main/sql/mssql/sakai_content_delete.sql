@@ -30,3 +30,22 @@ CREATE INDEX CONTENT_RESOURCE_DELETE_INDEX ON CONTENT_RESOURCE_DELETE
 	RESOURCE_ID
 )
 ;
+
+-----------------------------------------------------------------------------
+-- CONTENT_RESOURCE_DELETE_BB
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_RESOURCE_DELETE_BB
+(
+    RESOURCE_ID VARCHAR (255) NOT NULL,
+    BODY VARBINARY(MAX)
+);
+
+sp_tableoption 'CONTENT_RESOURCE_DELETE_BB', 'large value types out of row', 'true'
+;
+
+CREATE UNIQUE INDEX CONTENT_RESOURCE_DELETE_BB_INDEX ON CONTENT_RESOURCE_DELETE_BB
+(
+	RESOURCE_ID
+)
+;

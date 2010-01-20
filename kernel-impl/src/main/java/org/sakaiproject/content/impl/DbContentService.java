@@ -155,7 +155,7 @@ public class DbContentService extends BaseContentService
     protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
 
     /** Table name for resources delete. */
-    protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BODY_BINARY_DELETE";
+	protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_DELETE_BB";
 
     /** The chunk size used when streaming (100k). */
     protected static final int STREAM_BUFFER_SIZE = 102400;
@@ -1743,7 +1743,7 @@ public class DbContentService extends BaseContentService
                             else
                             {
                                 message += "to database";
-                                ok = putResourceBodyDb(edit, redit.m_contentStream);
+								ok = putResourceBodyDb(edit, redit.m_contentStream, m_resourceBodyTableName);
                             }
                         }
                     }
@@ -1768,7 +1768,7 @@ public class DbContentService extends BaseContentService
                             else
                             {
                                 message += "to database";
-                                ok = putResourceBodyDb(edit, body);
+								ok = putResourceBodyDb(edit, body, m_resourceBodyTableName);
                             }
                         }
                     }
@@ -1871,7 +1871,7 @@ public class DbContentService extends BaseContentService
 					// otherwise use the database
 					else
 					{
-						delResourceBodyDb(edit);
+						delResourceBodyDb(edit, m_resourceBodyDeleteTableName);
 					}
 
 					// clear the memory image of the body
@@ -1952,7 +1952,7 @@ public class DbContentService extends BaseContentService
 							else
 							{
 								message += "to database";
-								ok = putResourceBodyDb(edit, redit.m_contentStream); // TODO fix that:
+								ok = putResourceBodyDb(edit, redit.m_contentStream, m_resourceBodyDeleteTableName);
 							}
 						}
 				}
@@ -1977,7 +1977,7 @@ public class DbContentService extends BaseContentService
 							else
 							{
 								message += "to database";
-								ok = putResourceBodyDb(edit, body);
+								ok = putResourceBodyDb(edit, body, m_resourceBodyDeleteTableName);
 							}
 						}
 					}
@@ -2023,7 +2023,7 @@ public class DbContentService extends BaseContentService
                     // otherwise use the database
                     else
                     {
-                        delResourceBodyDb(edit);
+						delResourceBodyDb(edit, m_resourceBodyTableName);
                     }
 
                     // clear the memory image of the body
@@ -2130,7 +2130,7 @@ public class DbContentService extends BaseContentService
 					// otherwise use the database
 					else
 					{
-						return streamResourceBodyDb(resource);
+						return streamResourceBodyDb(resource, m_resourceBodyDeleteTableName);
 					}
 				}
 			}
@@ -2269,7 +2269,7 @@ public class DbContentService extends BaseContentService
                     // otherwise use the database
                     else
                     {
-                        return streamResourceBodyDb(resource);
+						return streamResourceBodyDb(resource, m_resourceBodyTableName);
                     }
                 }
             }
@@ -2317,11 +2317,12 @@ public class DbContentService extends BaseContentService
         /**
          * When resources are stored, zero length bodys are not placed in the table hence this routine will return a null when the particular resource
          * body is not found
+		 * @param resourceBodyTableName The table to pull the resource body from.
          */
-        protected InputStream streamResourceBodyDb(ContentResource resource) throws ServerOverloadException
+		protected InputStream streamResourceBodyDb(ContentResource resource, String resourceBodyTableName) throws ServerOverloadException
         {
             // get the resource from the db
-            String sql = contentServiceSql.getBodySql(m_resourceBodyTableName);
+			String sql = contentServiceSql.getBodySql(resourceBodyTableName);
 
             Object[] fields = new Object[1];
             fields[0] = resource.getId();
@@ -2339,15 +2340,16 @@ public class DbContentService extends BaseContentService
          *        The resource whose body is being written.
          * @param body
          *        The body bytes to write. If there is no body or the body is zero bytes, no entry is inserted into the table.
+		 * @param resourceBodyTableName The resource body table name.
          * @return true if the resource body is written successfully, false otherwise.
          */
-        protected boolean putResourceBodyDb(ContentResourceEdit resource, byte[] body)
+		protected boolean putResourceBodyDb(ContentResourceEdit resource, byte[] body, String resourceBodyTableName)
         {
 
             if ((body == null) || (body.length == 0)) return true;
 
             // delete the old
-            String statement = contentServiceSql.getDeleteContentSql(m_resourceBodyTableName);
+			String statement = contentServiceSql.getDeleteContentSql(resourceBodyTableName);
 
             Object[] fields = new Object[1];
             fields[0] = resource.getId();
@@ -2355,7 +2357,7 @@ public class DbContentService extends BaseContentService
             m_sqlService.dbWrite(statement, fields);
 
             // add the new
-            statement = contentServiceSql.getInsertContentSql(m_resourceBodyTableName);
+			statement = contentServiceSql.getInsertContentSql(resourceBodyTableName);
 
             return m_sqlService.dbWriteBinary(statement, fields, body, 0, body.length);
 
@@ -2368,9 +2370,10 @@ public class DbContentService extends BaseContentService
         /**
          * @param edit
          * @param stream
+		 * @param resourceBodyTableName TODO
          * @return true if the resource body is written successfully, false otherwise.
          */
-        protected boolean putResourceBodyDb(ContentResourceEdit edit, InputStream stream)
+		protected boolean putResourceBodyDb(ContentResourceEdit edit, InputStream stream, String resourceBodyTableName)
         {
             // Do not create the files for resources with zero length bodies
             if ((stream == null)) return true;
@@ -2428,7 +2431,7 @@ public class DbContentService extends BaseContentService
             boolean ok = true;
             if (bstream != null && bstream.size() > 0)
             {
-                ok = putResourceBodyDb(edit, bstream.toByteArray());
+				ok = putResourceBodyDb(edit, bstream.toByteArray(), resourceBodyTableName);
             }
 
             return ok;
@@ -2543,12 +2546,13 @@ public class DbContentService extends BaseContentService
          * 
          * @param resource
          *        The resource whose body is being deleted.
+		 * @param resourceBodyTableName The table in which the deleted resource bodies are stored.
          */
-        protected void delResourceBodyDb(ContentResourceEdit resource)
+		protected void delResourceBodyDb(ContentResourceEdit resource, String resourceBodyTableName)
         {
 			if (resource.getContentLength() > 0) {
             // delete the record
-            String statement = contentServiceSql.getDeleteContentSql(m_resourceBodyTableName);
+				String statement = contentServiceSql.getDeleteContentSql(resourceBodyTableName);
 
             Object[] fields = new Object[1];
             fields[0] = resource.getId();

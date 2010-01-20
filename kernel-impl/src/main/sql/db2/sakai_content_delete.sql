@@ -27,3 +27,19 @@ CREATE INDEX CONT_RSRC_DEL ON CONTENT_RESOURCE_DELETE
 (
 	RESOURCE_ID
 ) ALLOW REVERSE SCANS;
+
+
+-----------------------------------------------------------------------------
+-- CONTENT_RESOURCE_DELETE_BB
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_RESOURCE_DELETE_BB
+(
+    RESOURCE_ID VARCHAR (255) NOT NULL,
+    BODY BLOB(2G) NOT LOGGED
+);
+
+CREATE UNIQUE INDEX CONT_RSRC_DEL_BB_IDX ON CONTENT_RESOURCE_DELETE_BB
+(
+	RESOURCE_ID
+) ALLOW REVERSE SCANS;
