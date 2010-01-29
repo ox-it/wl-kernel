@@ -173,7 +173,7 @@ public class Validator
 
 	/**
 	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
-	 *
+	 * One reason for this existing is that the standard URLEncoder in Java will encode slashes ('/') but this doesn't.
 	 * Note: java.net.URLEncode.encode() provides a more standard option
 	 *       FormattedText.decodeNumericCharacterReferences() undoes this op
 	 * 
@@ -202,6 +202,9 @@ public class Validator
 					buf.append(toHex(b));
 					buf.append('^');
 				}
+				// 0x1F is the last control character
+				// 0x7F is DEL chatecter
+				// 0x80 is the start of the top of the 256bit set.
 				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
 				{
 					buf.append("%");
