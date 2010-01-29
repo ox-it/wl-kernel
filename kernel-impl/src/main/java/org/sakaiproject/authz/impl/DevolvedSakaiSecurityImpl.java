@@ -86,6 +86,10 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	 * @see org.sakaiproject.authz.impl.DevolvedSakaiSecurity#getAdminRealm(java.lang.String)
 	 */
 	public String getAdminRealm(String entityRef) {
+		// As we only allow admin realms for site this is a performance op.
+		if (!entityRef.startsWith(SiteService.REFERENCE_ROOT)) {
+			return null;
+		}
 		String adminRealm = (String) adminCache.get(entityRef);
 		// We want to cache nulls to need to look and see of the cache has an entry first.
 		// If we check to see if the entry is in the cache first then our hit/miss stats our wrong.
