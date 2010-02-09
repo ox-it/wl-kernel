@@ -8554,7 +8554,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
     * @return the quota in kb
     */
     public long getQuota(ContentCollection collection) {
-        long quota = 0;
+        long quota = m_siteQuota;
 
         // parse a string like /user/344454534543534535353543535
         String[] parts = StringUtil.split(collection.getId(), Entity.SEPARATOR);
@@ -8580,8 +8580,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (siteType != null) {
 				quota = Long.parseLong(m_serverConfigurationService.getString("content.quota." + siteType, Long.toString(m_siteQuota)));
 			}
-		} else {
-			quota = m_siteQuota;
 		}
 		
         // see if this collection has a quota property
