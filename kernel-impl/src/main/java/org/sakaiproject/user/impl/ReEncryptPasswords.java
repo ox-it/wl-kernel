@@ -11,6 +11,7 @@ import java.util.Properties;
 public class ReEncryptPasswords {
 
 	/**
+	 * Command line utility to re-encrypt all passwords in the database that use unsalted MD5.
 	 * @param args
 	 * @throws SQLException 
 	 */
