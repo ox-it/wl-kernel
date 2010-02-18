@@ -125,7 +125,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
 	
 	/** Collaborator for doing passwords. */
-	protected PasswordService m_pwdService = new PasswordService();
+	protected PasswordService m_pwdService = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -431,6 +431,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		m_separateIdEid = new Boolean(value).booleanValue();
 	}
+	
+	/**
+	 * Configuration: set the password service to use.
+	 * 
+	 */
+	public void setPasswordService(PasswordService pwdService)
+	{
+		m_pwdService = pwdService;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -545,6 +554,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (m_contextualUserDisplayService == null)
 			{
 				m_contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get(ContextualUserDisplayService.class);
+			}
+			
+			// Fallback to the default password service.
+			if (m_pwdService == null)
+			{
+				m_pwdService = new PasswordService();
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())

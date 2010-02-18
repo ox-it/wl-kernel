@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Service to check that a password matches and to generate encrypted passwords from plaintext.
+ * By default it's salted and SHA-256 digested.
  * @author buckett
  *
  */
@@ -47,7 +48,7 @@ public class PasswordService {
 	 * The default algorithm to use then setting a password and when checking a password.
 	 * Changing this will break all existing password (except MD5).
 	 */
-	private static final String	defaultAlgorithm = "SHA-256";
+	private String defaultAlgorithm = "SHA-256";
 
 	/**
 	 * Check to see if the password matches the encrypted version.
@@ -171,6 +172,18 @@ public class PasswordService {
 	 */
 	private int lengthBase64(int length) {
 		return (length + 2 - ((length + 2) % 3)) * 4 / 3;
+	}
+
+	public void setSaltLength(int saltLength) {
+		this.saltLength = saltLength;
+	}
+
+	public void setSaltDelim(String saltDelim) {
+		this.saltDelim = saltDelim;
+	}
+
+	public void setDefaultAlgorithm(String defaultAlgorithm) {
+		this.defaultAlgorithm = defaultAlgorithm;
 	}
 	
 }
