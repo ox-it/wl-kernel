@@ -12,6 +12,8 @@ public class ReEncryptPasswords {
 
 	/**
 	 * Command line utility to re-encrypt all passwords in the database that use unsalted MD5.
+	 * It should be run on the command line in the sakai.home folder with both the kernel-impl
+	 * and SQL drvier jars on the classpath. 
 	 * @param args
 	 * @throws SQLException 
 	 */
