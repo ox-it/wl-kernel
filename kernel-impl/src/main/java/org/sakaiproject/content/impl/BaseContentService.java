@@ -74,6 +74,7 @@ import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -413,12 +414,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void setTimeService(TimeService timeService) {
 		this.timeService = timeService;
 	}
-	
+
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
 	
+	
+	protected List<ContentFilter>m_outputFilters;
+	
+	public void setOutputFilters(List<ContentFilter> outputFilters) {
+		this.m_outputFilters = outputFilters;
+	}
 	
 	/** Configuration: cache, or not. */
 	protected boolean m_caching = false;
@@ -6588,10 +6595,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!allowGetResource(ref.getId()))
 			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
-		BaseResourceEdit resource = null;
+		ContentResource resource = null;
 		try
 		{
-			resource = (BaseResourceEdit) getResource(ref.getId());
+			resource = getResource(ref.getId());
 		}
 		catch (IdUnusedException e)
 		{
@@ -6607,9 +6614,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// if this entity requires a copyright agreement, and has not yet been set, get one
-		if (resource.requiresCopyrightAgreement() && !copyrightAcceptedRefs.contains(resource.getReference()))
+		if (((BaseResourceEdit)resource).requiresCopyrightAgreement() && !copyrightAcceptedRefs.contains(resource.getReference()))
 		{
 			throw new EntityCopyrightException(ref.getReference());
+		}
+		
+		// Wrap up the resource if we need to.
+		for (ContentFilter filter: m_outputFilters)
+		{
+			resource = filter.wrap(resource);
 		}
 
 		try
