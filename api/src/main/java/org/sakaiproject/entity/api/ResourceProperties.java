@@ -170,6 +170,9 @@ public interface ResourceProperties extends Serializable
 
 	/** Property name on a ContentEntity indicating the ResourceType that defines its properties. */
 	static final String PROP_RESOURCE_TYPE = "SAKAI:resource_type";
+	
+	/** Property name on a ContentEntity indicating if we should add HTML header/footer.*/
+	static final String PROP_ADD_HTML = "SAKAI:add_html";
 
 	/**
 	 * Access an iterator on the names of the defined properties (Strings).
