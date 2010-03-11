@@ -40,7 +40,7 @@
         <property name="toolManager">				<ref bean="org.sakaiproject.tool.api.ToolManager"/>						</property>
         <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>	
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
-		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
+        <property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
         <property name="linkMigrationHelper">      <ref bean="org.sakaiproject.util.api.LinkMigrationHelper"/>              </property>
         <!--
@@ -200,7 +200,6 @@
      <property name="overrideBySite"><value>false</value></property>
      <property name="expandByDefault"><value>true</value></property>
    </bean>
-
 	<!-- enable logging of method calls on entrance and exit -->
 	<!-- must set log level to debug -->
 	<!-- 
