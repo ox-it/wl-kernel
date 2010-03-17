@@ -15,6 +15,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.util.Validator;
 
 /**
  * Simple filter that adds header and footer fragments to HTML pages, it can detect
@@ -77,7 +78,8 @@ public class HtmlPageFilter implements ContentFilter {
 		
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
-		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, content.getId());
+		String title = getTitle(content);
+		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, title);
 		final String footer = footerTemplate;
 		
 		return new HttpServletResponseWrapper(response) {
@@ -98,6 +100,14 @@ public class HtmlPageFilter implements ContentFilter {
 			}
 			
 		};
+	}
+
+	private String getTitle(final ContentResource content) {
+		String title = content.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		if (title == null) {
+			title = content.getId();
+		}
+		return Validator.escapeHtml(title);
 	}
 
 	private String getSkinRepo() {
