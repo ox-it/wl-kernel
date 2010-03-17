@@ -52,6 +52,19 @@ public class CheckingOutputStreamTest extends TestCase {
 		assertEquals("<html><head><title>Hello</title></head></body>Hello</body></html>", new String(array.toByteArray()));
 	}
 	
+	public void testLength() throws IOException {
+		ByteArrayOutputStream array = new ByteArrayOutputStream();
+		ServletOutputStream servletStream = getServletOutputStream(array);
+		CheckingOutputStream stream = new CheckingOutputStream("header ", " footer", servletStream);
+		for (int i = 0; i < 1000; i++) {
+			stream.print('a');
+			stream.print("a");
+		}
+		stream.close();
+		String output = new String(array.toByteArray());
+		assertEquals(1000*2+"header ".length() + " footer".length(), output.length());	
+	}
+	
 	private ServletOutputStream getServletOutputStream(final OutputStream array) {
 		ServletOutputStream servletStream = new ServletOutputStream() {
 			

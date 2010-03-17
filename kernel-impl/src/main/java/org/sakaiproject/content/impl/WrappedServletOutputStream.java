@@ -19,6 +19,8 @@ public class WrappedServletOutputStream extends ServletOutputStream {
 	public WrappedServletOutputStream(String header, String footer, ServletOutputStream wrapped) {
 		super();
 		this.wrapped = wrapped;
+		this.header = header;
+		this.footer = footer;
 	}
 	
 	public void close() throws IOException {
