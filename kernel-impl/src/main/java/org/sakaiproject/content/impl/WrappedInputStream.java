@@ -37,7 +37,7 @@ public class WrappedInputStream extends InputStream {
 		}
 		checked = true;
 		if (detect) {
-			byte[] buffer = new byte[128];
+			byte[] buffer = new byte[256];
 			int read = wrapped.read(buffer);
 			if (read > 0) {
 				// TODO Charset problems?
