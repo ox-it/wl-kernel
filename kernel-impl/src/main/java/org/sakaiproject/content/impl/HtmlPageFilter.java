@@ -38,7 +38,8 @@ public class HtmlPageFilter implements ContentFilter {
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n" +
-"  </head>\n"+
+"    <style>body '{ padding: 5px !important; }'</style>\n" +
+"  </head>\n" +
 "  <body>\n";
 	
 	private String footerTemplate = "\n" +
