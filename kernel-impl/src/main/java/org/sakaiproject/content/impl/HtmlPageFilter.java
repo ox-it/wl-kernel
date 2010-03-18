@@ -25,6 +25,9 @@ public class HtmlPageFilter implements ContentFilter {
 	
 	private ServerConfigurationService serverConfigurationService;
 	
+	/** If <code>false</false> then this filter is disabled. */
+	private boolean enabled = true;
+	
 	private String headerTemplate = 
 "<html>\n" +
 "  <head>\n" +
@@ -49,6 +52,9 @@ public class HtmlPageFilter implements ContentFilter {
 		this.serverConfigurationService = serverConfigurationService;
 	}
 	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 	
 	public void setHeaderTemplate(String headerTemplate) {
 		this.headerTemplate = headerTemplate;
@@ -60,7 +66,7 @@ public class HtmlPageFilter implements ContentFilter {
 
 	public boolean isFiltered(ContentResource resource) {
 		String addHtml = resource.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		return ("text/html".equals(resource.getContentType())) && ((addHtml == null) || (!addHtml.equals("no") || addHtml.equals("yes")));
+		return enabled && ("text/html".equals(resource.getContentType())) && ((addHtml == null) || (!addHtml.equals("no") || addHtml.equals("yes")));
 	}
 
 	public ContentResource wrap(final ContentResource content) {
