@@ -19,7 +19,7 @@ public class CheckingOutputStream extends ServletOutputStream {
 	private final ServletOutputStream wrapped;
 	
 	// Stash the first few bytes so we can check if it looks like it already has HTML header...
-	private byte[] bufferedHeader = new byte[100];
+	private byte[] bufferedHeader = new byte[256];
 	private int bufferPos = 0;
 	/** Are we checking writes for HTML at the moment */
 	private boolean checking = true;
