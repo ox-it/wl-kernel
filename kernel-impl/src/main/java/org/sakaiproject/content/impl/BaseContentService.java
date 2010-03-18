@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,6 +65,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentHostingHandler;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -208,6 +210,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
+	
+	protected List<ContentFilter> m_outputFilters = Collections.emptyList();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -655,7 +659,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
 	}
 
-
+	public void setOutputFilters(List<ContentFilter> outputFilters)
+	{
+		this.m_outputFilters = outputFilters;
+	}
 	
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -6494,114 +6501,78 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 
 				// stream the content using a small buffer to keep memory managed
-				if (STREAM_CONTENT)
+				InputStream content = null;
+				OutputStream out = null;
+
+				try
 				{
-					InputStream content = null;
-					OutputStream out = null;
-
-					try
-					{
-						content = resource.streamContent();
-						if (content == null)
-						{
-							throw new IdUnusedException(ref.getReference());
-						}
-
-						res.setContentType(contentType);
-						res.addHeader("Content-Disposition", disposition);
-						res.addHeader("Accept-Ranges", "none");
-						res.setContentLength(len);
-						
-						// set the buffer of the response to match what we are reading from the request
-						if (len < STREAM_BUFFER_SIZE)
-						{
-							res.setBufferSize(len);
-						}
-						else
-						{
-							res.setBufferSize(STREAM_BUFFER_SIZE);
-						}
-
-						out = res.getOutputStream();
-
-						// chunk
-						byte[] chunk = new byte[STREAM_BUFFER_SIZE];
-						int lenRead;
-						while ((lenRead = content.read(chunk)) != -1)
-						{
-							out.write(chunk, 0, lenRead);
-						}
-					}
-					catch (ServerOverloadException e)
-					{
-						throw e;
-					}
-					catch (Throwable ignore)
-					{
-					}
-					finally
-					{
-						// be a good little program and close the stream - freeing up valuable system resources
-						if (content != null)
-						{
-							content.close();
-						}
-
-						if (out != null)
-						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-						}
-					}
-				}
-
-				// read the entire content into memory and send it from there
-				else
-				{
-					byte[] content = resource.getContent();
+					content = resource.streamContent();
 					if (content == null)
 					{
 						throw new IdUnusedException(ref.getReference());
 					}
 
+
+					for (ContentFilter filter: m_outputFilters)
+					{
+						if (filter.isFiltered(resource))
+						{
+							res = filter.wrap(res, resource);
+						}
+					}
 					res.setContentType(contentType);
 					res.addHeader("Content-Disposition", disposition);
+					res.addHeader("Accept-Ranges", "none");
+
+					// set the buffer of the response to match what we are reading from the request
+					if (len < STREAM_BUFFER_SIZE)
+					{
+						res.setBufferSize(len);
+					}
+					else
+					{
+						res.setBufferSize(STREAM_BUFFER_SIZE);
+					}
 					res.setContentLength(len);
+					out = res.getOutputStream();
 
-					// Increase the buffer size for more speed. - don't - we don't want a 20 meg buffer size,right? -ggolden
-					// res.setBufferSize(len);
+					// chunk
+					byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+					int lenRead;
+					while ((lenRead = content.read(chunk)) != -1)
+					{
+						out.write(chunk, 0, lenRead);
+					}
+				}
+				catch (ServerOverloadException e)
+				{
+					throw e;
+				}
+				catch (Throwable ignore)
+				{
+				}
+				finally
+				{
+					// be a good little program and close the stream - freeing up valuable system resources
+					if (content != null)
+					{
+						content.close();
+					}
 
-					OutputStream out = null;
-					try
+					if (out != null)
 					{
-						out = res.getOutputStream();
-						out.write(content);
-						out.flush();
-						out.close();
-					}
-					catch (Throwable ignore)
-					{
-					}
-					finally
-					{
-						if (out != null)
+						try
 						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
+							out.close();
+						}
+						catch (Throwable ignore)
+						{
 						}
 					}
 				}
 			}
+
+
 
 			// track event
 			EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_READ, resource.getReference(null), false));
