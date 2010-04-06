@@ -59,9 +59,21 @@ public class ReEncryptPasswords {
 		String url, username, password, driver;
 		
 		url = props.getProperty("url@javax.sql.BaseDataSource");
+		if (url == null) {
+			throw new IllegalStateException("url can't be null");
+		}
 		username = props.getProperty("username@javax.sql.BaseDataSource");
+		if (username == null) {
+			throw new IllegalStateException("username can't be null");
+		}
 		password = props.getProperty("password@javax.sql.BaseDataSource");
+		if (password == null) {
+			throw new IllegalStateException("password can't be null");
+		}
 		driver = props.getProperty("driverClassName@javax.sql.BaseDataSource");
+		if (driver == null) {
+			throw new IllegalStateException("driver can't be null");
+		}
 
 		Class.forName(driver);
 		
