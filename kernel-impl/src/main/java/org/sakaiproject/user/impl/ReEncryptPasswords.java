@@ -20,11 +20,19 @@ public class ReEncryptPasswords {
 	public static void main(String[] args) throws Exception {
 		
 		Properties props = new Properties();
-		props.load(new FileInputStream("sakai.properties"));
+		props.load(new FileInputStream(System.getProperty("sakai.properties", "sakai.properties")));
+		String location = null;
 		try {
-			props.load(new FileInputStream("local.properties"));
+			location = System.getProperty("local.properties", "local.properties");
+			props.load(new FileInputStream(location));
 		} catch (Exception e) {
-			System.out.println("Didn't load local.properties");
+			System.out.println("Didn't load local.properties: "+ location);
+		}
+		try {
+			location = System.getProperty("security.properties", "security.properties"); 
+			props.load(new FileInputStream(location));
+		} catch (Exception e) {
+			System.out.println("Didn't load security.properties: "+ location);
 		}
 		
 		String url, username, password, driver;
