@@ -123,6 +123,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
+	
+	/** Collaborator for doing passwords. */
+	protected PasswordService m_pwdService = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -428,6 +431,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		m_separateIdEid = new Boolean(value).booleanValue();
 	}
+	
+	/**
+	 * Configuration: set the password service to use.
+	 * 
+	 */
+	public void setPasswordService(PasswordService pwdService)
+	{
+		m_pwdService = pwdService;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -542,6 +554,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (m_contextualUserDisplayService == null)
 			{
 				m_contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get(ContextualUserDisplayService.class);
+			}
+			
+			// Fallback to the default password service.
+			if (m_pwdService == null)
+			{
+				m_pwdService = new PasswordService();
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
@@ -2326,28 +2344,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			pw = StringUtil.trimToNull(pw);
 
-			// if we have no password, or none is given, we fail
-			if ((m_pw == null) || (pw == null)) return false;
-
-			// if we have a truncated (i.e. pre SAK-5922) password, deal with it
-			if (m_pw.length() == 20)
-			{
-				// encode this password truncated
-				String encoded = OneWayHash.encode(pw, true);
-
-				if (m_pw.equals(encoded)) return true;
-			}
-
-			// otherwise deal with the full encoding
-			else
-			{
-				// encode this password
-				String encoded = OneWayHash.encode(pw, false);
-
-				if (m_pw.equals(encoded)) return true;
-			}
-
-			return false;
+			return m_pwdService.check(pw, m_pw);
 		}
 
 		/**
@@ -2479,7 +2476,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				else
 				{
 					// encode this password
-					String encoded = OneWayHash.encode(pw, false);
+					String encoded = m_pwdService.encrypt(pw);
 					m_pw = encoded;
 				}
 			}
@@ -2974,4 +2971,5 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		return null;
 	}
+
 }
