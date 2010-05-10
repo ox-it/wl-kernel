@@ -1862,6 +1862,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/** If editing the type is restricted **/
 		protected boolean m_restrictedType = false;
 
+		// in object cache of the sort name.
+		private transient String m_sortName;
+
 		/**
 		 * Construct.
 		 *
@@ -2307,17 +2310,20 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getSortName()
 		{
-			StringBuilder buf = new StringBuilder(128);
-			if (m_lastName != null) buf.append(m_lastName);
-			if (m_firstName != null)
+			if (m_sortName == null)
 			{
-				buf.append(", ");
-				buf.append(m_firstName);
+				// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
+				StringBuilder buf = new StringBuilder(128);
+				if (m_lastName != null) buf.append(m_lastName);
+				if (m_firstName != null)
+				{
+					buf.append(", ");
+					buf.append(m_firstName);
+				}
+
+				m_sortName = (buf.length() == 0)?getEid():buf.toString();
 			}
-
-			if (buf.length() == 0) return getEid();
-
-			return buf.toString();
+			return m_sortName;
 		}
 
 		/**
@@ -2426,6 +2432,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public void setEid(String eid)
 		{
 			m_eid = eid;
+			m_sortName = null;
 		}
 
 		/**
@@ -2435,6 +2442,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 		    if(!m_restrictedFirstName) {
 		    	m_firstName = name;
+		    	m_sortName = null;
 		    }
 		}
 
@@ -2445,6 +2453,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if(!m_restrictedLastName) {
 		    	m_lastName = name;
+		    	m_sortName = null;
 		    }
 		}
 
