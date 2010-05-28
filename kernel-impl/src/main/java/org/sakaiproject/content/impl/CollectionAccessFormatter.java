@@ -316,7 +316,7 @@ public class CollectionAccessFormatter
 							if ((desc == null)  || desc.equals(""))
 									desc = "";
 							else
-								desc = "<div class=\"textPanel\">" +  Validator.escapeHtml(desc) + "</div>";
+								desc = "<div class=\"textPanel\">" + desc + "</div>";
 							out.println("<li class=\"folder\"><a href=\"" + contentUrl + baseparam + "\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 									+ "</a>" + desc + "</li>");
