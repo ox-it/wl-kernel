@@ -32,3 +32,14 @@ CREATE INDEX CONTENT_RESOURCE_DELETE_COLLECTION ON CONTENT_RESOURCE_DELETE
 (
 	IN_COLLECTION
 );
+
+-----------------------------------------------------------------------------
+-- CONTENT_RESOURCE_DELETE_BB
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_RESOURCE_DELETE_BB
+(
+    RESOURCE_ID VARCHAR (255) NOT NULL,
+    BODY BINARY,
+    CONSTRAINT CONTENT_RESOURCE_DELETE_BB_INDEX UNIQUE (RESOURCE_ID)
+);
