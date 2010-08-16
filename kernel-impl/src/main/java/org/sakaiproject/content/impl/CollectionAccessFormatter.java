@@ -352,7 +352,7 @@ public class CollectionAccessFormatter
 							if ((desc == null) || desc.equals(""))
 								desc = "";
 							else
-								desc = "<div class=\"textPanel\">" + Validator.escapeHtml(desc) + "</div>";
+								desc = "<div class=\"textPanel\">" + desc + "</div>";
 							String resourceType = content.getResourceType().replace('.', '_');
 							out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
 									+ resourceType+"\">"
