@@ -126,9 +126,27 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		Reference ref = entityManager().newReference(entityRef);
 		if (SiteService.APPLICATION_ID.equals(ref.getType())
 				&& SiteService.SITE_SUBTYPE.equals(ref.getSubType())) {
-			return unlock(SiteService.SECURE_UPDATE_SITE, entityRef);
+			// Only allow admins to change admin site on admin sites.
+			if (adminSiteType.equals(getSiteType(ref))) {
+				return isSuperUser();
+			} else {
+				return unlock(SiteService.SECURE_UPDATE_SITE, entityRef);
+			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Gets the type of a site.
+	 * @param siteRef A reference (hopefully to a site).
+	 * @return The String type of the site or <code>null</code> if the site doesn't have one or the reference isn't a site.
+	 */
+	private String getSiteType(Reference siteRef) {
+		Entity entity = siteRef.getEntity();
+		if (entity instanceof Site) {
+			return ((Site)entity).getType();
+		}
+		return null;
 	}
 	
 	public boolean canUseAdminRealm(String adminRealm) {
