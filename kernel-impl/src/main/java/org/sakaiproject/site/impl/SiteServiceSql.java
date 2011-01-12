@@ -350,4 +350,30 @@ public interface SiteServiceSql
 	 * returns the sql statement which updates a site into the sakai_site table.
 	 */
 	String getUpdateSiteSql(String table);
+	
+	/**
+	 * returns the sql statement which is part of the where clause to retrieve sites which are softly deleted
+	 * TODO this could take a param which further filters on date-gracetime
+	 */
+	String getSitesWhereSoftlyDeletedOnlySql();
+	
+	/**
+	 * returns the sql statement which is part of the order clause to retrieve sites ordered by softly deleted status
+	 */
+	String getSitesOrderSoftlyDeletedAscSql();
+	
+	/**
+	 * returns the sql statement which is part of the order clause to retrieve sites ordered by not being softly deleted
+	 */
+	String getSitesOrderSoftlyDeletedDescSql();
+	
+	/**
+	 * returns the sql statement which is part of the order clause to retrieve sites ordered by softly deleted date asc
+	 */
+	String getSitesOrderSoftlyDeletedDateAscSql();
+	
+	/**
+	 * returns the sql statement which is part of the order clause to retrieve sites ordered by softly deleted date desc
+	 */
+	String getSitesOrderSoftlyDeletedDateDescSql();
 }

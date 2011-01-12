@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +46,8 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -74,7 +77,8 @@ public abstract class DbSiteService extends BaseSiteService
 
 	/** All fields for site. */
 	protected String[] m_siteFieldNames = {"SITE_ID", "TITLE", "TYPE", "SHORT_DESC", "DESCRIPTION", "ICON_URL", "INFO_URL", "SKIN", "PUBLISHED",
-			"JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED"};
+			"JOINABLE", "PUBVIEW", "JOIN_ROLE", "IS_SPECIAL", "IS_USER", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON", "CUSTOM_PAGE_ORDERED",
+			"IS_SOFTLY_DELETED", "SOFTLY_DELETED_DATE"};
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
@@ -493,6 +497,178 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			return super.countAllResources();
 		}
+		
+		private String getSitesOrder( SortType sort )
+		{
+			// add order by if needed
+			String order = null;
+			if (sort == SortType.ID_ASC)
+			{
+				order = siteServiceSql.getSitesOrder1Sql();
+			}
+			else if (sort == SortType.ID_DESC)
+			{
+				order = siteServiceSql.getSitesOrder2Sql();
+			}
+			else if (sort == SortType.TITLE_ASC)
+			{
+				order = siteServiceSql.getSitesOrder3Sql();
+			}
+			else if (sort == SortType.TITLE_DESC)
+			{
+				order = siteServiceSql.getSitesOrder4Sql();
+			}
+			else if (sort == SortType.TYPE_ASC)
+			{
+				order = siteServiceSql.getSitesOrder5Sql();
+			}
+			else if (sort == SortType.TYPE_DESC)
+			{
+				order = siteServiceSql.getSitesOrder6Sql();
+			}
+			else if (sort == SortType.PUBLISHED_ASC)
+			{
+				order = siteServiceSql.getSitesOrder7Sql();
+			}
+			else if (sort == SortType.PUBLISHED_DESC)
+			{
+				order = siteServiceSql.getSitesOrder8Sql();
+			}
+			else if (sort == SortType.CREATED_BY_ASC)
+			{
+				order = siteServiceSql.getSitesOrder9Sql();
+			}
+			else if (sort == SortType.CREATED_BY_DESC)
+			{
+				order = siteServiceSql.getSitesOrder10Sql();
+			}
+			else if (sort == SortType.MODIFIED_BY_ASC)
+			{
+				order = siteServiceSql.getSitesOrder11Sql();
+			}
+			else if (sort == SortType.MODIFIED_BY_DESC)
+			{
+				order = siteServiceSql.getSitesOrder12Sql();
+			}
+			else if (sort == SortType.CREATED_ON_ASC)
+			{
+				order = siteServiceSql.getSitesOrder13Sql();
+			}
+			else if (sort == SortType.CREATED_ON_DESC)
+			{
+				order = siteServiceSql.getSitesOrder14Sql();
+			}
+			else if (sort == SortType.MODIFIED_ON_ASC)
+			{
+				order = siteServiceSql.getSitesOrder15Sql();
+			}
+			else if (sort == SortType.MODIFIED_ON_DESC)
+			{
+				order = siteServiceSql.getSitesOrder16Sql();
+			}
+			else if (sort == SortType.SOFTLY_DELETED_ASC)
+			{
+				order = siteServiceSql.getSitesOrderSoftlyDeletedAscSql();
+			}
+			else if (sort == SortType.SOFTLY_DELETED_DESC)
+			{
+				order = siteServiceSql.getSitesOrderSoftlyDeletedDescSql();
+			}
+			
+			return order;
+		}
+		
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
+		{
+			int fieldCount = 0;
+			if (ofType != null)
+			{
+				if (ofType instanceof String)
+				{
+					// type criteria is a simple String value
+					fieldCount++;
+				}
+				// more complex types
+				else if (ofType instanceof String[])
+				{
+					fieldCount += ((String[]) ofType).length;
+				}
+				else if (ofType instanceof List)
+				{
+					fieldCount += ((List) ofType).size();
+				}
+				else if (ofType instanceof Set)
+				{
+					fieldCount += ((Set) ofType).size();
+				}
+			}
+			if (criteria != null) fieldCount += 1;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE)) fieldCount++;
+			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
+			Object fields[] = null;
+			if (fieldCount > 0)
+			{
+				fields = new Object[fieldCount];
+				int pos = 0;
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+				{
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
+				}
+				if (ofType != null)
+				{
+					if (ofType instanceof String)
+					{
+						// type criteria is a simple String value
+						fields[pos++] = ofType;
+					}
+					else if (ofType instanceof String[])
+					{
+						for (int i = 0; i < ((String[]) ofType).length; i++)
+						{
+							// of type String[]
+							fields[pos++] = (String) ((String[]) ofType)[i];
+						}
+					}
+					else if (ofType instanceof List)
+					{
+						for (Iterator l = ((List) ofType).iterator(); l.hasNext();)
+						{
+							// of type List
+							fields[pos++] = l.next();
+						}
+					}
+					else if (ofType instanceof Set)
+					{
+						for (Iterator l = ((Set) ofType).iterator(); l.hasNext();)
+						{
+							// of type Set
+							fields[pos++] = l.next();
+						}
+					}
+				}
+				if (criteria != null)
+				{
+					fields[pos++] =  "%" + criteria + "%";
+				}
+				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
+				{
+					for (Iterator i = propertyCriteria.entrySet().iterator(); i.hasNext();)
+					{
+						Map.Entry entry = (Map.Entry) i.next();
+						String name = (String) entry.getKey();
+						String value = (String) entry.getValue();
+						fields[pos++] = name;
+						fields[pos++] = "%" + value + "%";
+					}
+				}
+				if (type == SelectionType.JOINABLE)
+				{
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
+				}
+			}
+
+			return fields;
+		}
 
 		/**
 		 * {@inheritDoc}
@@ -673,6 +849,14 @@ public abstract class DbSiteService extends BaseSiteService
 			{
 				order = siteServiceSql.getSitesOrder16Sql();
 			}
+			else if (sort == SortType.SOFTLY_DELETED_ASC)
+			{
+				order = siteServiceSql.getSitesOrderSoftlyDeletedAscSql();
+			}
+			else if (sort == SortType.SOFTLY_DELETED_DESC)
+			{
+				order = siteServiceSql.getSitesOrderSoftlyDeletedDescSql();
+			}
 
 			int fieldCount = 0;
 			if (ofType != null)
@@ -804,6 +988,22 @@ public abstract class DbSiteService extends BaseSiteService
 			return newrv;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		public List getSoftlyDeletedSites() {
+			
+			List rv = null;
+			String where = siteServiceSql.getSitesWhereSoftlyDeletedOnlySql();
+			Object[] fields = getSitesFields( SelectionType.ANY, null, null, null );
+			String order = getSitesOrder( SortType.SOFTLY_DELETED_DATE_ASC );
+			
+			rv = getSelectedResources(where, order, fields, null);
+
+			return rv;
+			
+		}
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -2009,11 +2209,11 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		protected Object[] fields(String id, Site edit, boolean idAgain)
 		{
-			Object[] rv = new Object[idAgain ? 20 : 19];
+			Object[] rv = new Object[idAgain ? 22 : 21];
 			rv[0] = caseId(id);
 			if (idAgain)
 			{
-				rv[19] = rv[0];
+				rv[21] = rv[0];
 			}
 
 			if (edit == null)
@@ -2043,6 +2243,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[16] = now;
 				rv[17] = now;
 				rv[18] = "0";
+				rv[19] = "0";
+				rv[20] = null;
 			}
 
 			else
@@ -2065,6 +2267,8 @@ public abstract class DbSiteService extends BaseSiteService
 				rv[16] = edit.getCreatedTime();
 				rv[17] = edit.getModifiedTime();
 				rv[18] = edit.isCustomPageOrdered() ? "1" : "0";
+				rv[19] = edit.isSoftlyDeleted() ? "1" : "0";
+				rv[20] = edit.getSoftlyDeletedDate();
 			}
 
 			return rv;
@@ -2110,10 +2314,12 @@ public abstract class DbSiteService extends BaseSiteService
 					modifiedOn = timeService().newTime(ts.getTime());
 				}
 				boolean customPageOrdered = "1".equals(result.getString(19)) ? true : false;
+				boolean isSoftlyDeleted = "1".equals(result.getString(20)) ? true : false;
+				Date softlyDeletedDate = result.getDate(21);
 
 				// create the Resource from these fields
 				return new BaseSite(DbSiteService.this,id, title, type, shortDesc, description, icon, info, skin, published, joinable, pubView, joinRole, isSpecial,
-						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered);
+						isUser, createdBy, createdOn, modifiedBy, modifiedOn, customPageOrdered, isSoftlyDeleted, softlyDeletedDate);
 			}
 			catch (SQLException e)
 			{
@@ -2121,5 +2327,6 @@ public abstract class DbSiteService extends BaseSiteService
 				return null;
 			}
 		}
+		
 	}
 }
