@@ -41,7 +41,10 @@ CREATE TABLE SAKAI_SITE (
        IS_USER              CHAR(1) NULL
                                    CHECK (IS_USER IN (1, 0)),
        CUSTOM_PAGE_ORDERED  CHAR(1) NULL
-                                   CHECK (CUSTOM_PAGE_ORDERED IN (1, 0))
+                                   CHECK (CUSTOM_PAGE_ORDERED IN (1, 0)),
+       IS_SOFTLY_DELETED	CHAR(1) NULL,
+                                   CHECK (IS_SOFTLY_DELETED IN (1, 0)),
+	   SOFTLY_DELETED_DATE	DATETIME NULL,
 );
 
 ALTER TABLE SAKAI_SITE
