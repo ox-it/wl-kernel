@@ -85,12 +85,6 @@ public interface SiteService extends EntityProducer
 
 	/** Name for the event of removing a site. */
 	static final String SECURE_REMOVE_SITE = "site.del";
-	
-	/** Name for the event of removing a site softly. */
-	static final String SECURE_REMOVE_SITE_SOFTLY = "site.del.soft";
-	
-	/** Name for the event of visiting a softly deleted site. */
-	static final String SITE_VISIT_SOFTLY_DELETED = "site.visit.softly.deleted";
 
 	/** Name for the event of updating a site. */
 	static final String SECURE_UPDATE_SITE = "site.upd";
@@ -264,18 +258,6 @@ public interface SiteService extends EntityProducer
 
 		/** Sort on modified time DESC */
 		public static final SortType MODIFIED_ON_DESC = new SortType("modified on", false);
-		
-		/** Sort on softly deleted ASC */
-		public static final SortType SOFTLY_DELETED_ASC = new SortType("softly deleted", true);
-		
-		/** Sort on softly deleted DESC */
-		public static final SortType SOFTLY_DELETED_DESC = new SortType("softly deleted", false);
-		
-		/** Sort on softly deleted ASC */
-		public static final SortType SOFTLY_DELETED_DATE_ASC = new SortType("softly deleted date", true);
-		
-		/** Sort on softly deleted DESC */
-		public static final SortType SOFTLY_DELETED_DATE_DESC = new SortType("softly deleted date", false);
 	}
 
 	/**
@@ -723,15 +705,6 @@ public interface SiteService extends EntityProducer
 	 */
 	List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page);
 
-	
-	/**
-	 * Get all sites that have been softly deleted
-	 * 
-	 * @return List of Sites or empty list if none.
-	 */
-	List<Site> getSoftlyDeletedSites();
-	
-	
 	/**
 	 * Count the Site objets that meet specified criteria.
 	 * 
