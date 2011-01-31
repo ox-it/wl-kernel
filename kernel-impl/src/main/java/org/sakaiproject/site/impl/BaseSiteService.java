@@ -488,7 +488,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			functionManager().registerFunction(SECURE_UPDATE_SITE_MEMBERSHIP);
 			functionManager().registerFunction(SECURE_UPDATE_GROUP_MEMBERSHIP);
 			functionManager().registerFunction(SECURE_ADD_COURSE_SITE);
-			functionManager().registerFunction(SITE_VISIT_SOFTLY_DELETED);
 			
 			if (siteAliasProviderId != null && siteAliasProvider == null)
 			{
@@ -541,13 +540,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		try
 		{
 			Site site = getSite(id);
-			
-			//check for softly deleted visit permission
-			if(site.isSoftlyDeleted()) {
-				rv = unlockCheck(SITE_VISIT_SOFTLY_DELETED, site.getReference());
-			}
-			
-			else if (site.isPublished())
+			if (site.isPublished())
 			{
 				rv = unlockCheck(SITE_VISIT, site.getReference());
 			}
@@ -776,12 +769,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		// get the site
 		Site rv = getSite(id);
-		
-		//check if user has permission to visit a site that has been softly deleted
-		if(rv.isSoftlyDeleted()) {
-			unlock(SITE_VISIT_SOFTLY_DELETED, rv.getReference());
-		}
-		
+
 		// check for visit permission
 		if (rv.isPublished())
 		{
@@ -1262,7 +1250,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// get the services related to this site setup for the site's removal
 		disableRelated(site);
 	}
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -1680,13 +1668,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			PagingPosition page)
 	{
 		return m_storage.getSites(type, ofType, criteria, propertyCriteria, sort, page);
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getSoftlyDeletedSites() {
-		return m_storage.getSoftlyDeletedSites();
 	}
 
 	/**
@@ -2554,13 +2535,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		 *        The Collection to fill in.
 		 */
 		public void readSiteGroups(Site site, Collection groups);
-		
-		/**
-		 * Get all sites that have been softly deleted
-		 * 
-		 * @return List of Sites or empty list if none.
-		 */
-		public List<Site> getSoftlyDeletedSites();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

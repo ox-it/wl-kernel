@@ -22,7 +22,6 @@
 package org.sakaiproject.site.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -69,11 +68,7 @@ public class SiteService
 	public static java.lang.String SECURE_ADD_USER_SITE = org.sakaiproject.site.api.SiteService.SECURE_ADD_USER_SITE;
 
 	public static java.lang.String SECURE_REMOVE_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SITE;
-	
-	public static java.lang.String SECURE_REMOVE_SITE_SOFTLY = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SITE_SOFTLY;
-	
-	public static java.lang.String SITE_VISIT_SOFTLY_DELETED = org.sakaiproject.site.api.SiteService.SITE_VISIT_SOFTLY_DELETED;
-	
+
 	public static java.lang.String SECURE_UPDATE_SITE = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE;
 	
 	public static java.lang.String SECURE_UPDATE_SITE_MEMBERSHIP = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE_MEMBERSHIP;
