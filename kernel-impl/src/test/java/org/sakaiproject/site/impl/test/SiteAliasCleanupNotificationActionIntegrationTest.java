@@ -29,6 +29,7 @@ import junit.framework.TestSuite;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
@@ -61,7 +62,7 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 
 	@SuppressWarnings("unchecked")
 	public void testSiteDeletionTriggersSiteAliasDeletion() 
-	throws IdInvalidException, IdUsedException, PermissionException {
+	throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		IdManager idManager = getService(IdManager.class);
 		SiteService siteService = getService(SiteService.class);
 		AliasService aliasService = getService(AliasService.class);

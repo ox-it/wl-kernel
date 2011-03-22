@@ -22,7 +22,7 @@
 package org.sakaiproject.site.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.exception.PermissionException;
 
 /**
  * <p>
@@ -68,7 +68,11 @@ public class SiteService
 	public static java.lang.String SECURE_ADD_USER_SITE = org.sakaiproject.site.api.SiteService.SECURE_ADD_USER_SITE;
 
 	public static java.lang.String SECURE_REMOVE_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SITE;
-
+	
+	public static java.lang.String SECURE_REMOVE_SOFTLY_DELETED_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SOFTLY_DELETED_SITE;
+	
+	public static java.lang.String SITE_VISIT_SOFTLY_DELETED = org.sakaiproject.site.api.SiteService.SITE_VISIT_SOFTLY_DELETED;
+	
 	public static java.lang.String SECURE_UPDATE_SITE = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE;
 	
 	public static java.lang.String SECURE_UPDATE_SITE_MEMBERSHIP = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE_MEMBERSHIP;
@@ -264,7 +268,7 @@ public class SiteService
 		return service.allowRemoveSite(param0);
 	}
 
-	public static void removeSite(org.sakaiproject.site.api.Site param0) throws org.sakaiproject.exception.PermissionException
+	public static void removeSite(org.sakaiproject.site.api.Site param0) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return;
