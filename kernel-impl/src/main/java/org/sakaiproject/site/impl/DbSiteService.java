@@ -672,7 +672,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -684,10 +684,6 @@ public abstract class DbSiteService extends BaseSiteService
 			if (type.isIgnoreSpecial()) where.append(siteServiceSql.getSitesWhere3Sql());
 			// reject unpublished sites
 			if (type.isIgnoreUnpublished()) where.append(siteServiceSql.getSitesWhere4Sql());
-			// reject softly deleted sites
-			if (type.isIgnoreSoftlyDeleted()) {
-				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
-			}
 
 			if (ofType != null)
 			{
@@ -723,6 +719,16 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 				}
 			}
+			
+			// Handle deleted sites.
+			if (type == SelectionType.DELETED || type == SelectionType.ANY_DELETED)
+			{
+				where.append(siteServiceSql.getSitesWhereSoftlyDeletedOnlySql());
+			}
+			else
+			{
+				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
+			}
 
 			// reject non-joinable sites
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere7Sql());
@@ -736,10 +742,12 @@ public abstract class DbSiteService extends BaseSiteService
 			if (type == SelectionType.ACCESS) where.append(siteServiceSql.getSitesWhere11Sql());
 			// joinable requires NOT access permission
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere12Sql());
+			// when showing deleted, only show maintain ones.
+			if (type == SelectionType.DELETED) where.append(siteServiceSql.getSitesWhere10Sql());
 
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || type == SelectionType.DELETED)
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -869,14 +877,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || type == SelectionType.DELETED)
 				{
 					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
@@ -972,26 +980,10 @@ public abstract class DbSiteService extends BaseSiteService
 				{
 					newrv.add(s);
 				}
-               		} 
+			} 
 			return newrv;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
-		public List getSoftlyDeletedSites() {
-			
-			List rv = null;
-			String where = siteServiceSql.getSitesWhereSoftlyDeletedOnlySql();
-			Object[] fields = getSitesFields( SelectionType.ANY, null, null, null );
-			String order = getSitesOrder( SortType.SOFTLY_DELETED_DATE_ASC );
-			
-			rv = getSelectedResources(where, order, fields, null);
-
-			return rv;
-			
-		}
-		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -1053,7 +1045,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -1101,6 +1093,17 @@ public abstract class DbSiteService extends BaseSiteService
 					}
 				}
 			}
+			
+
+			// Handle deleted sites.
+			if (type == SelectionType.DELETED || type == SelectionType.ANY_DELETED)
+			{
+				where.append(siteServiceSql.getSitesWhereSoftlyDeletedOnlySql());
+			}
+			else
+			{
+				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
+			}
 
 			// reject non-joinable sites
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere7Sql());
@@ -1114,13 +1117,12 @@ public abstract class DbSiteService extends BaseSiteService
 			if (type == SelectionType.ACCESS) where.append(siteServiceSql.getSitesWhere11Sql());
 			// joinable requires NOT access permission
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere12Sql());
-			
-			// always reject softly deleted sites
-			where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
+			// for deleted sites only show where has update
+			if (type == SelectionType.DELETED) where.append(siteServiceSql.getSitesWhere10Sql());
 
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED))
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -1158,14 +1160,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED))
 				{
 					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}

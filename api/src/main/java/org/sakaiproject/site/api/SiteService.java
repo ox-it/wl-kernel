@@ -139,17 +139,13 @@ public interface SiteService extends EntityProducer
 		private final boolean m_ignoreUser;
 
 		private final boolean m_ignoreUnpublished;
-		
-		//always true, we always ignore unpublished sites
-		private final boolean m_ignoreSoftlyDeleted;
 
-		private SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished, boolean ignoreSoftlyDeleted)
+		private SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished)
 		{
 			m_id = id;
 			m_ignoreSpecial = ignoreSpecial;
 			m_ignoreUser = ignoreUser;
 			m_ignoreUnpublished = ignoreUnpublished;
-			m_ignoreSoftlyDeleted =  ignoreSoftlyDeleted;
 		}
 
 		public String toString()
@@ -171,29 +167,30 @@ public interface SiteService extends EntityProducer
 		{
 			return m_ignoreUnpublished;
 		}
-		
-		public boolean isIgnoreSoftlyDeleted()
-		{
-			return m_ignoreSoftlyDeleted;
-		}
 
 		/** Get sites that the current user has read access to (non-myWorkspace, non-special). */
-		public static final SelectionType ACCESS = new SelectionType("access", true, true, false, true);
+		public static final SelectionType ACCESS = new SelectionType("access", true, true, false);
 
 		/** Get sites that the current user has write access to (non-myWorkspace, non-special). */
-		public static final SelectionType UPDATE = new SelectionType("update", true, true, false, true);
+		public static final SelectionType UPDATE = new SelectionType("update", true, true, false);
 
 		/** Get sites that the current user does not have read access to but are joinable (non-myWorkspace, non-special). */
-		public static final SelectionType JOINABLE = new SelectionType("joinable", true, true, true, true);
+		public static final SelectionType JOINABLE = new SelectionType("joinable", true, true, true);
 
 		/** Get sites that are marked for view (non-myWorkspace, non-special). */
-		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true, true);
+		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true);
 
-		/** Get any sites. */
-		public static final SelectionType ANY = new SelectionType("any", false, false, true, true);
+		/** Get any sites. (but not unpublished)? */
+		public static final SelectionType ANY = new SelectionType("any", false, false, true);
 
-		/** Get any non-user sites. */
-		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, true, true);
+		/** Get any non-user sites. (special) */
+		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, true);
+		
+		/** Get my deleted sites. */
+		public static final SelectionType DELETED = new SelectionType("deleted", true, true, false);
+		
+		/** Get any deleted sites, normally used by admin or purge job. */
+		public static final SelectionType ANY_DELETED = new SelectionType("anyDeleted", false, false, false);
 	}
 
 	/**
@@ -737,15 +734,6 @@ public interface SiteService extends EntityProducer
 	 * @return The List (Site) of Site objets that meet specified criteria.
 	 */
 	List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page);
-
-	
-	/**
-	 * Get all sites that have been softly deleted
-	 * 
-	 * @return List of Sites or empty list if none.
-	 */
-	List<Site> getSoftlyDeletedSites();
-	
 	
 	/**
 	 * Count the Site objets that meet specified criteria.
