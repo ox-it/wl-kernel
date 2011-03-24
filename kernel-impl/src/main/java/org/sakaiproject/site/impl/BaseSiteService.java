@@ -1707,13 +1707,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		return m_storage.getSites(type, ofType, criteria, propertyCriteria, sort, page);
 	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List<Site> getSoftlyDeletedSites() {
-		return m_storage.getSoftlyDeletedSites();
-	}
 
 	/**
 	 * @inheritDoc
@@ -2643,13 +2636,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		 *        The Collection to fill in.
 		 */
 		public void readSiteGroups(Site site, Collection groups);
-		
-		/**
-		 * Get all sites that have been softly deleted
-		 * 
-		 * @return List of Sites or empty list if none.
-		 */
-		public List<Site> getSoftlyDeletedSites();
+
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
