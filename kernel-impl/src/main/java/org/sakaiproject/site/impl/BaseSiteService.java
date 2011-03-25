@@ -1249,7 +1249,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * @inheritDoc
 	 */
-	public void removeSite(Site site) throws PermissionException, IdUnusedException
+	public void removeSite(Site site) throws PermissionException
 	{
 		// check security (throws if not permitted)
 		unlock(SECURE_REMOVE_SITE, site.getReference());
@@ -1260,7 +1260,17 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			// if already marked for deletion, check permission to hard delete, if ok, let continue.
 			if(!site.isSoftlyDeleted()) {
 				site.setSoftlyDeleted(true);
-				save(site);
+				// This is here so we don't change the API calling software has to support.
+				// When this goes into the kernel trunk I think it would be better to change the API (adding throws IdUnusedException).
+				// But that breaks all clients that call removeSite() unless they have the bad catch (Exception e).
+				try
+				{
+					save(site);
+				}
+				catch (IdUnusedException uie)
+				{
+					throw new IllegalStateException("You can't remove a site that doesn't exist yet.");
+				}
 				return;
 			} else {
 				unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());

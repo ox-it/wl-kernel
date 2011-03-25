@@ -526,10 +526,8 @@ public interface SiteService extends EntityProducer
 	 *        The site id.
 	 * @exception PermissionException
 	 *            if the current user does not have permission to remove this site.
-	 * @exception IdUnusedException 
-	* 			  if site does not exist
 	 */
-	void removeSite(Site site) throws PermissionException, IdUnusedException;
+	void removeSite(Site site) throws PermissionException;
 
 	/**
 	 * Access the internal reference which can be used to access the site from within the system.
