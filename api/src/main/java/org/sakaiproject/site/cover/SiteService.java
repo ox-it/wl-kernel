@@ -270,7 +270,7 @@ public class SiteService
 		return service.allowRemoveSite(param0);
 	}
 
-	public static void removeSite(org.sakaiproject.site.api.Site param0) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUnusedException
+	public static void removeSite(org.sakaiproject.site.api.Site param0) throws org.sakaiproject.exception.PermissionException
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();
 		if (service == null) return;
