@@ -61,7 +61,12 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 				if (arg instanceof Event) {
 					Event event = (Event)arg;
 					if (SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())) {
-						dao().delete(event.getResource());
+						if (event.getResource() != null) {
+							dao().delete(event.getResource());
+						} else {
+							// Should never happen.
+							log.warn("Site delete event without a resource.");
+						}
 					}
 				}
 		

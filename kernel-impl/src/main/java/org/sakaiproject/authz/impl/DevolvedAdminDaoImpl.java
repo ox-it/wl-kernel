@@ -18,7 +18,6 @@ public class DevolvedAdminDaoImpl extends HibernateDaoSupport implements Devolve
 
 	public void save(DevolvedAdmin devolvedAdmin) {
 		getHibernateTemplate().saveOrUpdate(devolvedAdmin);
-		
 	}
 	
 	public void delete(final String realm) {
@@ -26,7 +25,9 @@ public class DevolvedAdminDaoImpl extends HibernateDaoSupport implements Devolve
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Object toDelete = session.get(DevolvedAdmin.class, realm);
-				session.delete(toDelete);
+				if (toDelete != null) {
+					session.delete(toDelete);
+				}
 				return null;
 			}
 			
