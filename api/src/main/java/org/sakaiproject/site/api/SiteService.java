@@ -181,10 +181,10 @@ public interface SiteService extends EntityProducer
 		public static final SelectionType PUBVIEW = new SelectionType("pubView", true, true, true);
 
 		/** Get any sites. (but not unpublished)? */
-		public static final SelectionType ANY = new SelectionType("any", false, false, true);
+		public static final SelectionType ANY = new SelectionType("any", false, false, false);
 
 		/** Get any non-user sites. (special) */
-		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, true);
+		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false);
 		
 		/** Get my deleted sites. */
 		public static final SelectionType DELETED = new SelectionType("deleted", true, true, false);
