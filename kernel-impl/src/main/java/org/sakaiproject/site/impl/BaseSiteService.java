@@ -544,16 +544,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			//check for softly deleted visit permission
 			if(site.isSoftlyDeleted()) {
 				rv = unlockCheck(SITE_VISIT_SOFTLY_DELETED, site.getReference());
-			}
-			
-			if (site.isPublished())
-			{
-				rv = unlockCheck(SITE_VISIT, site.getReference());
-			}
-
-			else
-			{
-				rv = unlockCheck(SITE_VISIT_UNPUBLISHED, site.getReference());
+			} else {
+				if (site.isPublished())
+				{
+					rv = unlockCheck(SITE_VISIT, site.getReference());
+				}
+				else
+				{
+					rv = unlockCheck(SITE_VISIT_UNPUBLISHED, site.getReference());
+				}
 			}
 		}
 		catch (Exception ignore)
