@@ -4429,7 +4429,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	
 	{
 		BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(id);
-		removeResource(edit);
+		try
+		{
+			removeResource(edit);
+		}
+		finally
+		{
+			// If the edit wasn't committed unlock the resource.
+			if (edit.isActiveEdit())
+			{
+				cancelResource(edit);
+			}
+		}
 
 	} // removeResource
 
