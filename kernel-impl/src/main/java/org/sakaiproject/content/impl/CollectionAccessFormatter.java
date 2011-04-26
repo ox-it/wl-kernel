@@ -227,7 +227,8 @@ public class CollectionAccessFormatter
 						// File
 
 						/*
-						String createdBy = getUserProperty(properties, ResourceProperties.PROP_CREATOR).getDisplayName();
+						User user = getUserProperty(properties, ResourceProperties.PROP_CREATOR);
+						String createdBy = (user != null)? user.getDisplayName(): "Unknown"; // TODO i18n
 						Time modTime = properties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
 						String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
 						
