@@ -556,4 +556,9 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return null;
 	}
 
+	public List<User> searchExternalUsers(String criteria, int first, int last) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

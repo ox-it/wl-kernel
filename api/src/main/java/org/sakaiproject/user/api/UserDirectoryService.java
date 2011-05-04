@@ -389,6 +389,21 @@ public interface UserDirectoryService extends EntityProducer
 	 *            if the current user does not have permission to remove this user.
 	 */
 	void removeUser(UserEdit user) throws UserPermissionException;
+	
+	/** 
+     * Search all the externally provided users that match this criteria in eid, 
+     * email, first or last name. 
+     * 
+     * @param criteria 
+     * The search criteria. 
+     * @param first 
+     * The first record position to return. 
+     * @param last 
+     * The last record position to return. 
+     * @return A list (User) of all the aliases matching the criteria, within the 
+     * record range given (sorted by sort name). 
+     */ 
+    List<User> searchExternalUsers(String criteria, int first, int last); 
 
 	/**
 	 * Search all the users that match this criteria in id or email, first or last name, returning a subset of records within the record range given (sorted by sort name).
