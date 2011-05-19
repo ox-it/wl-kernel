@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -106,6 +107,11 @@ public abstract class SakaiSecurity implements SecurityService
 	 * @return the EventTrackingService collaborator.
 	 */
 	protected abstract EventTrackingService eventTrackingService();
+	
+	/**
+	 * @return the TwoFactoryAuthenticator collaborator
+	 */
+	protected abstract TwoFactorAuthentication twoFactorAuthentication();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -272,6 +278,12 @@ public abstract class SakaiSecurity implements SecurityService
 			{
 				return advice == SecurityAdvisor.SecurityAdvice.ALLOWED;
 			}
+		}
+		
+		// If twofactor is required and this current session doesn't have it deny
+		if (twoFactorAuthentication().isTwoFactorRequired(entityRef) && !twoFactorAuthentication().hasTwoFactor())
+		{
+			return false;
 		}
 
 		// check with the AuthzGroups appropriate for this entity
