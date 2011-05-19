@@ -53,7 +53,9 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -1260,6 +1262,19 @@ public class RequestFilter implements Filter
 		// set this as the current session
 		SessionManager.setCurrentSession(s);
 		
+
+		// This has to happen after the set current session.
+		if (s != null && !auto) {
+			Long expire = (Long) s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION);
+			if (null != expire) {
+				if (System.currentTimeMillis() < expire) {
+					TwoFactorAuthentication twoFactorAuthentication =
+							(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+					twoFactorAuthentication.markTwoFactor();
+				}
+			}
+		}
+
 		// Now that we know the session exists, regardless of whether it's new or not, lets see if there
 		// is a UsageSession.  If so, we want to check it's serverId
 		UsageSession us = null;
