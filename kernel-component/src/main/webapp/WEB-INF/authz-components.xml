@@ -55,6 +55,7 @@
 		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="dao" bean="org.sakaiproject.authz.impl.DevolvedAdminDao" />
+		<lookup-method name="twoFactorAuthentication" bean="org.sakaiproject.authz.api.TwoFactorAuthentication"/>
 
 		<property name="cacheMinutes"><value>5</value></property>
 		<property name="adminSiteType"><value>admin</value></property>
@@ -157,6 +158,17 @@
 			<ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
 		</property>
 	</bean>
+
+	<!-- Bean than understands two factor authentication. -->
+	<bean id="org.sakaiproject.authz.api.TwoFactorAuthentication"
+		class="org.sakaiproject.authz.impl.TwoFactorAuthenticationImpl" init-method="init">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+	</bean>
+
 
 
 </beans>
