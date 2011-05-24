@@ -6,6 +6,8 @@ import junit.framework.TestSuite;
 
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -40,6 +42,8 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 		
 		UserDirectoryService userDirectoryService = (UserDirectoryService)ComponentManager.get(UserDirectoryService.class);
 		
+		ContentHostingService contentHostingService = (ContentHostingService)ComponentManager.get(ContentHostingService.class);
+		
 		TwoFactorAuthentication twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 		
 
@@ -60,6 +64,15 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 		secureSite.addMember("other", "access", true, false);
 		siteService.save(secureSite);
 		
+		String siteCollectionId = contentHostingService.getSiteCollection(id);
+		String resourceId = siteCollectionId+ "test.txt";
+		ContentResourceEdit resourceEdit = contentHostingService.addResource(resourceId);
+		resourceEdit.setContent(new String("Just some basic content").getBytes());
+		resourceEdit.setContentType("text/plain");
+		contentHostingService.commitResource(resourceEdit);
+		
+		
+		
 		assertFalse(twoFactorAuthentication.isTwoFactorRequired(secureSite.getReference()));
 	
 		try {
@@ -68,10 +81,21 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 			fail("Admin should be able to get to the site.");
 		}
 		
+		try {
+			contentHostingService.getReference(resourceId);
+		} catch (Exception e) {
+			fail("Admin should be able to get to the resource.");
+		}
+		
 		sakaiSession.setUserEid("other");
 		sakaiSession.setUserId("other");
 		try {
 			Site site = siteService.getSiteVisit(id);
+		} catch (Exception e) {
+			fail("Other user should be able to access the site as it's not yet secure");
+		}
+		try {
+			contentHostingService.getResource(resourceId);
 		} catch (Exception e) {
 			fail("Other user should be able to access the site as it's not yet secure");
 		}
@@ -88,6 +112,11 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 		sakaiSession.setUserId("other");
 		try {
 			Site site = siteService.getSiteVisit(id);
+			fail("As we don't have two factor auth yet, this should fail.");
+		} catch (Exception e) {
+		}
+		try {
+			contentHostingService.getResource(resourceId);
 			fail("As we don't have two factor auth yet, this should fail.");
 		} catch (Exception e) {
 		}
