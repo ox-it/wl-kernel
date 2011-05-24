@@ -1177,6 +1177,10 @@ public class RequestFilter implements Filter
 		if ((s != null) && (!auto))
 		{
 			s.setActive();
+			if (null != s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION)) {
+				s.setAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION, 
+					System.currentTimeMillis() + org.sakaiproject.tool.api.SessionManager.EXPIREMILIS);
+			}
 		}
 
 		// if missing, make one

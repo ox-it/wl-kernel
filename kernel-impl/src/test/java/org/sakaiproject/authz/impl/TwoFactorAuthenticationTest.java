@@ -13,6 +13,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * Tests two factor authentication code.
@@ -26,6 +27,8 @@ public class TwoFactorAuthenticationTest extends TestCase {
 	@Mock
 	private EntityManager entityManager;
 	@Mock
+	private SessionManager sessionManager;
+	@Mock
 	private SiteService siteService;
 	
 	private TwoFactorAuthenticationImpl twoFactorAuthentication;
@@ -38,6 +41,7 @@ public class TwoFactorAuthenticationTest extends TestCase {
 	public void wireUp() {
 		twoFactorAuthentication = new TwoFactorAuthenticationImpl();
 		twoFactorAuthentication.setEntityManager(entityManager);
+		twoFactorAuthentication.setSessionManager(sessionManager);
 		twoFactorAuthentication.setServerConfigurationService(serverConfigurationService);
 		twoFactorAuthentication.setSiteService(siteService);
 		twoFactorAuthentication.init();

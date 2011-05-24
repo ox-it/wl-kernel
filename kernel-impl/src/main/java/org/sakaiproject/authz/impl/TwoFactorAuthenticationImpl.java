@@ -9,6 +9,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 
@@ -17,6 +19,8 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 	private boolean enabled;
 	
 	private ServerConfigurationService serverConfigurationService;
+	
+	private SessionManager sessionManager;
 	
 	private EntityManager entityManager;
 	
@@ -33,6 +37,10 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 		this.entityManager = entityManager;
 	}
 	
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+	
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
@@ -43,12 +51,22 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 	}
 	
 	public boolean hasTwoFactor() {
-		// TODO Auto-generated method stub
+		Session session = sessionManager.getCurrentSession();
+		Long timeout = (Long)session.getAttribute(SessionManager.TWOFACTORAUTHENTICATION);
+		if (null != timeout) {
+			if (System.currentTimeMillis() < timeout) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		return false;
 	}
 
 	public void markTwoFactor() {
-		// TODO Auto-generated method stub
+		Session session = sessionManager.getCurrentSession();
+		session.setAttribute(SessionManager.TWOFACTORAUTHENTICATION, 
+				System.currentTimeMillis() + SessionManager.EXPIREMILIS);
 
 	}
 
