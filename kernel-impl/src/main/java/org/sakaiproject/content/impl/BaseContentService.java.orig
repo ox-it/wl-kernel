@@ -105,6 +105,7 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -177,7 +178,7 @@ import com.ibm.icu.text.CharsetMatch;
  * </p>
  */
 public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
-SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
+SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -7714,6 +7715,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	/**
 	 * {@inheritDoc}
 	 */
+<<<<<<< HEAD
+	public void updateEntityReferences(String toContext, Map transversalMap){
+		//TODO: is there any content that needs reference updates?
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+	}
+
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
+
+	{
+		Map transversalMap = new HashMap();
+		// default to import all resources
+		boolean toBeImported = true;
+=======
 	// This incorrectly expects references to the site collections rather than site IDs as all the 
 	// other services do.
 	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
@@ -7722,6 +7744,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		// We could parse the strings directly but why duplicate the logic.
 		Reference fromRef = m_entityManager.newReference(getReference(fromContext));
 		Reference toRef = m_entityManager.newReference(getReference(toContext));
+>>>>>>> WL-943 Support replacing site references when copying HTML content.
 
 		if (fromRef != null && toRef != null) {
 			String fromSiteId = fromRef.getContext();
@@ -7733,65 +7756,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				for(String resourceId: (List<String>) resourceIds) {
 					ctx.addResource(resourceId);
 			}
-<<<<<<< HEAD
-			catch (PermissionException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-			catch (InconsistentException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-			finally
-			{
-				//safety first!
-				if (toCollectionEdit != null && toCollectionEdit.isActiveEdit()) {
-					((BaseCollectionEdit) toCollectionEdit).closeEdit();
-				}
-			}
-		}
-		catch (TypeException e)
-		{
-			M_log.warn(this + toContext, e);
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn(this + toContext, e);
-		}
-
-		if (toCollection != null)
-=======
 			} else {
 				Queue<String> collectionsToProcess = new LinkedList<String>();
 				collectionsToProcess.add(fromContext);
 				for(String collectionId = collectionsToProcess.poll(); collectionId != null; collectionId = collectionsToProcess.poll())
->>>>>>> 1c13310... WL-943 Support replacing site references when copying HTML content.
 		{
 			try
 			{
-<<<<<<< HEAD
-				// get the root collection
-				ContentCollection oCollection = getCollection(fromContext);
-
-				// Get the collection members from the 'new' collection
-				List oResources = oCollection.getMemberResources();
-				for (int i = 0; i < oResources.size(); i++)
-				{
-					// get the original resource
-					Entity oResource = (Entity) oResources.get(i);
-					String oId = oResource.getId();
-
-					if (resourceIds != null && resourceIds.size() > 0)
-					{
-						// only import those with ids inside the list
-						toBeImported = false;
-						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
-=======
 						ContentCollection collection = getCollection(collectionId);
 						List members = collection.getMemberResources();
 					// get the original resource
 						for (Entity member: (List<Entity>)members)
->>>>>>> 1c13310... WL-943 Support replacing site references when copying HTML content.
 						{
 							ctx.addResource(member.getId());
 							if (isCollection(member.getId()))
@@ -7800,60 +7775,39 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							}
 						}
 					}
-<<<<<<< HEAD
-
-					if (toBeImported)
-					{
-						String oId2 = oResource.getId();
-						String nId = "";
-
-						int ind = oId2.indexOf(fromContext);
-						if (ind != -1)
-						{
-							String str1 = "";
-							String str2 = "";
-							if (ind != 0)
-							{
-								// the substring before the fromContext string
-								str1 = oId2.substring(0, ind);
-							}
-							if (!((ind + fromContext.length()) > oId2.length()))
-							{
-								// the substring after the fromContext string
-								str2 = oId2.substring(ind + fromContext.length(), oId2.length());
-							}
-							// get the new resource id; fromContext is replaced with toContext
-							nId = str1 + toContext + str2;
-						}
-
-						ResourceProperties oProperties = oResource.getProperties();
-						boolean isCollection = false;
-						try
-						{
-							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-						}
-=======
->>>>>>> 1c13310... WL-943 Support replacing site references when copying HTML content.
 						catch (Exception e)
 						{
 						M_log.warn("Failed to get collection: "+ collectionId);
 						}
+							}
+							}
 <<<<<<< HEAD
-
-						if (isCollection)
+							transversalMap.put(oResource.getId(), nId);
+							transversalMap.putAll(transferCopyEntitiesRefMigrator(oResource.getId(), nId, resourceIds));
+						}
+						else
 						{
-							// add collection
 							try
 							{
-								ContentCollectionEdit edit = addCollection(nId);
+								// add resource
+								ContentResourceEdit edit = addResource(nId);
+								edit.setContentType(((ContentResource) oResource).getContentType());
+								edit.setResourceType(((ContentResource) oResource).getResourceType());
+								edit.setContent(((ContentResource) oResource).streamContent());
+								edit.setAvailability(((ContentResource) oResource).isHidden(), ((ContentResource) oResource).getReleaseDate(), ((ContentResource) oResource).getRetractDate());
+								//edit.setContent(((ContentResource) oResource).getContent());
 								// import properties
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
 								p.clear();
 								p.addAll(oProperties);
-								edit.setAvailability(((ContentCollection) oResource).isHidden(), ((ContentCollection) oResource).getReleaseDate(), ((ContentCollection) oResource).getRetractDate());
 								// complete the edit
-								m_storage.commitCollection(edit);
-								((BaseCollectionEdit) edit).closeEdit();
+								m_storage.commitResource(edit);
+								((BaseResourceEdit) edit).closeEdit();
+								
+								transversalMap.put(oResource.getId(), nId);
+							}
+							catch (PermissionException e)
+							{
 							}
 							catch (IdUsedException e)
 							{
@@ -7861,21 +7815,34 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							catch (IdInvalidException e)
 							{
 							}
-							catch (PermissionException e)
+							catch (InconsistentException e)
 							{
-=======
->>>>>>> 1c13310... WL-943 Support replacing site references when copying HTML content.
 							}
+							catch (ServerOverloadException e)
+							{
 							}
-<<<<<<< HEAD
+						} // if
+					} // if
+				} // for
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			catch (TypeException e)
+			{
+			}
+			catch (PermissionException e)
+			{
+			}
+		}
 
-							transferCopyEntities(oResource.getId(), nId, resourceIds);
+		return transversalMap;
 =======
-	
+
 			// Now do the copy.
 			m_contentCopy.copyReferences(ctx);
->>>>>>> 1c13310... WL-943 Support replacing site references when copying HTML content.
 						}
+>>>>>>> WL-943 Support replacing site references when copying HTML content.
 	} // importResources
 
 	/**
@@ -13000,7 +12967,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	}
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+	}
+
+	public Map<String,String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+		Map transversalMap = new HashMap();
 		try
 		{
 			if(cleanup == true)
@@ -13070,7 +13043,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			M_log.debug("BaseContentService Resources transferCopyEntities Error" + e);
 		}
-		transferCopyEntities(fromContext, toContext, ids);
+		transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+		
+		return transversalMap;
 	}
 
 	// Code lightly adapted from Apache Tomcat 5.5.27 catalina default servlet
