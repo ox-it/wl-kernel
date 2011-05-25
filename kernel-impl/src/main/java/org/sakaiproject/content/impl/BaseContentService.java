@@ -4725,14 +4725,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// reserve the resource in storage - it will fail if the id is in use
 		BaseResourceEdit edit = (BaseResourceEdit) m_storage.putDeleteResource(id, uuid, userId);
+
 		// added for NPE static code review -AZ
 		if (edit == null) {
 		    throw new NullPointerException("putDeleteResource returned a null value, this is unrecoverable");
 		}
+		try
+		{
+
 
 		// add live properties-do we need this? - done to have uniformity with main table
 		addLiveResourceProperties(edit);
-
 		// track event - do we need this? no harm to keep track
 		edit.setEvent(EVENT_RESOURCE_ADD);
 
@@ -4751,6 +4754,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
+		} finally {
+			if (edit != null && edit.isActiveEdit()) {
+				m_storage.cancelResource(edit);
+			}
+		}
 
 		return edit;
 
