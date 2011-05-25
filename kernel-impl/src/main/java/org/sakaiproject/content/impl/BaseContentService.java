@@ -35,8 +35,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -64,6 +66,8 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentFilter;
 import org.sakaiproject.content.api.ContentHostingHandler;
@@ -327,6 +331,20 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void setSecurityService(SecurityService service)
 	{
 		m_securityService = service;
+	}
+	
+	/** Dependency: ContentCopy. */
+	protected ContentCopy m_contentCopy = null;
+
+	/**
+	 * Dependency: ContentCopy.
+	 * 
+	 * @param service
+	 *        The ContentCopy.
+	 */
+	public void setContentCopy(ContentCopy service)
+	{
+		m_contentCopy = service;
 	}
 
 	/**
@@ -7337,189 +7355,54 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * {@inheritDoc}
 	 */
+	// This incorrectly expects references to the site collections rather than site IDs as all the 
+	// other services do.
 	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
 	{
-		// default to import all resources
-		boolean toBeImported = true;
-
-		// set up the target collection
-		ContentCollection toCollection = null;
-		try
-		{
-			toCollection = getCollection(toContext);
-		}
-		catch(IdUnusedException e)
-		{
-			// not such collection yet, add one
-			try
-			{
-				toCollection = addCollection(toContext);
-			}
-			catch(IdUsedException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-			catch(IdInvalidException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-			catch (PermissionException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-			catch (InconsistentException ee)
-			{
-				M_log.warn(this + toContext, ee);
-			}
-		}
-		catch (TypeException e)
-		{
-			M_log.warn(this + toContext, e);
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn(this + toContext, e);
-		}
+		// We want to know the site ID from a content ID.
+		// We could parse the strings directly but why duplicate the logic.
+		Reference fromRef = m_entityManager.newReference(getReference(fromContext));
+		Reference toRef = m_entityManager.newReference(getReference(toContext));
 		
-		if (toCollection != null)
-		{
-			// get the list of all resources for importing
-			try
-			{
-				// get the root collection
-				ContentCollection oCollection = getCollection(fromContext);
-	
-				// Get the collection members from the 'new' collection
-				List oResources = oCollection.getMemberResources();
-				for (int i = 0; i < oResources.size(); i++)
+		if (fromRef != null && toRef != null) {
+			String fromSiteId = fromRef.getContext();
+			String toSiteId = toRef.getContext();
+
+
+			ContentCopyContext ctx = m_contentCopy.createCopyContext(fromSiteId, toSiteId, true);
+			if (resourceIds != null && resourceIds.size() > 0) {
+				for(String resourceId: (List<String>) resourceIds) {
+					ctx.addResource(resourceId);
+				}
+			} else {
+				Queue<String> collectionsToProcess = new LinkedList<String>();
+				collectionsToProcess.add(fromContext);
+				for(String collectionId = collectionsToProcess.poll(); collectionId != null; collectionId = collectionsToProcess.poll())
 				{
-					// get the original resource
-					Entity oResource = (Entity) oResources.get(i);
-					String oId = oResource.getId();
-	
-					if (resourceIds != null && resourceIds.size() > 0)
+					try
 					{
-						// only import those with ids inside the list
-						toBeImported = false;
-						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
+						ContentCollection collection = getCollection(collectionId);
+						List members = collection.getMemberResources();
+						// get the original resource
+						for (Entity member: (List<Entity>)members)
 						{
-							if (((String) resourceIds.get(j)).equals(oId))
+							ctx.addResource(member.getId());
+							if (isCollection(member.getId()))
 							{
-								toBeImported = true;
+								collectionsToProcess.add(member.getId());
 							}
 						}
 					}
-	
-					if (toBeImported)
+					catch(Exception e)
 					{
-						String oId2 = oResource.getId();
-						String nId = "";
-	
-						int ind = oId2.indexOf(fromContext);
-						if (ind != -1)
-						{
-							String str1 = "";
-							String str2 = "";
-							if (ind != 0)
-							{
-								// the substring before the fromContext string
-								str1 = oId2.substring(0, ind);
-							}
-							if (!((ind + fromContext.length()) > oId2.length()))
-							{
-								// the substring after the fromContext string
-								str2 = oId2.substring(ind + fromContext.length(), oId2.length());
-							}
-							// get the new resource id; fromContext is replaced with toContext
-							nId = str1 + toContext + str2;
-						}
-	
-						ResourceProperties oProperties = oResource.getProperties();
-						boolean isCollection = false;
-						try
-						{
-							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-						}
-						catch (Exception e)
-						{
-						}
-	
-						if (isCollection)
-						{
-							// add collection
-							try
-							{
-								ContentCollectionEdit edit = addCollection(nId);
-								// import properties
-								ResourcePropertiesEdit p = edit.getPropertiesEdit();
-								p.clear();
-								p.addAll(oProperties);
-								// complete the edit
-								m_storage.commitCollection(edit);
-								((BaseCollectionEdit) edit).closeEdit();
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
-							}
-	
-							transferCopyEntities(oResource.getId(), nId, resourceIds);
-						}
-						else
-						{
-							try
-							{
-								// add resource
-								ContentResourceEdit edit = addResource(nId);
-								edit.setContentType(((ContentResource) oResource).getContentType());
-								edit.setContent(((ContentResource) oResource).streamContent());
-								//edit.setContent(((ContentResource) oResource).getContent());
-								// import properties
-								ResourcePropertiesEdit p = edit.getPropertiesEdit();
-								p.clear();
-								p.addAll(oProperties);
-								// complete the edit
-								m_storage.commitResource(edit);
-								((BaseResourceEdit) edit).closeEdit();
-							}
-							catch (PermissionException e)
-							{
-							}
-							catch (IdUsedException e)
-							{
-							}
-							catch (IdInvalidException e)
-							{
-							}
-							catch (InconsistentException e)
-							{
-							}
-							catch (ServerOverloadException e)
-							{
-							}
-						} // if
-					} // if
-				} // for
+						M_log.warn("Failed to get collection: "+ collectionId);
+					}
+				}
 			}
-			catch (IdUnusedException e)
-			{
-			}
-			catch (TypeException e)
-			{
-			}
-			catch (PermissionException e)
-			{
-			}
+			
+			// Now do the copy.
+			m_contentCopy.copyReferences(ctx);
 		}
-
 	} // importResources
 
 	/**
