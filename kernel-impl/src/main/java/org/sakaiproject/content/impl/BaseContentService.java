@@ -4718,29 +4718,33 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// reserve the resource in storage - it will fail if the id is in use
 		BaseResourceEdit edit = (BaseResourceEdit) m_storage.putDeleteResource(id, uuid, userId);
-		// add live properties-do we need this? - done to have uniformity with main table
-		if (edit != null)
+		try
 		{
+			// add live properties-do we need this? - done to have uniformity with main table
 			addLiveResourceProperties(edit);
+			// track event - do we need this? no harm to keep track
+			edit.setEvent(EVENT_RESOURCE_ADD);
+
+			edit.setContentType(type);
+			edit.setResourceType(resourceType);
+			edit.setReleaseDate(releaseDate);
+			edit.setRetractDate(retractDate);
+			if (inputStream != null)
+			{
+				edit.setContent(inputStream);
+			}
+			addProperties(edit.getPropertiesEdit(), properties);
+
+			// complete the edit - update xml which contains properties xml and store the file content
+			m_storage.commitDeletedResource(edit, uuid);
+
+			// close the edit object
+			((BaseResourceEdit) edit).closeEdit();
+		} finally {
+			if (edit != null && edit.isActiveEdit()) {
+				m_storage.cancelResource(edit);
+			}
 		}
-		// track event - do we need this? no harm to keep track
-		edit.setEvent(EVENT_RESOURCE_ADD);
-
-		edit.setContentType(type);
-		edit.setResourceType(resourceType);
-		edit.setReleaseDate(releaseDate);
-		edit.setRetractDate(retractDate);
-		if (inputStream != null)
-		{
-			edit.setContent(inputStream);
-		}
-		addProperties(edit.getPropertiesEdit(), properties);
-
-		// complete the edit - update xml which contains properties xml and store the file content
-		m_storage.commitDeletedResource(edit, uuid);
-
-		// close the edit object
-		((BaseResourceEdit) edit).closeEdit();
 
 		return edit;
 
