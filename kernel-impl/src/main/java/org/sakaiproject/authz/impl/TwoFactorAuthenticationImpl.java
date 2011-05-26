@@ -28,6 +28,8 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 	
 	private String siteType;
 	
+	private long timeout;
+	
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
@@ -48,6 +50,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 	public void init() {
 		enabled = serverConfigurationService.getBoolean("twofactor.enable", false);
 		siteType = serverConfigurationService.getString("twofactor.site.type", "secure");
+		timeout = serverConfigurationService.getInt("twofactor.timeout", 900000);
 	}
 	
 	public boolean hasTwoFactor() {
@@ -69,9 +72,9 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 
 	public void markTwoFactor() {
 		Session session = sessionManager.getCurrentSession();
-		long timeout = System.currentTimeMillis() + SessionManager.EXPIREMILIS;
-		session.setAttribute(SessionManager.TWOFACTORAUTHENTICATION, timeout);
-		log.debug("markTwoFactor ["+timeout+"]");
+		long expire = System.currentTimeMillis() + timeout;
+		session.setAttribute(SessionManager.TWOFACTORAUTHENTICATION, expire);
+		log.debug("markTwoFactor ["+expire+"]");
 
 	}
 
