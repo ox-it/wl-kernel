@@ -40,7 +40,7 @@ public interface SessionManager
 	public final static String TWOFACTORAUTHENTICATION = "TWOFACTORAUTHENTICATION";
 	
 	/** Timeout for Two Factor Authentication */
-	public final static long EXPIREMILIS = 900000l; // 15 minutes
+	public final static long EXPIREMILIS = 60000l;//900000l; // 15 minutes
 	
 	/**
 	 * Access the known session with this id.

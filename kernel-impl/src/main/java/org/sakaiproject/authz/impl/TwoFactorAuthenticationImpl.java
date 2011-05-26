@@ -54,23 +54,29 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 		Session session = sessionManager.getCurrentSession();
 		Long timeout = (Long)session.getAttribute(SessionManager.TWOFACTORAUTHENTICATION);
 		if (null != timeout) {
+			log.debug("hasTwoFactor ["+System.currentTimeMillis()+":"+timeout+"]");
 			if (System.currentTimeMillis() < timeout) {
+				log.debug("hasTwoFactor [true]");
 				return true;
 			} else {
+				log.debug("hasTwoFactor timeout [false]");
 				return false;
 			}
 		}
+		log.debug("hasTwoFactor [false]");
 		return false;
 	}
 
 	public void markTwoFactor() {
 		Session session = sessionManager.getCurrentSession();
-		session.setAttribute(SessionManager.TWOFACTORAUTHENTICATION, 
-				System.currentTimeMillis() + SessionManager.EXPIREMILIS);
+		long timeout = System.currentTimeMillis() + SessionManager.EXPIREMILIS;
+		session.setAttribute(SessionManager.TWOFACTORAUTHENTICATION, timeout);
+		log.debug("markTwoFactor ["+timeout+"]");
 
 	}
 
 	public boolean isTwoFactorRequired(String ref) {
+		log.debug("isTwoFactorRequired ["+ref+"]");
 		// This checks if two factor authentication is required based on the type of the site.
 		// For references that don't have a valid context we won't be able to work out the type
 		// of the site and so won't know if we should be requiring two factor access.
@@ -84,6 +90,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 				if (entity instanceof Site) {
 					Site site = (Site)entity;
 					if (siteType.equals(site.getType())) {
+						log.debug("isTwoFactorRequired [true]");
 						return true;
 					}
 				}
@@ -94,6 +101,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 				try {
 					Site site = siteService.getSite(siteId);
 					if (siteType.equals(site.getType())) {
+						log.debug("isTwoFactorRequired [true]");
 						return true;
 					}
 				} catch (IdUnusedException iue) {
@@ -103,6 +111,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 				}
 			}
 		}
+		log.debug("isTwoFactorRequired [false]");
 		return false;
 	}
 

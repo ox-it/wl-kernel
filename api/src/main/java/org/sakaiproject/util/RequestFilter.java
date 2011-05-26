@@ -1177,9 +1177,13 @@ public class RequestFilter implements Filter
 		if ((s != null) && (!auto))
 		{
 			s.setActive();
-			if (null != s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION)) {
-				s.setAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION, 
-					System.currentTimeMillis() + org.sakaiproject.tool.api.SessionManager.EXPIREMILIS);
+			Long timeout = (Long) s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION);
+			if (null != timeout) {
+				long reset = System.currentTimeMillis() + org.sakaiproject.tool.api.SessionManager.EXPIREMILIS;
+				if (reset < timeout) {
+					M_log.debug("TwoFactorAuthentication reset ["+timeout+"]");
+					s.setAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION, timeout);
+				}
 			}
 		}
 
