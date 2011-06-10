@@ -128,6 +128,7 @@
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
 	</bean>
 		
 	
