@@ -263,6 +263,12 @@ public abstract class SakaiSecurity implements SecurityService
 			return false;
 		}
 
+		// If twofactor is required and this current session doesn't have it deny
+		if (twoFactorAuthentication().isTwoFactorRequired(entityRef) && !twoFactorAuthentication().hasTwoFactor())
+		{
+			return false;
+		}
+
 		// if super, grant
 		if (isSuperUser(userId))
 		{
@@ -280,11 +286,6 @@ public abstract class SakaiSecurity implements SecurityService
 			}
 		}
 		
-		// If twofactor is required and this current session doesn't have it deny
-		if (twoFactorAuthentication().isTwoFactorRequired(entityRef) && !twoFactorAuthentication().hasTwoFactor())
-		{
-			return false;
-		}
 
 		// check with the AuthzGroups appropriate for this entity
 		return checkAuthzGroups(userId, function, entityRef, azgs);
