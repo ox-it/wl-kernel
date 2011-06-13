@@ -13,6 +13,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -30,6 +31,8 @@ public class TwoFactorAuthenticationTest extends TestCase {
 	private SessionManager sessionManager;
 	@Mock
 	private SiteService siteService;
+	@Mock
+	private ThreadLocalManager threadLocalManager;
 	
 	private TwoFactorAuthenticationImpl twoFactorAuthentication;
 	
@@ -44,6 +47,7 @@ public class TwoFactorAuthenticationTest extends TestCase {
 		twoFactorAuthentication.setSessionManager(sessionManager);
 		twoFactorAuthentication.setServerConfigurationService(serverConfigurationService);
 		twoFactorAuthentication.setSiteService(siteService);
+		twoFactorAuthentication.setThreadLocalManager(threadLocalManager);
 		twoFactorAuthentication.init();
 	}
 	
