@@ -11,6 +11,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -76,16 +77,18 @@ public class TwoFactorAuthenticationTest extends TestCase {
 		assertFalse(twoFactorAuthentication.isTwoFactorRequired("/site/someid"));
 	}
 	
-	public void testSecureSite() {
+	public void testSecureSite() throws IdUnusedException {
 		when(serverConfigurationService.getBoolean("twofactor.enable", false)).thenReturn(true);
 		when(serverConfigurationService.getString(eq("twofactor.site.type"), anyString())).thenReturn("secure");
 		
 		Reference reference = mock(Reference.class);
 		Site site = mock(Site.class);
 		when(site.getType()).thenReturn("secure");
-		when(reference.getEntity()).thenReturn(site);
 		when(reference.getType()).thenReturn(SiteService.APPLICATION_ID);
+		when(reference.getId()).thenReturn("someid");
 		when(entityManager.newReference("/site/someid")).thenReturn(reference);
+		when(siteService.getSite("someid")).thenReturn(site);
+		when(siteService.siteExists("someid")).thenReturn(true);
 		
 		wireUp();
 		
@@ -127,6 +130,7 @@ public class TwoFactorAuthenticationTest extends TestCase {
 		Site site = mock(Site.class);
 		when(site.getType()).thenReturn("secure");
 		when(siteService.getSite("siteid")).thenReturn(site);
+		when(siteService.siteExists("siteid")).thenReturn(true);
 		
 		when(entityManager.newReference("/site/someid")).thenReturn(reference);
 		

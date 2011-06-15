@@ -120,7 +120,15 @@ public class TwoFactorAuthenticationIntTest extends SakaiKernelTestBase {
 			fail("As we don't have two factor auth yet, this should fail.");
 		} catch (Exception e) {
 		}
-		
+
+		// This is to check that we don't get a stack overflow error on a site that doesn't 
+		// exist yet.
+		String userSiteId = siteService.getUserSiteId(user.getId());
+		try {
+			Site site = siteService.getSiteVisit(userSiteId);
+		} catch (Exception e) {
+			fail("This should work");
+		}
 	}
 	
 }

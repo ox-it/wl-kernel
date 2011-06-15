@@ -99,50 +99,75 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 			return false;
 		}
 		if (ref != null) {
-			// Prevent stack overflow, when an unlock happens from inside here:
-			List<String> checked = (List<String>) threadLocalManager.get(TwoFactorAuthenticationImpl.class.getName());
-			if (checked == null) {
-				checked = new ArrayList<String>();
-				threadLocalManager.set(TwoFactorAuthenticationImpl.class.getName(), checked);
-			}
-			if (checked.contains(ref)) {
-				return false; // This allows the required entity to load.
-			}
-			try {
-				checked.add(ref);
-				Reference reference = entityManager.newReference(ref);
-				if (SiteService.APPLICATION_ID.equals(reference.getType())) {
-					Object entity = reference.getEntity();
-					if (entity instanceof Site) {
-						Site site = (Site)entity;
-						if (siteType.equals(site.getType())) {
-							log.debug("isTwoFactorRequired [true]");
-							return true;
-						}
-					}
-				} else {
-					// If this is a reference for something other than a site then check for the 
-					// context and use the site.
-					String siteId = reference.getContext();
-					try {
-						Site site = siteService.getSite(siteId);
-						if (siteType.equals(site.getType())) {
-							log.debug("isTwoFactorRequired [true]");
-							return true;
-						}
-					} catch (IdUnusedException iue) {
-						if (log.isInfoEnabled()) {
-							log.info("Failed to find site: "+siteId+ " for reference: "+ ref);
-						}
-					}
-				}
-			} finally {
-				if(!checked.isEmpty()) {
-					checked.remove(checked.size()-1);
-				}
+			return findSiteId(ref);
+		}
+
+		log.debug("isTwoFactorRequired [false]");
+		return false;
+	}
+
+	private boolean findSiteId(String ref) {
+		Reference reference = entityManager.newReference(ref);
+		if (SiteService.APPLICATION_ID.equals(reference.getType())) {
+			String siteId = reference.getId();
+			return isSiteTwoFactor(siteId, ref);
+		} else {
+			// If this is a reference for something other than a site then check for the 
+			// context and use the site.
+			String siteId = reference.getContext();
+			// Some references don't have a context (eg /content/user)
+			return isSiteTwoFactor(siteId, ref);
+		}
+	}
+	
+	
+	// This isn't currently used as we can prevent unlocks happening inside the siteservice by 
+	// checking if a site exists first.
+	private boolean checkPreviousRefs(String ref) {
+		// Prevent stack overflow, when an unlock happens from inside here:
+		List<String> checked = (List<String>) threadLocalManager.get(TwoFactorAuthenticationImpl.class.getName());
+		if (checked == null) {
+			checked = new ArrayList<String>();
+			threadLocalManager.set(TwoFactorAuthenticationImpl.class.getName(), checked);
+		}
+		if (checked.contains(ref)) {
+			return false; // This allows the required entity to load.
+		}
+		try {
+			checked.add(ref);
+			return findSiteId(ref);
+		} finally {
+			if(!checked.isEmpty()) {
+				checked.remove(checked.size()-1);
 			}
 		}
-		log.debug("isTwoFactorRequired [false]");
+	}
+	
+	/**
+	 * This checks to see if a siteId requires two factor authentication.
+	 * @param siteId The site ID to check.
+	 * @param ref The reference which the site ID was in.
+	 * @return <code>true</code> if two factor authentication is required.
+	 */
+	private boolean isSiteTwoFactor(String siteId, String ref) {
+		// We have this check because getSite() makes a call to unlock so we only check
+		// on sites that already exist.
+		if (siteService.siteExists(siteId)) {
+			try {
+				Site site = siteService.getSite(siteId);
+				if (siteType.equals(site.getType())) {
+					log.debug("isTwoFactorRequired [true]");
+					return true;
+				}
+			} catch (IdUnusedException iue) {
+				// Should only ever happen when someone else deletes the site in anther thread
+				// in-between exist check and getting the site.
+			}
+		} else {
+			if (log.isInfoEnabled()) {
+				log.info("Failed to find site: "+siteId + " for ref: "+ ref);
+			}
+		}
 		return false;
 	}
 
