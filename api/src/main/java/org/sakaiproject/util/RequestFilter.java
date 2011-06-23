@@ -1179,14 +1179,6 @@ public class RequestFilter implements Filter
 		if ((s != null) && (!auto))
 		{
 			s.setActive();
-			Long expire = (Long) s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION);
-			if (null != expire) {
-				if (System.currentTimeMillis() < expire) {
-					TwoFactorAuthentication twoFactorAuthentication = 
-						(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
-					twoFactorAuthentication.markTwoFactor();
-				}
-			}
 		}
 
 		// if missing, make one
@@ -1206,6 +1198,19 @@ public class RequestFilter implements Filter
 
 		// set this as the current session
 		SessionManager.setCurrentSession(s);
+		
+
+		// This has to happen after the set current session.
+		if (s != null && !auto) {
+			Long expire = (Long) s.getAttribute(org.sakaiproject.tool.api.SessionManager.TWOFACTORAUTHENTICATION);
+			if (null != expire) {
+				if (System.currentTimeMillis() < expire) {
+					TwoFactorAuthentication twoFactorAuthentication = 
+							(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
+					twoFactorAuthentication.markTwoFactor();
+				}
+			}
+		}
 
 		// if we had a cookie and we have no session, clear the cookie TODO: detect closed session in the request
 		if ((s == null) && (c != null))
