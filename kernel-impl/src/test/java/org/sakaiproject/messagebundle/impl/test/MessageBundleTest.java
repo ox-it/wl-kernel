@@ -31,8 +31,6 @@ public class MessageBundleTest extends SakaiKernelTestBase {
 	private static ServerConfigurationService serverConfigurationService;
     private static MessageBundleService messageBundleService;
 
-    private static String CONFIG = "../kernel-component/src/main/webapp/WEB-INF/components.xml";
-
     static ResourceBundle resourceBundleEN;
     static ResourceBundle resourceBundleFr;
 
@@ -47,7 +45,7 @@ public class MessageBundleTest extends SakaiKernelTestBase {
 		TestSetup setup = new TestSetup(new TestSuite(MessageBundleTest.class)) {
 			protected void setUp() throws Exception {
 				try {
-					oneTimeSetup("messagebundle", CONFIG);
+					oneTimeSetup("messagebundle");
                     oneTimeSetupAfter();
 				} catch (Exception e) {
 					log.warn(e);
