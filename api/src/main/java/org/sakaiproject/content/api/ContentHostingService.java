@@ -405,6 +405,15 @@ public interface ContentHostingService extends EntityProducer
 	public List<ContentResource> getAllResources(String id);
 
 	/**
+	 * Access a List of all the deleted ContentResource objects in this path (and below) which the current user has access.
+	 * 
+	 * @param id
+	 *        A collection id.
+	 * @return a List of the ContentResource objects.
+	 */
+	public List getAllDeletedResources(String id);
+
+	/**
 	 * check permissions for editCollection()
 	 * 
 	 * @param id
@@ -1130,6 +1139,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the resource is a collection.
 	 * @exception InUseException
 	 *            if the resource is locked by someone else.
+	 * @throws ServerOverloadException 
 	 */
 	public void removeResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException;
 
@@ -1140,6 +1150,7 @@ public interface ContentHostingService extends EntityProducer
 	 *        The ContentResourceEdit object to remove.
 	 * @exception PermissionException
 	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
+	 * @throws ServerOverloadException 
 	 */
 	public void removeResource(ContentResourceEdit edit) throws PermissionException;
 
@@ -1881,6 +1892,33 @@ public interface ContentHostingService extends EntityProducer
 	 * @see org.sakaiproject.content.api.ContentHostingService#MAXIMUM_PAGE_SIZE
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
+
+	/**
+	 * Restore the resource with this resource id.
+	 * 
+	 * @param id
+	 *        The id of the resource.
+	 * @exception PermissionException
+	 *            if the user does not have permissions to read the resource or read through any containing collection.
+	 * @exception IdUnusedException
+	 *            if the resource id is not found.
+	 * @exception TypeException
+	 *            if the resource is a collection.
+	 * @exception InUseException
+	 *            if the resource is locked by someone else.
+	 * @return the ContentResource object found.
+	 */
+	public void restoreResource(String id) throws PermissionException, IdUsedException, IdUnusedException,
+		IdInvalidException,	InconsistentException, OverQuotaException, ServerOverloadException, TypeException, InUseException;
+
+	/**
+	 * Permanently remove the resource with this resource id.
+	 * 
+	 * @param id
+	 *        The id of the resource.
+	 * @throws PermissionException 
+	 */
+	public void removeDeletedResource(String resourceId) throws PermissionException, IdUnusedException, TypeException, InUseException; 
 
 	/**
 	 * Retrieve a collection of ContentResource objects of a particular resource-type in a set of contexts

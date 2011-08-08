@@ -38,6 +38,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1735,7 +1736,7 @@ public class DbContentService extends BaseContentService
                             if (m_bodyPath != null)
                             {
                                 message += "to file";
-                                ok = putResourceBodyFilesystem(edit, redit.m_contentStream);
+								ok = putResourceBodyFilesystem(edit, redit.m_contentStream, m_bodyPath);
                             }
 
                             // otherwise use the database
@@ -1815,25 +1816,182 @@ public class DbContentService extends BaseContentService
             }
         }
 
+		/** return deleted resource for the given  id */ 
+		public ContentResourceEdit editDeletedResource(String id)
+		{
+			if (id == null || id.trim().length() == 0)
+			{
+				return null;
+			}
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return null; //return (ContentResourceEdit) resolver.editDeletedResource(id);
+				}
+				else
+				{
+					return (ContentResourceEdit) m_resourceDeleteStore.editResource(id);
+				}
+			}
+			finally
+			{
+				out();
+			}
+		}
+		
+		/** return deleted resource for the given  id */ 
+		public void removeDeletedResource(ContentResourceEdit edit)
+		{
+			// delete the body
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					resolver.removeResource(edit);
+				}
+				else
+				{
+
+					// if we have been configured to use an external file system
+					if (m_bodyPath != null)
+					{
+						// form the file name
+						File file = new File(externalResourceFileName(m_bodyPathDeleted, edit));
+
+						// delete
+						if (file.exists())
+						{
+							file.delete();
+						}					
+					}
+
+					// otherwise use the database
+					else
+					{
+						delResourceBodyDb(edit);
+					}
+
+					// clear the memory image of the body
+					byte[] body = ((BaseResourceEdit) edit).m_body;
+					((BaseResourceEdit) edit).m_body = null;
+
+					m_resourceDeleteStore.removeResource(edit);
+
+				}
+			}
+			finally
+			{
+				out();
+			}
+
+		}
+		
+		/** return a list of deleted resource for the given collection id */ 
+		public List getDeletedResources(ContentCollection collection)
+		{
+			List rv = null;
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					// rv = resolver.getDeletedResources(collectionId);
+				}
+				else
+				{
+					rv = m_resourceDeleteStore.getAllResourcesWhereLike("IN_COLLECTION", collection.getId() + "%");
+				}
+				return rv;
+			}
+			finally
+			{
+				out();
+			}
+		}
+		
         /**
          * update xml and store the body of file TODO storing of body content is not used now.
          */
-        public void commitDeleteResource(ContentResourceEdit edit, String uuid)
+		public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException 
         {
             boolean goin = in();
             try
             {
                 if (resolver != null && goin)
                 {
-                    resolver.commitDeleteResource(edit, uuid);
+					resolver.commitDeletedResource(edit, uuid);
+				}
+				else
+				{
+					String message = "failed to write file ";
+					BaseResourceEdit redit = (BaseResourceEdit) edit;
+
+					boolean ok = true;
+					if (redit.m_body == null)
+					{
+						if (redit.m_contentStream == null)
+						{
+							// no body and no stream -- may result from edit in which body is not accessed or modified
+							M_log.debug("ContentResource committed with no change to contents (i.e. no body and no stream for content): "
+									+ edit.getReference());
                 }
                 else
                 {
+							message += "from stream ";
+							// if we have been configured to use an external file system
+							if (m_bodyPath != null)
+							{
+								message += "to file";
+								ok = putResourceBodyFilesystem(edit, redit.m_contentStream, m_bodyPathDeleted);
+							}
+
+							// otherwise use the database
+							else
+							{
+								message += "to database";
+								ok = putResourceBodyDb(edit, redit.m_contentStream); // TODO fix that:
+							}
+						}
+				}
+				else
+				{
+						message += "from byte-array ";
                     byte[] body = ((BaseResourceEdit) edit).m_body;
                     ((BaseResourceEdit) edit).m_body = null;
 
+						// update the resource body
+						if (body != null)
+						{
+							// if we have been configured to use an external file
+							// system
+							if (m_bodyPath != null)
+							{
+								message += "to file";
+								ok = putResourceBodyFilesystem(edit, new ByteArrayInputStream(body), m_bodyPathDeleted);
+							}
+
+							// otherwise use the database
+							else
+							{
+								message += "to database";
+								ok = putResourceBodyDb(edit, body);
+							}
+						}
+					}
+					if (!ok)
+					{
+						cancelResource(edit);
+						ServerOverloadException e = new ServerOverloadException(message);
+						// may be overkill, but let's make sure stack trace gets to log
+						M_log.warn(message, e);
+						throw e;
+					}
                     // update properties in xml and delete locks
                     m_resourceDeleteStore.commitDeleteResource(edit, uuid);
+
                 }
             }
             finally
@@ -1940,6 +2098,46 @@ public class DbContentService extends BaseContentService
             {
                 out();
             }
+		}
+
+		// the body is already in the resource for this version of storage
+		public InputStream streamDeletedResourceBody(ContentResource resource) throws ServerOverloadException
+		{
+
+			boolean goin = in();
+			try
+			{
+				if (resolver != null && goin)
+				{
+					return resolver.streamResourceBody(resource);
+				}
+				else
+				{
+                    long length = ((BaseResourceEdit) resource).m_contentLength;
+                    if (length <= 0)
+                    {
+						M_log.warn("streamDeletedResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength + "  id: "
+								+ resource.getId());
+						return null;
+					}
+
+					// if we have been configured to use an external file system
+					if (m_bodyPath != null)
+					{
+						return streamResourceBodyFilesystem(m_bodyPathDeleted,resource);
+					}
+
+					// otherwise use the database
+					else
+					{
+						return streamResourceBodyDb(resource);
+					}
+				}
+			}
+			finally
+			{
+				out();
+			}
 
         }
 
@@ -1994,7 +2192,7 @@ public class DbContentService extends BaseContentService
             }
 
             // form the file name
-            File file = new File(externalResourceFileName(resource));
+            File file = new File(externalResourceFileName(m_bodyPath, resource));
 
             // read the new
             FileInputStream in = null;
@@ -2035,8 +2233,8 @@ public class DbContentService extends BaseContentService
                     }
                 }
             }
-
         }
+
 
         // the body is already in the resource for this version of storage
         public InputStream streamResourceBody(ContentResource resource) throws ServerOverloadException
@@ -2065,7 +2263,7 @@ public class DbContentService extends BaseContentService
                     // if we have been configured to use an external file system
                     if (m_bodyPath != null)
                     {
-                        return streamResourceBodyFilesystem(resource);
+						return streamResourceBodyFilesystem(m_bodyPath,resource);
                     }
 
                     // otherwise use the database
@@ -2090,10 +2288,10 @@ public class DbContentService extends BaseContentService
          *        is readible, we simply read it and return it as the body.
          */
 
-        protected InputStream streamResourceBodyFilesystem(ContentResource resource) throws ServerOverloadException
+		protected InputStream streamResourceBodyFilesystem(String rootFolder, ContentResource resource) throws ServerOverloadException
         {
             // form the file name
-            File file = new File(externalResourceFileName(resource));
+			File file = new File(externalResourceFileName(rootFolder,resource));
 
             // read the new
             try
@@ -2241,13 +2439,13 @@ public class DbContentService extends BaseContentService
          * @param stream
          * @return true if the resource body is written successfully, false otherwise.
          */
-        private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream)
+		private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
             // Do not create the files for resources with zero length bodies
             if ((stream == null)) return true;
 
             // form the file name
-            File file = new File(externalResourceFileName(resource));
+			File file = new File(externalResourceFileName(rootFolder, resource));
 
             // delete the old
             if (file.exists())
@@ -2337,40 +2535,7 @@ public class DbContentService extends BaseContentService
             // Do not create the files for resources with zero length bodies
             if (body == null) return true;
 
-            // form the file name
-            File file = new File(externalResourceFileName(resource));
-
-            // delete the old
-            if (file.exists())
-            {
-                file.delete();
-            }
-
-            // add the new
-            try
-            {
-                // make sure all directories are there
-                File container = file.getParentFile();
-                if (container != null)
-                {
-                    container.mkdirs();
-                }
-
-                // write the file
-                FileOutputStream out = new FileOutputStream(file);
-
-                out.write(body);
-                out.close();
-            } catch (FileNotFoundException e) {
-                M_log.warn(": failed to write resource: " + resource.getId() + " : " + e);
-                return false;
-            }
-            catch (IOException e) {
-                M_log.warn(": failed to write resource: " + resource.getId() + " : " + e);
-                return false;
-            }
-
-            return true;
+			return putResourceBodyFilesystem(resource, new ByteArrayInputStream(body), m_bodyPath);
         }
 
         /**
@@ -2381,6 +2546,7 @@ public class DbContentService extends BaseContentService
          */
         protected void delResourceBodyDb(ContentResourceEdit resource)
         {
+			if (resource.getContentLength() > 0) {
             // delete the record
             String statement = contentServiceSql.getDeleteContentSql(m_resourceBodyTableName);
 
@@ -2389,6 +2555,7 @@ public class DbContentService extends BaseContentService
 
             m_sqlService.dbWrite(statement, fields);
         }
+		}
 
         /**
          * Delete the resource body from the external file system. The file name is the m_bodyPath with the resource id appended.
@@ -2399,7 +2566,7 @@ public class DbContentService extends BaseContentService
         protected void delResourceBodyFilesystem(ContentResourceEdit resource)
         {
             // form the file name
-            File file = new File(externalResourceFileName(resource));
+			File file = new File(externalResourceFileName(m_bodyPath, resource));
 
             // delete
             if (file.exists())
@@ -2615,9 +2782,9 @@ public class DbContentService extends BaseContentService
      *        The resource.
      * @return The resource external file name.
      */
-    protected String externalResourceFileName(ContentResource resource)
+	protected String externalResourceFileName(String rootFolder, ContentResource resource)
     {
-        return m_bodyPath + ((BaseResourceEdit) resource).m_filePath;
+		return rootFolder + ((BaseResourceEdit) resource).m_filePath;
     }
 
     @SuppressWarnings("unchecked")
@@ -2839,7 +3006,7 @@ public class DbContentService extends BaseContentService
                         //m_sqlService.dbReadBinary(sourceConnection, sql, fields, body);
 
                         // write the body to the file
-                        boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, stream);
+						boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, stream, m_bodyPath);
                         if (!ok)
                         {
                             M_log.warn("convertToFile: body file failure : " + id + " file: " + edit.m_filePath);
