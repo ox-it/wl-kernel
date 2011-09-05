@@ -186,7 +186,12 @@ public interface ResourceToolAction
 		/**
 		 * Expands a zip file into serveral folders and archives 
 		 */
-		EXPAND_ZIP_ARCHIVE
+		EXPAND_ZIP_ARCHIVE,
+
+		/**
+		 * Create a page in the site linking to the content.
+		 */
+		MAKE_SITE_PAGE
 	}
 	
 	public static final String CREATE = "create";
