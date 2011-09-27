@@ -22,6 +22,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -167,7 +168,7 @@ public class ContentCopyImpl implements ContentCopy {
 						.getPropertiesEdit();
 				propsEdit.clear();
 				propsEdit.addAll(resource.getProperties());
-				chs.commitResource(newResource);
+				chs.commitResource(newResource, NotificationService.NOTI_NONE);
 				success = true;
 			} catch (PermissionException e) {
 				log.warn("User doesn't have permission to create resource: "
