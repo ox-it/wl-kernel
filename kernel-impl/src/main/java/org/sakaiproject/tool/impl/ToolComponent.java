@@ -152,7 +152,7 @@ public abstract class ToolComponent implements ToolManager
 	protected Collection<String> m_hiddenToolIds = null;
 
 	/**
-	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
+	 * Configuration - set the list of tool ids to be hidden.
 	 *
 	 * @param toolIds
 	 *        The comma-separated list of tool ids to be visible.
