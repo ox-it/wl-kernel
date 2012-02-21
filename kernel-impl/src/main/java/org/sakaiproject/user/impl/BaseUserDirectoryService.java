@@ -2185,31 +2185,27 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			user.setAttribute("id", getId());
 			user.setAttribute("eid", getEid());
-			
-			// Don't write out details for provided users.
-			if (getProvidedUserByEid(getId(), getEid()) == null) {
-				if (m_firstName != null) user.setAttribute("first-name", m_firstName);
-				if (m_lastName != null) user.setAttribute("last-name", m_lastName);
-				if (m_type != null) user.setAttribute("type", m_type);
-				user.setAttribute("email", getEmail());
-				user.setAttribute("created-id", m_createdUserId);
-				user.setAttribute("modified-id", m_lastModifiedUserId);
 
-				if (m_createdTime != null)
-				{
-					user.setAttribute("created-time", m_createdTime.toString());
-				}
+			if (m_firstName != null) user.setAttribute("first-name", m_firstName);
+			if (m_lastName != null) user.setAttribute("last-name", m_lastName);
+			if (m_type != null) user.setAttribute("type", m_type);
+			user.setAttribute("email", getEmail());
+			user.setAttribute("created-id", m_createdUserId);
+			user.setAttribute("modified-id", m_lastModifiedUserId);
 
-				if (m_lastModifiedTime != null)
-				{
-					user.setAttribute("modified-time", m_lastModifiedTime.toString());
-				}
-
-				// properties
-				getProperties().toXml(doc, stack);
-
-				stack.pop();
+			if (m_createdTime != null)
+			{
+				user.setAttribute("created-time", m_createdTime.toString());
 			}
+
+			if (m_lastModifiedTime != null)
+			{
+				user.setAttribute("modified-time", m_lastModifiedTime.toString());
+			}
+			// properties
+			getProperties().toXml(doc, stack);
+
+			stack.pop();
 
 			return user;
 		}
