@@ -58,6 +58,8 @@ public class ZipContentUtil {
 			out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));			
 			storeContentCollection(reference.getId(),collection,out);        		
 			
+			// Close the output stream, this flushes the buffer
+			out.close();
 			
 			// Store the compressed archive in the repository
 			String resourceId = reference.getId().substring(0,reference.getId().lastIndexOf(Entity.SEPARATOR))+ZIP_EXTENSION;
