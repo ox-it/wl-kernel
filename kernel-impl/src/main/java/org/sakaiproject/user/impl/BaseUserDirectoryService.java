@@ -1459,6 +1459,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_USER, userFromXml.getReference());
 
+		// Check if this user is a provided one:
+		if (getProvidedUserByEid(userFromXml.getId(), userFromXml.getEid()) != null) {
+			// This doesn't mean we have a mapping from ID to EID mapping
+			if (m_storage.checkMapForId(userFromXml.getEid()) == null) {
+				m_storage.putMap(userFromXml.getId(), userFromXml.getEid());
+			}
+			throw new UserAlreadyDefinedException("Provided user: "+ userFromXml.getId() + " - " + userFromXml.getEid());
+		}
+		
 		// reserve a user with this id from the info store - if it's in use, this will return null
 		UserEdit user = m_storage.put(userFromXml.getId(), userFromXml.getEid());
 		if (user == null)
@@ -2176,13 +2185,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			user.setAttribute("id", getId());
 			user.setAttribute("eid", getEid());
+
 			if (m_firstName != null) user.setAttribute("first-name", m_firstName);
 			if (m_lastName != null) user.setAttribute("last-name", m_lastName);
 			if (m_type != null) user.setAttribute("type", m_type);
 			user.setAttribute("email", getEmail());
 			user.setAttribute("created-id", m_createdUserId);
 			user.setAttribute("modified-id", m_lastModifiedUserId);
-			
+
 			if (m_createdTime != null)
 			{
 				user.setAttribute("created-time", m_createdTime.toString());
@@ -2192,7 +2202,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			{
 				user.setAttribute("modified-time", m_lastModifiedTime.toString());
 			}
-
 			// properties
 			getProperties().toXml(doc, stack);
 
