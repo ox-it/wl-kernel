@@ -10791,7 +10791,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public BaseCollectionEdit(ContentCollection other)
 		{
 			set(other);
-			m_resourceType = ResourceType.TYPE_FOLDER;
+			//m_resourceType = ResourceType.TYPE_FOLDER;
 
 		} // BaseCollectionEdit
 
@@ -10947,6 +10947,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				m_retractDate = timeService.newTime(other.getRetractDate().getTime());
 			}
+			m_resourceType = other.getResourceType();
 
 		} // set
 
@@ -11576,6 +11577,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public Time getSerializableRetractDate()
 		{
 			return m_retractDate;
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableResourceType()
+		 */
+		public String getSerializableResourceType()
+		{
+			if (null == m_resourceType) {
+				return ResourceType.TYPE_FOLDER;
+			}
+			return m_resourceType;
 		}
 
 		/* (non-Javadoc)
