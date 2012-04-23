@@ -344,41 +344,38 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public String getTitle()
 	{
+		// If we have a custom title just return it.
+		if (getTitleCustom())
+			return m_title;
+
 		// check for special home page tool id
-		if (	getProperties().get(IS_HOME_PAGE) != null )
+		if (getProperties().get(IS_HOME_PAGE) != null)
 		{
-			 String title = ActiveToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
-			 if ( title != null )
-				 return title;
-			 else
-				 return m_title;
+			String title = ActiveToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
+			if ( title != null )
+				return title;
+			else
+				return m_title;
 		}
-			
-		// if	 more than one tool on this page, just return the default page title
 		else if ( getTools().size() != 1 )
 		{
+			// if more than one tool on this page, just return the default page title
 			return m_title;
 		}
-			
+
 		// Get the toolId of the first tool associated with this page
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-		
-		// Custom page/tool titles are not localized (e.g. News, Web Content)
-		if ( getTitleCustom() )
-			return m_title;
-			
-		// otherwise, return attempt to return a localized title
-		else {
-            Tool localTool = ActiveToolManager.getTool(toolId);
-            if (localTool != null) {
-            	return ActiveToolManager.getTool(toolId).getTitle();
-            }
-        }
 
-        //If all this fails, return something
-        if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
+		Tool localTool = ActiveToolManager.getTool(toolId);
+		if (localTool != null)
+		{
+			return ActiveToolManager.getTool(toolId).getTitle();
+		}
 
-        return m_title;
+		//If all this fails, return something
+		if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
+
+		return m_title;
 	}
 
 	/**
