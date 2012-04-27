@@ -548,13 +548,16 @@ public class BaseSitePage implements SitePage, Identifiable
 		if ( ! ServerConfigurationService.getBoolean("legacyPageTitleCustom", true) )
 			return false;
       
-		// Get the toolId of the first tool associated with this page
-		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-      
-		if ( "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId) )
-			return true;
-		else
-			return false;
+		if (getTools().size() > 0) {
+			// Get the toolId of the first tool associated with this page
+			String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
+
+			if ( "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId) )
+				return true;
+			else
+				return false;
+		}
+		return false;
 	}
    
 	/**
