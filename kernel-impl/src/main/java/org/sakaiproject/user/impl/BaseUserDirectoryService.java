@@ -861,7 +861,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					putCachedUser(user.getReference(), user);
 					return user;
 				}
-				throw new UserNotDefinedException(aid);
+				// If the user isn't found then we fall through to looking by EID
 			}
 			else
 			{
