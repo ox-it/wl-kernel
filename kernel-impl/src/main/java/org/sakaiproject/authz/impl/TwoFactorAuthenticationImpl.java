@@ -108,7 +108,7 @@ public class TwoFactorAuthenticationImpl implements TwoFactorAuthentication {
 
 	private boolean findSiteId(String ref) {
 		Reference reference = entityManager.newReference(ref);
-		if (SiteService.APPLICATION_ID.equals(reference.getType())) {
+		if (SiteService.APPLICATION_ID.equals(reference.getType()) && SiteService.SITE_SUBTYPE.equals(reference.getSubType())) {
 			String siteId = reference.getId();
 			return isSiteTwoFactor(siteId, ref);
 		} else {
