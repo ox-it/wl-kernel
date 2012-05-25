@@ -86,6 +86,7 @@ public class TwoFactorAuthenticationTest extends TestCase {
 		when(site.getType()).thenReturn("secure");
 		when(reference.getType()).thenReturn(SiteService.APPLICATION_ID);
 		when(reference.getId()).thenReturn("someid");
+		when(reference.getSubType()).thenReturn(SiteService.SITE_SUBTYPE);
 		when(entityManager.newReference("/site/someid")).thenReturn(reference);
 		when(siteService.getSite("someid")).thenReturn(site);
 		when(siteService.siteExists("someid")).thenReturn(true);
@@ -95,6 +96,28 @@ public class TwoFactorAuthenticationTest extends TestCase {
 		assertTrue(twoFactorAuthentication.isTwoFactorRequired("/site/someid"));
 
 	}
+
+	public void testSecureSiteGroup() throws IdUnusedException {
+		when(serverConfigurationService.getBoolean("twofactor.enable", false)).thenReturn(true);
+		when(serverConfigurationService.getString(eq("twofactor.site.type"), anyString())).thenReturn("secure");
+
+		Reference reference = mock(Reference.class);
+		Site site = mock(Site.class);
+		when(site.getType()).thenReturn("secure");
+		when(reference.getType()).thenReturn(SiteService.APPLICATION_ID);
+		when(reference.getId()).thenReturn("someGroupId"); // The ID of this reference is the group.
+		when(reference.getContext()).thenReturn("someid");
+		when(reference.getSubType()).thenReturn(SiteService.GROUP_SUBTYPE);
+		when(entityManager.newReference("/site/someid/group/someGroupId")).thenReturn(reference);
+		when(siteService.getSite("someid")).thenReturn(site);
+		when(siteService.siteExists("someid")).thenReturn(true);
+
+		wireUp();
+
+		assertTrue(twoFactorAuthentication.isTwoFactorRequired("/site/someid/group/someGroupId"));
+
+	}
+	
 
 	public void testNormalSiteContent() throws Exception {
 		// Check that content in a normal site is allowed through.
