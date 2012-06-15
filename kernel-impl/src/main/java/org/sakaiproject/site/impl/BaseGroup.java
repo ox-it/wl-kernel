@@ -383,6 +383,10 @@ public class BaseGroup implements Group, Identifiable
 							for (Iterator<Role> j = parentSiteRoles.iterator(); j.hasNext();)
 							{
 								Role role = (Role) j.next();
+								// Ignore the unassignable roles.
+								if (!AuthzGroupService.isRoleAssignable(role.getId())) {
+									continue;
+								}
 								if (currentRoles == null || !currentRoles.contains(role))
 								{
 								String roleId = role.getId();
