@@ -26,22 +26,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Arrays;
-import java.util.Iterator;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -347,6 +336,14 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         return getConfig("serverName", "localhost"); //(String) properties.get("serverName");
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	public Collection<String> getServerNameAliases(){
+		String[] names = getStrings("serverNameAliases");
+		return (names == null) ? Collections.<String>emptyList() : Arrays.asList(names);
+	}
 
     /**
      * {@inheritDoc}
