@@ -14,13 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentCopy;
-import org.sakaiproject.content.api.ContentCopyContext;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -56,6 +50,8 @@ public class ContentCopyImpl implements ContentCopy {
 	private ContentHostingService chs;
 
 	private ServerConfigurationService scs;
+
+    private ContentCopyInterceptorRegistry interceptorRegistry;
 
 	private IdManager idManager;
 	
@@ -329,6 +325,12 @@ public class ContentCopyImpl implements ContentCopy {
 	 */
 	private String processUrl(ContentCopyContext context, String value,
 			String contentUrl) {
+        //Transform the URL if required:
+        ContentCopyUrlInterceptor urlInterceptor = interceptorRegistry.getUrlInterceptor(value);
+        if(urlInterceptor != null){
+            return processUrl(context, urlInterceptor.convertUrl(value), contentUrl);
+        }
+
 		// Need to deal with backticks.
 		// - /access/group/{siteId}/
 		// - /web/{siteId}/
@@ -422,4 +424,7 @@ public class ContentCopyImpl implements ContentCopy {
 		return null;
 	}
 
+    public void setInterceptorRegistry(ContentCopyInterceptorRegistry interceptorRegistry) {
+        this.interceptorRegistry = interceptorRegistry;
+    }
 }
