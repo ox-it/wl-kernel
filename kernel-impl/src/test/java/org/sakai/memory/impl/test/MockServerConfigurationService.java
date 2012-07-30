@@ -1,5 +1,6 @@
 package org.sakai.memory.impl.test;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,11 @@ public class MockServerConfigurationService implements
 	}
 
 	public String getServerName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection<String> getServerNameAliases() {
 		// TODO Auto-generated method stub
 		return null;
 	}

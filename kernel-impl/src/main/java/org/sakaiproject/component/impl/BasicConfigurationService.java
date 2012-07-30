@@ -25,11 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -251,6 +247,10 @@ public class BasicConfigurationService implements ServerConfigurationService
 	public String getServerName()
 	{
 		return (String) properties.get("serverName");
+	}
+
+	public Collection<String> getServerNameAliases(){
+		return Arrays.asList(getStrings("serverNameAliases"));
 	}
 
 	/**

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.jcr.test.mock;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -155,6 +156,15 @@ public class MockServerConfiguratonService implements ServerConfigurationService
 	 * @see org.sakaiproject.component.api.ServerConfigurationService#getServerName()
 	 */
 	public String getServerName()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.component.api.ServerConfigurationService#getServerNameAliases()
+	 */
+	public Collection<String> getServerNameAliases()
 	{
 		// TODO Auto-generated method stub
 		return null;
