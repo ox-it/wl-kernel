@@ -1,7 +1,9 @@
 package org.sakaiproject.content.impl;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import junit.framework.TestCase;
@@ -18,8 +20,9 @@ public class ContentCopyTest extends TestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 		contentCopy = new ContentCopyImpl();
-		contentCopy.setServers(Collections.singleton("weblearn.ox.ac.uk"));
-		contentCopy.setServerConfigurationService(mock(ServerConfigurationService.class));
+		ServerConfigurationService serverConfigurationService = mock(ServerConfigurationService.class);
+		when(serverConfigurationService.getServerNameAliases()).thenReturn(Arrays.asList("weblearn.ox.ac.uk"));
+		contentCopy.setServerConfigurationService(serverConfigurationService);
 		contentCopy.setContentHostingService(mock(ContentHostingService.class));
 		
 		contentCopy.init();
@@ -110,7 +113,7 @@ public class ContentCopyTest extends TestCase {
 		// The problem with this one is the missing quotes
 		ContentCopyContext announcementExample = contentCopy.createCopyContext("36e31e17-3384-4b2a-80a4-ce7c570a342", "******", true);
 		String content = "<a href=/access/content/group/36e31e17-3384-4b2a-80a4-ce7c570a342/Picture%201.png target=\"_blank\" >/access/content/group/36e31e17-3384-4b2a-80a4-ce7c570a342/Picture%201.png</a>&nbsp";
-		assertTrue(contentCopy.convertContent(announcementExample, content, "text/html", null).indexOf("*****") != -1);
+		assertTrue(contentCopy.convertContent(announcementExample, content, "text/html", null).contains("*****"));
 		
 	}
 	
