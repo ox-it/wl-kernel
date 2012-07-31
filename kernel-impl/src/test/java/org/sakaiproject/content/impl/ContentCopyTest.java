@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCopyContext;
+import org.sakaiproject.content.api.ContentCopyInterceptorRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
 
 public class ContentCopyTest extends TestCase {
@@ -24,6 +25,7 @@ public class ContentCopyTest extends TestCase {
 		when(serverConfigurationService.getServerNameAliases()).thenReturn(Arrays.asList("weblearn.ox.ac.uk"));
 		contentCopy.setServerConfigurationService(serverConfigurationService);
 		contentCopy.setContentHostingService(mock(ContentHostingService.class));
+        contentCopy.setInterceptorRegistry(mock(ContentCopyInterceptorRegistry.class));
 		
 		contentCopy.init();
 		
