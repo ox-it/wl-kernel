@@ -313,7 +313,9 @@ public class ContentCopyImpl implements ContentCopy {
         //Transform the URL if required:
         ContentCopyUrlInterceptor urlInterceptor = interceptorRegistry.getUrlInterceptor(value);
         if(urlInterceptor != null){
-            return processUrl(context, urlInterceptor.convertUrl(value), contentUrl);
+            String convertedUrl = urlInterceptor.convertUrl(value);
+            String processedUrl = processUrl(context, convertedUrl, contentUrl);
+            return urlInterceptor.convertProcessedUrl(processedUrl);
         }
 
 		// Need to deal with backticks.

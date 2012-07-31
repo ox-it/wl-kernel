@@ -32,4 +32,12 @@ public interface ContentCopyUrlInterceptor {
      * @return converted URL
      */
     String convertUrl(String originalUrl);
+
+    /**
+     * Once the URL has been processed it can be converted back to its original form (usually a shortened URL)
+     *
+     * @param processedUrl processedUrl ready to be converted
+     * @return Converted url
+     */
+    String convertProcessedUrl(String processedUrl);
 }
