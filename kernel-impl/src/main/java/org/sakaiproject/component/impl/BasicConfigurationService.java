@@ -250,7 +250,8 @@ public class BasicConfigurationService implements ServerConfigurationService
 	}
 
 	public Collection<String> getServerNameAliases(){
-		return Arrays.asList(getStrings("serverNameAliases"));
+		String[] names = getStrings("serverNameAliases");
+		return (names == null) ? Collections.<String>emptyList() : Arrays.asList(names);
 	}
 
 	/**
