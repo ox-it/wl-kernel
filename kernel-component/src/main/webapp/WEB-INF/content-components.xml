@@ -244,9 +244,5 @@
 	</bean>
 
     <bean id="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" class="org.sakaiproject.content.impl.ContentCopyInterceptorRegistryImpl" />
-
-    <bean id="org.sakaiproject.content.api.AbstractContentCopyUrlInterceptor" abstract="true"
-          class="org.sakaiproject.content.api.AbstractContentCopyUrlInterceptor" init-method="init">
-        <property name="registry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
     </bean>
 </beans>
