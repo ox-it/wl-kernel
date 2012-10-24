@@ -43,7 +43,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 
 	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
 
-	private static VendorHbmTransformer vendorHbmTrasformer;
+	private VendorHbmTransformer vendorHbmTrasformer;
 
     public void setMappingResources(String[] mappingResources)
 	{
@@ -70,8 +70,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 					return;
 				}
 				if (vendorHbmTrasformer == null) {
-					logger.warn("vendor is null!");
-					return;
+					throw new IllegalStateException("vendorHbmTrasformer is null, should have been set by spring");
 				}
 
 				config.addInputStream(vendorHbmTrasformer.getTransformedMapping(this.mappingLocations[i].getInputStream()));
