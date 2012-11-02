@@ -2015,9 +2015,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getEntityUrl(Reference ref)
-	{
-		return null;
+	public String getEntityUrl(Reference ref) {
+		String url = null;
+		try {
+			Site site = getSite(ref.getId());
+			url= site.getUrl();
+		} catch (IdUnusedException e) {
+		} catch (NullPointerException e) {
+		}
+		return url;
 	}
 
 	/**
