@@ -28,10 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
@@ -102,6 +99,9 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	{
 		if (m_enabled)
 		{
+			//Load sakai's log4j.properties file
+			PropertyConfigurator.configure(serverConfigurationService().getSakaiHomePath()+"log4j.properties");
+
 			// slip in our appender
 			Appender a = Logger.getRootLogger().getAppender("Sakai");
 			if (a != null)
