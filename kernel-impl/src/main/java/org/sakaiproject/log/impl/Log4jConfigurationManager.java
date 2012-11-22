@@ -21,6 +21,7 @@
 
 package org.sakaiproject.log.impl;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -101,7 +102,8 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 		{
 			//Load sakai's log4j.properties file
 			String log4jConfigFilePath = serverConfigurationService().getSakaiHomePath() + "log4j.properties";
-			PropertyConfigurator.configureAndWatch(log4jConfigFilePath);
+			if(new File(log4jConfigFilePath).exists())
+				PropertyConfigurator.configure(log4jConfigFilePath);
 
 			// slip in our appender
 			Appender a = Logger.getRootLogger().getAppender("Sakai");
