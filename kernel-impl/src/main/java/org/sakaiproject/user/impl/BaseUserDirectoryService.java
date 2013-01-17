@@ -773,7 +773,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if (m_provider instanceof AuthenticationIdUDP)
 			{
-				UserEdit user = new BaseUserEdit();
+				BaseUserEdit user = new BaseUserEdit();
+				// We don't want it to look in the database for any properties.
+				// As for provided users everything should come from the external provider.
+				((BaseResourcePropertiesEdit)user.getPropertiesEdit()).setLazy(false);
+				
 				if (((AuthenticationIdUDP)m_provider).getUserbyAid(aid, user))
 				{
 					String id = m_storage.checkMapForId(user.getEid());
