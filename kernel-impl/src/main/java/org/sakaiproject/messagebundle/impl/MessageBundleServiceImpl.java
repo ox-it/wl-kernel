@@ -52,7 +52,8 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
      */
     private Set<String> indexedList = new HashSet<String>();
     private long scheduleDelay = 1000;
-    Timer timer = new Timer();
+    // We make sure it's a daemon so it doesn't hold up shutting down the JVM.
+    private Timer timer = new Timer(true);
 
     public void init() {
     }
