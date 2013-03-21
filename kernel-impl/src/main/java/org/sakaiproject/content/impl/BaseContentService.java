@@ -10126,7 +10126,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				String groupRef = (String) it.next();
 				Group group = m_siteService.findGroup(groupRef);
-				groups.add(group);				
+				if (group != null)
+				{
+					groups.add(group);
+				}
 			}
 			return groups;
 		}
