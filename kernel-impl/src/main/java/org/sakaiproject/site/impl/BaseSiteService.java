@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -136,6 +137,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 	/** A list of observers watching site save events **/
 	protected List<SiteAdvisor> siteAdvisors;
+
+	/** A set of observers watching site removals **/
+	protected Set<SiteRemovalAdvisor> siteRemovalAdvisors;
 	
 	/** ID of the bean to be used for the site alias provider ID. It's looked up in the component manager. */
 	private String siteAliasProviderId;
@@ -443,6 +447,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public void init()
 	{
 		siteAdvisors = new ArrayList<SiteAdvisor>();
+		// Concurrent so that we never get ConcurrentModificationException when iterating.
+		siteRemovalAdvisors = new CopyOnWriteArraySet<SiteRemovalAdvisor>();
 
 		try
 		{
@@ -1284,6 +1290,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			} else {
 				unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
 			}
+		}
+
+		for (SiteRemovalAdvisor advisor: siteRemovalAdvisors)
+		{
+			advisor.removed(site);
 		}
 		
 		// complete the edit
@@ -3086,7 +3097,24 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		return siteAdvisors.remove(siteAdvisor);
 	}
-	
+
+	/**
+	 * @inheritDoc
+	 */
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		siteRemovalAdvisors.add(siteRemovalAdvisor);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		return siteRemovalAdvisors.remove(siteRemovalAdvisor);
+	}
+
+
 	public String lookupSiteAlias(String siteId)
 	{
 		if (siteAliasProvider != null)
