@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,14 +79,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.site.api.AllowedJoinableAccount;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteAdvisor;
-import org.sakaiproject.site.api.SiteAliasProvider;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.*;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -165,6 +159,9 @@ public abstract class BaseSiteService implements SiteService, Observer
         
     /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
     protected JoinSiteDelegate joinSiteDelegate;
+
+	/** A set of observers watching site removals **/
+	protected Set<SiteRemovalAdvisor> siteRemovalAdvisors;
 	
 	/** ID of the bean to be used for the site alias provider ID. It's looked up in the component manager. */
 	private String siteAliasProviderId;
@@ -489,6 +486,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public void init()
 	{
 		siteAdvisors = new ArrayList<SiteAdvisor>();
+		// Concurrent so that we never get ConcurrentModificationException when iterating.
+		siteRemovalAdvisors = new CopyOnWriteArraySet<SiteRemovalAdvisor>();
 
 		try
 		{
@@ -1466,6 +1465,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 					unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
 				}
 			}
+		}
+
+		for (SiteRemovalAdvisor advisor: siteRemovalAdvisors)
+		{
+			advisor.removed(site);
 		}
 		
 		// complete the edit
@@ -3517,6 +3521,24 @@ public abstract class BaseSiteService implements SiteService, Observer
 	protected Storage storage() {
 		return m_storage;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		siteRemovalAdvisors.add(siteRemovalAdvisor);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		return siteRemovalAdvisors.remove(siteRemovalAdvisor);
+	}
+
+
 
 	/**
 	 * {@inheritDoc}
