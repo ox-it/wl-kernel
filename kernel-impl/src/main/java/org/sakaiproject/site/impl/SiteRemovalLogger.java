@@ -10,6 +10,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * This class just logs out when a site is removed and who by. At the moment this is useful as you can restore
@@ -23,7 +25,15 @@ public class SiteRemovalLogger implements SiteRemovalAdvisor {
 
 	private UserDirectoryService userDirectoryService;
 	private SiteService siteService;
-	private DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+	private DateFormat format;
+
+	public SiteRemovalLogger() {
+		format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+		// Dateformatter tries to use the current machine's timezone to format the date and this doesn't work
+		// historically (eg GMT/BST).
+		// This way we get back to UTC.
+		format.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
@@ -54,7 +64,7 @@ public class SiteRemovalLogger implements SiteRemovalAdvisor {
 		if (site.isSoftlyDeleted()) {
 			message.append(" marked for deletion by: ").append(displayUser(site.getModifiedBy()));
 			if (site.getModifiedDate()!= null) {
-				message.append(" at: ").append(format.format(site.getModifiedDate()));
+				message.append(" at: ").append(displayDate(site.getModifiedDate()));
 			}
 		}
 		message.append(" removed by: ").append(displayUser(userDirectoryService.getCurrentUser()));
@@ -70,4 +80,14 @@ public class SiteRemovalLogger implements SiteRemovalAdvisor {
 		return (user == null)?"unknown":user.getDisplayName()+ "("+ user.getDisplayId()+ ")";
 
 	}
+
+	/**
+	 * Formats a date.
+	 * @param date The date to format.
+	 * @return A date in UTC.
+	 */
+	String displayDate(Date date) {
+		return format.format(date);
+	}
+
 }
