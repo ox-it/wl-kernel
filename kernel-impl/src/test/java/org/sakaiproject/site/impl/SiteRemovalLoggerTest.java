@@ -46,7 +46,7 @@ public class SiteRemovalLoggerTest {
 		when(userDirectoryService.getCurrentUser()).thenReturn(user);
 
 		assertEquals("Removing Site ID: siteId title: Site Title type: type marked for deletion by: Display " +
-				"Name(display-id) at: 1970-01-01T01:00Z removed by: Display Name(display-id)", logger.buildMessage(site));
+				"Name(display-id) at: 1970-01-01T00:00Z removed by: Display Name(display-id)", logger.buildMessage(site));
 	}
 
 	@Test
@@ -56,6 +56,12 @@ public class SiteRemovalLoggerTest {
 		when(site.isSoftlyDeleted()).thenReturn(true);
 		assertEquals("Removing Site ID: null title: null type: null marked for deletion by: unknown removed by: unknown",
 				logger.buildMessage(site));
+	}
+
+	@Test
+	public void testDateFormatting() {
+		Date date = new Date(0);
+		assertEquals("1970-01-01T00:00Z", logger.displayDate(date));
 	}
 
 
