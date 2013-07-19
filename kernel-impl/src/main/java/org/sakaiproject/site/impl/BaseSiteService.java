@@ -74,6 +74,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SiteAliasProvider;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
