@@ -123,7 +123,7 @@ public class HtmlPageFilter implements ContentFilter {
 
         String jsTrigger = "";
         if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
-            jsTrigger = "forceLinksInNewWindow()";
+            jsTrigger = "fixMixedContentOnLoad()";
         }
         return jsTrigger;
     }
