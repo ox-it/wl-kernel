@@ -226,18 +226,16 @@ public class ContentCopyImpl implements ContentCopy {
 				// Copy the permissions accross
 				try{
 					AuthzGroup oldRealm = ags.getAuthzGroup(resource.getReference());
-					if (oldRealm != null) {
-						ags.save(ags.newAuthzGroup(newCollectionId, oldRealm, null));
-					}
+					ags.save(ags.newAuthzGroup(newCollectionId, oldRealm, null));
 				} catch (GroupNotDefinedException e) {
-					log.warn("No realms are defined for collection: " + collectionId);
+					// do nothing - this case is expected to be common
 				} catch (GroupAlreadyDefinedException e) {
 					log.warn("A realm is already defined for new collection: " + newCollectionId);
 				} catch (AuthzPermissionException e) {
 					log.warn("Did not have permission to set Realm for the new collection: "+ newCollectionId);
 				}
 
-                chs.commitCollection(newCollection);
+				chs.commitCollection(newCollection);
 				context.logCopy(collectionId, newCollectionId);
 			} catch (PermissionException e) {
 				log.warn("User doesn't have permission to create resource: "
