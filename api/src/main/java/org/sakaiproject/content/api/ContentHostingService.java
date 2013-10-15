@@ -47,6 +47,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.user.api.User;
 import org.w3c.dom.Document;
 
 /**
@@ -1590,6 +1591,26 @@ public interface ContentHostingService extends EntityProducer
 	 *        The desired access setting - true gives access and false removes access.
 	 */
 	public void setRoleView(String id, String roleId, boolean grantAccess);
+
+	/**
+	 * Checks whether the given user has access to the content
+	 *
+	 * @param id
+	 *        The resource or collection id.
+	 * @param user
+	 *        The user to check that has access.
+	 */
+	public boolean isRoleView(String id, User user);
+
+	/**
+	 * Checks whether the user has access to the container of the specified entity
+	 *
+	 * @param id
+	 *        The resource or collection id.
+	 * @param user
+	 *        The user to check that has access.
+	 */
+	public boolean isInheritingRoleView(String id, User user);
 
 	/**
 	 * Find all resources in specified sites that match the spcified type and mime type

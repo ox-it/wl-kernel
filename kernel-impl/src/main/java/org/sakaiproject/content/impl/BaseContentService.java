@@ -8967,8 +8967,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isPubView(String id)
 	{
-		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ, getReference(id));
-		return pubView;
+		return isRoleView(id, userDirectoryService.getAnonymousUser());
 	}
 
 	/**
@@ -8976,14 +8975,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isInheritingPubView(String id)
 	{
-		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
-		if (isRootCollection(id)) return false;
-
-		// check for pubview on the container
-		String containerId = isolateContainingId(id);
-		boolean pubView = m_securityService.unlock(userDirectoryService.getAnonymousUser(), AUTH_RESOURCE_READ,
-				getReference(containerId));
-		return pubView;
+		return isInheritingRoleView(id, userDirectoryService.getAnonymousUser());
 	}
 
 	/**
@@ -9120,6 +9112,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				// TODO: PermissionException
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, User)
+	 */
+	public boolean isRoleView(String id, User user) {
+		String reference = getReference(id);
+		return m_securityService.unlock(user, AUTH_RESOURCE_READ, reference);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, User)
+	 */
+	public boolean isInheritingRoleView(String id, User user) {
+		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
+		if (isRootCollection(id)) return false;
+
+		// check for access on the container
+		String containerId = isolateContainingId(id);
+		return isRoleView(containerId, user);
 	}
 
 	/**
