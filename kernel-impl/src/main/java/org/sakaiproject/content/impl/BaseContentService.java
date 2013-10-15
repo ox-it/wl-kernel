@@ -9116,11 +9116,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/**
 	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
+	 */
+	public boolean isRoleView(String id, String roleId) {
+		User dummyUser = userDirectoryService.getDummyUser(roleId);
+		return isRoleView(id, dummyUser);
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, User)
 	 */
 	public boolean isRoleView(String id, User user) {
 		String reference = getReference(id);
 		return m_securityService.unlock(user, AUTH_RESOURCE_READ, reference);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, String)
+	 */
+	public boolean isInheritingRoleView(String id, String roleId) {
+		User dummyUser = userDirectoryService.getDummyUser(roleId);
+		return isRoleView(id, dummyUser);
 	}
 
 	/**
