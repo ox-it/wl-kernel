@@ -1580,6 +1580,18 @@ public interface ContentHostingService extends EntityProducer
 	public void setPubView(String id, boolean pubview);
 
 	/**
+	 * Grants or removes access to the content for a given role.
+	 *
+	 * @param id
+	 *        The resource or collection id.
+	 * @param roleId
+	 *        The id of the role to add or remove.
+	 * @param grantAccess
+	 *        The desired access setting - true gives access and false removes access.
+	 */
+	public void setRoleView(String id, String roleId, boolean grantAccess);
+
+	/**
 	 * Find all resources in specified sites that match the spcified type and mime type
 	 * 
 	 * @param type

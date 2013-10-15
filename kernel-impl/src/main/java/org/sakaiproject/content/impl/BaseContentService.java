@@ -8987,15 +8987,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 
 	/**
-	 * Set this resource or collection to the pubview setting.
-	 * 
-	 * @param id
-	 *        The resource or collection id.
-	 * @param pubview
-	 *        The desired public view setting.
+	 * @inheritDoc
+	 * @see org.sakaiproject.content.api.ContentHostingService#setPubView(String, boolean)
 	 */
 	public void setPubView(String id, boolean pubview)
 	{
+		setRoleView(id, AuthzGroupService.ANON_ROLE, pubview);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @see org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 */
+	public void setRoleView(String id, String roleId, boolean grantAccess) {
 		// TODO: check efficiency here -ggolden
 
 		String ref = getReference(id);
@@ -9010,7 +9014,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		catch (GroupNotDefinedException e)
 		{
 			// if no realm yet, and we need one, make one
-			if (pubview)
+			if (grantAccess)
 			{
 				try
 				{
@@ -9040,15 +9044,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		boolean delete = false;
 
 		// align the realm with our positive setting
-		if (pubview)
+		if (grantAccess)
 		{
 			// make sure the anon role exists and has "content.read" - the only client of pubview
-			Role role = edit.getRole(AuthzGroupService.ANON_ROLE);
+			Role role = edit.getRole(roleId);
 			if (role == null)
 			{
 				try
 				{
-					role = edit.addRole(AuthzGroupService.ANON_ROLE);
+					role = edit.addRole(roleId);
 					// moved from below as part of NPE cleanup -AZ
 					if (!role.isAllowed(AUTH_RESOURCE_READ))
 		            {
@@ -9068,7 +9072,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		else
 		{
 			// get the role
-			Role role = edit.getRole(AuthzGroupService.ANON_ROLE);
+			Role role = edit.getRole(roleId);
 			if (role != null)
 			{
 				if (role.isAllowed(AUTH_RESOURCE_READ))
