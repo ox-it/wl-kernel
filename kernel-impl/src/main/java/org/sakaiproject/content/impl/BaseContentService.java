@@ -199,7 +199,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private static final String PROP_AVAIL_NOTI = "availableNotified";
 
 	/** MIME multipart separation string */
-    protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
+	protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 	/** The string to append to the role id to form the dummy user id for role checks */
 	protected static final String DUMMY_USER_PREFIX = "dummy";
 
@@ -9120,7 +9120,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
 	 */
-	public boolean isRoleView(String id, String roleId) {
+	public boolean isRoleView(final String id, final String roleId) {
 		String dummyUserId = DUMMY_USER_PREFIX + roleId;
 		return m_securityService.unlock(dummyUserId, AUTH_RESOURCE_READ, getReference(id));
 	}
@@ -9129,7 +9129,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, User)
 	 */
-	public boolean isRoleView(String id, User user) {
+	public boolean isRoleView(final String id, final User user) {
 		return m_securityService.unlock(user, AUTH_RESOURCE_READ, getReference(id));
 	}
 
@@ -9137,7 +9137,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, String)
 	 */
-	public boolean isInheritingRoleView(String id, String roleId) {
+	public boolean isInheritingRoleView(final String id, final String roleId) {
 		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
 		if (isRootCollection(id)) return false;
 
@@ -9150,7 +9150,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, User)
 	 */
-	public boolean isInheritingRoleView(String id, User user) {
+	public boolean isInheritingRoleView(final String id, final User user) {
 		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
 		if (isRootCollection(id)) return false;
 
