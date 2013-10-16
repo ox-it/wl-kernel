@@ -202,6 +202,9 @@ public interface ContentHostingService extends EntityProducer
 
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
 
+	/** The string to append to the role id to form the dummy user id for role checks */
+	public static final String DUMMY_USER_PREFIX = "dummy";
+
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */

@@ -200,8 +200,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** MIME multipart separation string */
 	protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
-	/** The string to append to the role id to form the dummy user id for role checks */
-	protected static final String DUMMY_USER_PREFIX = "dummy";
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
