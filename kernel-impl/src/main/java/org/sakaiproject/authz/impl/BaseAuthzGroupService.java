@@ -23,7 +23,6 @@ package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +47,7 @@ import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -1701,6 +1701,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			if (m_roleProvider != null)
 			{
 				roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+			}
+
+			if (userId.startsWith(ContentHostingService.DUMMY_USER_PREFIX)) {
+				String roleId = userId.substring(ContentHostingService.DUMMY_USER_PREFIX.length());
+				roles.add(roleId);
 			}
 		}
 		return roles;
