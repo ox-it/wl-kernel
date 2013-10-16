@@ -200,6 +200,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** MIME multipart separation string */
     protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
+	/** The string to append to the role id to form the dummy user id for role checks */
+	protected static final String DUMMY_USER_PREFIX = "dummy";
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -9119,8 +9121,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
 	 */
 	public boolean isRoleView(String id, String roleId) {
-		User dummyUser = userDirectoryService.getDummyUser(roleId);
-		return isRoleView(id, dummyUser);
+		String dummyUserId = DUMMY_USER_PREFIX + roleId;
+		return m_securityService.unlock(dummyUserId, AUTH_RESOURCE_READ, getReference(id));
 	}
 
 	/**
@@ -9128,8 +9130,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, User)
 	 */
 	public boolean isRoleView(String id, User user) {
-		String reference = getReference(id);
-		return m_securityService.unlock(user, AUTH_RESOURCE_READ, reference);
+		return m_securityService.unlock(user, AUTH_RESOURCE_READ, getReference(id));
 	}
 
 	/**
@@ -9137,8 +9138,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, String)
 	 */
 	public boolean isInheritingRoleView(String id, String roleId) {
-		User dummyUser = userDirectoryService.getDummyUser(roleId);
-		return isRoleView(id, dummyUser);
+		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
+		if (isRootCollection(id)) return false;
+
+		// check for access on the container
+		String containerId = isolateContainingId(id);
+		return isRoleView(containerId, roleId);
 	}
 
 	/**
