@@ -1606,16 +1606,6 @@ public interface ContentHostingService extends EntityProducer
 	public boolean isRoleView(String id, String roleId);
 
 	/**
-	 * Checks whether the given user has access to the content
-	 *
-	 * @param id
-	 *        The resource or collection id.
-	 * @param user
-	 *        The user to check that has access.
-	 */
-	public boolean isRoleView(String id, User user);
-
-	/**
 	 * Checks whether the role is defined for the container of the specified entity
 	 *
 	 * @param id
@@ -1624,16 +1614,6 @@ public interface ContentHostingService extends EntityProducer
 	 *        The id of the role to check for.
 	 */
 	public boolean isInheritingRoleView(String id, String roleId);
-
-	/**
-	 * Checks whether the user has access to the container of the specified entity
-	 *
-	 * @param id
-	 *        The resource or collection id.
-	 * @param user
-	 *        The user to check that has access.
-	 */
-	public boolean isInheritingRoleView(String id, User user);
 
 	/**
 	 * Find all resources in specified sites that match the spcified type and mime type

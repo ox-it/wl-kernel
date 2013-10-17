@@ -8967,7 +8967,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isPubView(String id)
 	{
-		return isRoleView(id, userDirectoryService.getAnonymousUser());
+		User anon = userDirectoryService.getAnonymousUser()
+		return m_securityService.unlock(anon, AUTH_RESOURCE_READ, getReference(id));
 	}
 
 	/**
@@ -8975,7 +8976,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isInheritingPubView(String id)
 	{
-		return isInheritingRoleView(id, userDirectoryService.getAnonymousUser());
+		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
+		if (isRootCollection(id)) return false;
+
+		// check for access on the container
+		String containerId = isolateContainingId(id);
+		return isPubView(containerId);
 	}
 
 	/**
@@ -9038,7 +9044,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// align the realm with our positive setting
 		if (grantAccess)
 		{
-			// make sure the anon role exists and has "content.read" - the only client of pubview
+			// make sure the role exists and has "content.read"
 			Role role = edit.getRole(roleId);
 			if (role == null)
 			{
@@ -9125,14 +9131,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/**
 	 * {@inheritDoc}
-	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, User)
-	 */
-	public boolean isRoleView(final String id, final User user) {
-		return m_securityService.unlock(user, AUTH_RESOURCE_READ, getReference(id));
-	}
-
-	/**
-	 * {@inheritDoc}
 	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, String)
 	 */
 	public boolean isInheritingRoleView(final String id, final String roleId) {
@@ -9142,19 +9140,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// check for access on the container
 		String containerId = isolateContainingId(id);
 		return isRoleView(containerId, roleId);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @see org.sakaiproject.content.api.ContentHostingService#isInheritingRoleView(String, User)
-	 */
-	public boolean isInheritingRoleView(final String id, final User user) {
-		// the root does not inherit... and makes a bad ref if we try to isolateContainingId()
-		if (isRootCollection(id)) return false;
-
-		// check for access on the container
-		String containerId = isolateContainingId(id);
-		return isRoleView(containerId, user);
 	}
 
 	/**
