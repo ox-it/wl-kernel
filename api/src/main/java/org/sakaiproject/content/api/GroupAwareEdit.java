@@ -66,6 +66,32 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	public void clearPublicAccess() throws InconsistentException, PermissionException;
 
 	/**
+	 * Add access to the resource for the specified role
+     * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 * @throws InconsistentException
+	 * @throws PermissionException
+     * @param roleId the ID of the role that should be added
+	 */
+	public void addRoleAccess(String roleId) throws InconsistentException, PermissionException;
+
+	/**
+	 * Removes access to the resource for the specified role if it was added through #addRoleAccess(String)
+     * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 * @throws InconsistentException
+	 * @throws PermissionException
+     * @param roleId the ID of the role that should be removed
+	 */
+	public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException;
+
+	/**
+	 * Removes all role access that has been set through #addRoleAccess(String)
+     * Uses org.sakaiproject.content.api.ContentHostingService#clearRoleAccess()
+	 * @throws InconsistentException
+	 * @throws PermissionException
+	 */
+	public void clearRoleAccess() throws InconsistentException, PermissionException;
+
+	/**
 	 * Set the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @param time The date/time at which the entity may be accessed by all users.
