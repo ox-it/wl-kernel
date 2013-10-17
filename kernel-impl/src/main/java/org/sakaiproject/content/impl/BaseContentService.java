@@ -32,21 +32,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -9141,6 +9127,35 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		String containerId = isolateContainingId(id);
 		return isRoleView(containerId, roleId);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see org.sakaiproject.content.api.ContentHostingService#getRoleViews(String)
+	 */
+	public Set<String> getRoleViews(final String id) {
+        String ref = getReference(id);
+        LinkedHashSet<String> roleIds = new LinkedHashSet<String>();
+        AuthzGroup realm = null;
+
+        try {
+            realm = m_authzGroupService.getAuthzGroup(ref);
+        } catch (GroupNotDefinedException e) {
+            // if there is no authz group then no roles can have been defined.
+            return roleIds;
+        }
+
+        if (realm == null) {
+            // same again, no realm => no roles
+            return roleIds;
+        }
+
+        Set<Role> roles = realm.getRoles();
+        for (Role role : roles) {
+            roleIds.add(role.getId());
+        }
+
+        return roleIds;
+    }
 
 	/**
 	 * {@inheritDoc}

@@ -1606,6 +1606,14 @@ public interface ContentHostingService extends EntityProducer
 	public boolean isRoleView(String id, String roleId);
 
 	/**
+	 * Gets a list of roles that are defined against this entity through RoleView.
+	 *
+	 * @param id
+	 *        The resource or collection id.
+	 */
+	public Set<String> getRoleViews(String id);
+
+	/**
 	 * Checks whether the role is defined for the container of the specified entity
 	 *
 	 * @param id
