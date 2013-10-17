@@ -10005,6 +10005,42 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		/**
 		 * @inheritDoc
+         * @see org.sakaiproject.content.api.GroupAwareEdit#addRoleAccess(String)
+		 */
+		public void addRoleAccess(String roleId)
+		{
+			setRoleView(this.m_id, roleId, false);
+			this.m_access = AccessMode.INHERITED;
+			this.m_groups.clear();
+		}
+
+		/**
+		 * @inheritDoc
+         * @see org.sakaiproject.content.api.GroupAwareEdit#removeRoleAccess(String)
+		 */
+		public void removeRoleAccess(String roleId)
+		{
+			setRoleView(this.m_id, roleId, false);
+			this.m_access = AccessMode.INHERITED;
+			this.m_groups.clear();
+		}
+
+		/**
+		 * @inheritDoc
+         * @see org.sakaiproject.content.api.GroupAwareEdit#clearRoleAccess()
+		 */
+		public void clearRoleAccess()
+		{
+            Set<String> roles = getRoleViews(this.m_id);
+            for (String role : roles) {
+                setRoleView(this.m_id, role, false);
+            }
+            this.m_access = AccessMode.INHERITED;
+            this.m_groups.clear();
+		}
+
+		/**
+		 * @inheritDoc
 		 */
 		public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException 
 		{
