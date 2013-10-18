@@ -10054,6 +10054,35 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		/**
 		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getRoleAccessIds() ()
+		 */
+		public Collection<String> getRoleAccessIds()
+		{
+			return getRoleViews(this.m_id);
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedRoleAccessIds() ()
+		 */
+		public Collection<String> getInheritedRoleAccessIds()
+		{
+			Collection<String> roleIds = new ArrayList<String>();
+			if (isRootCollection(this.m_id)) {
+				// we are at the root so there is nothing to inherit
+				return roleIds;
+			}
+			ContentEntity next = this.getContainingCollection();
+
+			while (next != null && next.getAccess() == AccessMode.INHERITED) {
+				roleIds.addAll(next.getRoleAccessIds());
+				next = next.getContainingCollection();
+			}
+			return roleIds;
+		}
+
+		/**
+		 * @inheritDoc
 		 */
 		public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException 
 		{
@@ -10062,7 +10091,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				throw new InconsistentException(this.getReference());
 			}
 
-			if(isInheritingRoleView(this.m_id))
+			if(!getInheritedRoleAccessIds().isEmpty())
 			{
 				throw new InconsistentException(this.getReference());
 			}
