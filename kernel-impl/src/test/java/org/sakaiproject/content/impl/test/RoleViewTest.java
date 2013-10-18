@@ -17,8 +17,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
 
     private static final Log log = LogFactory.getLog(RoleViewTest.class);
 
-    protected static final String IMAGES_COLLECTION = "/images";
-    protected static final String PHOTOS_COLLECTION = "/images/photos";
+    protected static final String PHOTOS_COLLECTION = "/private/images/photos/";
     protected static final String TEST_ROLE         = "com.roles.test";
 
     protected ContentHostingService _chs;

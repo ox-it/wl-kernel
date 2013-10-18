@@ -66,6 +66,7 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	protected boolean inheritsPubview;
 	protected Map<String, MockContentEntity> memberMap = new HashMap<String, MockContentEntity>();
 	protected boolean isActiveEdit;
+	protected Set<String> roleIds = new LinkedHashSet<String>();
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
@@ -251,7 +252,7 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	}
 
 	public Set<String> getRoleAccessIds() {
-		return new LinkedHashSet<String>();
+		return roleIds;
 	}
 
 	public Set<String> getInheritedRoleAccessIds() {
@@ -334,12 +335,8 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#clearPublicAccess()
 	 */
-	public void clearPublicAccess() throws InconsistentException, PermissionException
+	public void clearPublicAccess() throws InconsistentException
 	{
-		if(false)
-		{
-			throw new PermissionException("userId", "content.revise", this.entityId);
-		}
 		if(! this.isPublic)
 		{
 			throw new InconsistentException(entityId);
@@ -348,6 +345,18 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		this.accessMode = AccessMode.INHERITED;
 		this.groupMap.clear();
 		
+	}
+
+	public void addRoleAccess(String roleId) throws InconsistentException, PermissionException {
+		roleIds.add(roleId);
+	}
+
+	public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException {
+		roleIds.remove(roleId);
+	}
+
+	public void clearRoleAccess() throws PermissionException {
+		roleIds.clear();
 	}
 
 	/* (non-Javadoc)
