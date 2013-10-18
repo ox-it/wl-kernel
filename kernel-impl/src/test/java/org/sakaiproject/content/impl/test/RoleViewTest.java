@@ -5,18 +5,10 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.*;
-import org.sakaiproject.memory.api.MemoryPermissionException;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -30,7 +22,6 @@ public class RoleViewTest extends SakaiKernelTestBase {
     protected static final String TEST_ROLE         = "com.roles.test";
 
     protected ContentHostingService _chs;
-    protected MemoryService _ms;
     protected AuthzGroupService _ags;
 
     public static Test suite()
@@ -53,9 +44,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
         return setup;
     }
 
-    @Before
     public void setUp() throws IdUsedException, IdInvalidException, InconsistentException, PermissionException {
-        _ms = org.sakaiproject.memory.cover.MemoryServiceLocator.getInstance();
         _chs = org.sakaiproject.content.cover.ContentHostingService.getInstance();
         _ags = org.sakaiproject.authz.cover.AuthzGroupService.getInstance();
 
@@ -67,19 +56,17 @@ public class RoleViewTest extends SakaiKernelTestBase {
         _chs.commitCollection(collectionEdit);
     }
 
-    @After
-    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException {
+    public void tearDown() throws IdUnusedException, PermissionException, InUseException, TypeException, ServerOverloadException, AuthzPermissionException {
         _chs.removeCollection(PHOTOS_COLLECTION);
+        _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
     }
 
-    @Ignore
     public void testSetPubView() {
         _chs.setPubView(PHOTOS_COLLECTION, true);
         assertTrue(hasRealmAndRole(PHOTOS_COLLECTION, AuthzGroupService.ANON_ROLE));
     }
 
-    @Ignore
-    public void testSetRoleView() {
+    public void testSetRoleView() throws AuthzPermissionException {
         _chs.setRoleView(PHOTOS_COLLECTION, TEST_ROLE, true);
         assertTrue(hasRealmAndRole(PHOTOS_COLLECTION, TEST_ROLE));
     }
@@ -103,7 +90,6 @@ public class RoleViewTest extends SakaiKernelTestBase {
         return true;
     }
 
-    @Ignore
     public void testPubView() {
         assertFalse(_chs.isPubView(PHOTOS_COLLECTION));
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
@@ -117,8 +103,7 @@ public class RoleViewTest extends SakaiKernelTestBase {
         assertFalse(_chs.isPubView(PHOTOS_COLLECTION));
     }
 
-    @Ignore
-    public void testRoleView() {
+    public void testRoleView() throws AuthzPermissionException {
         assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, TEST_ROLE));
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
 
