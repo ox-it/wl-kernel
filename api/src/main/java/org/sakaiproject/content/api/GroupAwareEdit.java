@@ -22,11 +22,11 @@
 package org.sakaiproject.content.api;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 
 /**
@@ -67,29 +67,36 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 
 	/**
 	 * Add access to the resource for the specified role
-     * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
-	 * @throws InconsistentException
+	 * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 *
+	 * @throws InconsistentException if the parent entity has some other type of access, e.g. GroupAccess
 	 * @throws PermissionException
-     * @param roleId the ID of the role that should be added
+	 * @param roleId the ID of the role that should be added
 	 */
 	public void addRoleAccess(String roleId) throws InconsistentException, PermissionException;
 
 	/**
 	 * Removes access to the resource for the specified role if it was added through #addRoleAccess(String)
-     * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
-	 * @throws InconsistentException
-	 * @throws PermissionException
-     * @param roleId the ID of the role that should be removed
+	 * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
+	 *
+	 * @throws PermissionException if the current user doesn't have permission to remove this role access.
+	 * @throws InconsistentException if there is no roleId specified
+	 * @param roleId the ID of the role that should be removed
 	 */
 	public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException;
 
 	/**
-	 * Removes all role access that has been set through #addRoleAccess(String)
-     * Uses org.sakaiproject.content.api.ContentHostingService#clearRoleAccess()
-	 * @throws InconsistentException
-	 * @throws PermissionException
+	 * Gets a list of roles defined against the underlying entity.
 	 */
-	public void clearRoleAccess() throws InconsistentException, PermissionException;
+	public Set<String> getRoleAccessIds();
+
+	/**
+	 * Removes all role based access that has been defined. Warning: this will include Public Access.
+	 * Uses org.sakaiproject.content.api.ContentHostingService#clearRoleAccess()
+	 *
+	 * @throws PermissionException if the current user doesn't have permission to remove the roles defined.
+	 */
+	public void clearRoleAccess() throws PermissionException;
 
 	/**
 	 * Set the release date before which this entity should not be available to users 
