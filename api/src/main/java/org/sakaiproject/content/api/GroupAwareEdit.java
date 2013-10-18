@@ -52,25 +52,24 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException;
 
 	/**
-	 * 
-	 * @throws InconsistentException
-	 * @throws PermissionException
+	 * Allows public access to the resource by setting the anonymous role through addRoleAccess.
+	 * @throws InconsistentException if the parent resource has another access mode set which we should inherit
+	 * @throws PermissionException if the current user doesn't have permission add the anon role.
 	 */
 	public void setPublicAccess() throws InconsistentException, PermissionException;
-	
+
 	/**
-	 * 
-	 * @throws InconsistentException
-	 * @throws PermissionException
+	 * Removes the public access set to the resource by removing the anon role through removeRoleAccess.
+	 * @throws PermissionException if the current user doesn't have permission to remove the anon role.
 	 */
-	public void clearPublicAccess() throws InconsistentException, PermissionException;
+	public void clearPublicAccess() throws InconsistentException;
 
 	/**
 	 * Add access to the resource for the specified role
 	 * Uses org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
 	 *
 	 * @throws InconsistentException if the parent entity has some other type of access, e.g. GroupAccess
-	 * @throws PermissionException
+	 * @throws PermissionException If the user doesn't have  the permission to add the role.
 	 * @param roleId the ID of the role that should be added
 	 */
 	public void addRoleAccess(String roleId) throws InconsistentException, PermissionException;
