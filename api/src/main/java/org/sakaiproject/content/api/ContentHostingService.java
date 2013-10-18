@@ -1574,7 +1574,8 @@ public interface ContentHostingService extends EntityProducer
 	public boolean isInheritingPubView(String id);
 
 	/**
-	 * Set this resource or collection to the pubview setting.
+	 * Set this resource or collection to the pubview setting at a low level and should be used with caution.
+	 * Recommend using org.sakaiproject.content.api.GroupAwareEdit#setPublicAccess() and #clearPublicAccess() instead.
 	 * 
 	 * @param id
 	 *        The resource or collection id.
@@ -1584,7 +1585,8 @@ public interface ContentHostingService extends EntityProducer
 	public void setPubView(String id, boolean pubview);
 
 	/**
-	 * Grants or removes access to the content for a given role.
+	 * Grants or removes access to the content for a given role at a low level and should be used with caution.
+	 * Recommend using org.sakaiproject.content.api.GroupAwareEdit#addRoleAccess and #removeRoleAccess instead.
 	 *
 	 * @param id
 	 *        The resource or collection id.
@@ -1596,7 +1598,7 @@ public interface ContentHostingService extends EntityProducer
 	public void setRoleView(String id, String roleId, boolean grantAccess);
 
 	/**
-	 * Checks whether the given role is defined for the content through role view
+	 * Checks whether the given role is defined for the content.
 	 *
 	 * @param id
 	 *        The resource or collection id.
@@ -1606,15 +1608,7 @@ public interface ContentHostingService extends EntityProducer
 	public boolean isRoleView(String id, String roleId);
 
 	/**
-	 * Gets a list of roles that are defined against this entity through RoleView.
-	 *
-	 * @param id
-	 *        The resource or collection id.
-	 */
-	public Set<String> getRoleViews(String id);
-
-	/**
-	 * Checks whether the role is defined for the container of the specified entity
+	 * Checks whether the role is defined for the container of the specified entity.
 	 *
 	 * @param id
 	 *        The resource or collection id.
@@ -1622,6 +1616,14 @@ public interface ContentHostingService extends EntityProducer
 	 *        The id of the role to check for.
 	 */
 	public boolean isInheritingRoleView(String id, String roleId);
+
+	/**
+	 * Gets a list of roles that are defined against this entity.
+	 *
+	 * @param id
+	 *        The resource or collection id.
+	 */
+	public Set<String> getRoleViews(String id);
 
 	/**
 	 * Find all resources in specified sites that match the spcified type and mime type
