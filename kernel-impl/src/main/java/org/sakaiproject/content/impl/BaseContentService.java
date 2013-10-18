@@ -9966,7 +9966,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * @inheritDoc
 		 */
-		public void clearGroupAccess() throws InconsistentException, PermissionException 
+		public void clearGroupAccess() throws InconsistentException, PermissionException
 		{
 			if(this.m_access != AccessMode.GROUPED)
 			{
@@ -9981,19 +9981,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * @inheritDoc
 		 */
-		public void clearPublicAccess() throws InconsistentException, PermissionException 
-		{
-			setPubView(this.m_id, false);
-			this.m_access = AccessMode.INHERITED;
-			this.m_groups.clear();
-
+		public void clearPublicAccess() throws InconsistentException {
+			try {
+				removeRoleAccess(AuthzGroupService.ANON_ROLE);
+			} catch (PermissionException e) {
+				M_log.error("BasicGroupAwareEdit#clearPublicAccess: the anon role was not defined: " + e);
+			}
 		}
 
-		public void setPublicAccess() throws PermissionException
+		public void setPublicAccess() throws PermissionException, InconsistentException
 		{
-			setPubView(this.m_id, true);
-			this.m_access = AccessMode.INHERITED;
-			this.m_groups.clear();
+			addRoleAccess(AuthzGroupService.ANON_ROLE);
 		}
 
 		/**
