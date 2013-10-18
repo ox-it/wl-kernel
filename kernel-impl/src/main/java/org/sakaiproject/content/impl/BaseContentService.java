@@ -10039,11 +10039,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEdit#clearRoleAccess()
 		 */
-		public void clearRoleAccess()
-		{
+		public void clearRoleAccess() throws PermissionException {
 			Set<String> roles = getRoleViews(this.m_id);
 			for (String role : roles) {
-				setRoleView(this.m_id, role, false);
+				try {
+					setRoleView(this.m_id, role, false);
+				} catch (AuthzPermissionException e) {
+					throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+				}
 			}
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
