@@ -85,11 +85,6 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException;
 
 	/**
-	 * Gets a list of roles defined against the underlying entity.
-	 */
-	public Set<String> getRoleAccessIds();
-
-	/**
 	 * Removes all role based access that has been defined. Warning: this will include Public Access.
 	 * Uses org.sakaiproject.content.api.ContentHostingService#clearRoleAccess()
 	 *

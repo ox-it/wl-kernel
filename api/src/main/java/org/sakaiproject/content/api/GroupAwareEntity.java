@@ -62,6 +62,16 @@ public interface GroupAwareEntity extends Entity
 	public Collection getInheritedGroups();
 
 	/**
+	 * Gets a list of roles defined against the underlying entity.
+	 */
+	public Collection<String> getRoleAccessIds();
+
+	/**
+	 * Gets a list of roles defined against all parent entities.
+	 */
+	public Collection<String> getInheritedRoleAccessIds();
+
+	/**
 	 * Access the groups, as Group objects, inherited by this entity.
 	 * 
 	 * @return A Collection (Group) of group objects defined for this entity; empty if none are defined.
