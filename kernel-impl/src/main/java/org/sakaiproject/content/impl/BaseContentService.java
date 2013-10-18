@@ -10059,14 +10059,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				throw new InconsistentException(this.getReference());
 			}
 
-			if(isInheritingPubView(this.m_id))
+			if(isInheritingRoleView(this.m_id))
 			{
 				throw new InconsistentException(this.getReference());
 			}
 
-			if(isPubView(this.m_id))
+			if(!getRoleAccessIds().isEmpty())
 			{
-				setPubView(this.m_id, false);
+				clearRoleAccess();
 			}
 
 			SortedSet groupRefs = new TreeSet();
