@@ -9998,10 +9998,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEdit#addRoleAccess(String)
 		 */
-		public void addRoleAccess(String roleId)
-		{
-			// TODO Should we be checking for inconsistency with other roles?
-			setRoleView(this.m_id, roleId, false);
+		public void addRoleAccess(String roleId) throws InconsistentException, PermissionException {
+			if (roleId == null || roleId.isEmpty()) {
+				throw new InconsistentException("BasicGroupAwareEdit#addRoleAccess - Must specify a role to remove for content " + this.getReference());
+			}
+
+			if (!this.getInheritedGroups().isEmpty()) {
+				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s becuase content %s already inherits group access.", roleId, this.getReference());
+			}
+
+			try {
+				setRoleView(this.m_id, roleId, true);
+			} catch (AuthzPermissionException e) {
+				throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+			}
+
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 		}
@@ -10010,9 +10021,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEdit#removeRoleAccess(String)
 		 */
-		public void removeRoleAccess(String roleId)
-		{
-			setRoleView(this.m_id, roleId, false);
+		public void removeRoleAccess(String roleId) throws InconsistentException, PermissionException {
+			if (roleId == null || roleId.isEmpty()) {
+				throw new InconsistentException("BasicGroupAwareEdit#removeRoleAccess - Must specify a role to remove for content " + this.getReference());
+			}
+
+			try {
+				setRoleView(this.m_id, roleId, false);
+			} catch (AuthzPermissionException e) {
+				throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
+			}
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 		}
