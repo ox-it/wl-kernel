@@ -9126,29 +9126,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#getRoleViews(String)
 	 */
 	public Set<String> getRoleViews(final String id) {
-        String ref = getReference(id);
-        LinkedHashSet<String> roleIds = new LinkedHashSet<String>();
-        AuthzGroup realm = null;
+		String ref = getReference(id);
+		LinkedHashSet<String> roleIds = new LinkedHashSet<String>();
+		AuthzGroup realm = null;
 
-        try {
-            realm = m_authzGroupService.getAuthzGroup(ref);
-        } catch (GroupNotDefinedException e) {
-            // if there is no authz group then no roles can have been defined.
-            return roleIds;
-        }
+		try {
+			realm = m_authzGroupService.getAuthzGroup(ref);
+		} catch (GroupNotDefinedException e) {
+			// if there is no authz group then no roles can have been defined.
+			return roleIds;
+		}
 
-        if (realm == null) {
-            // same again, no realm => no roles
-            return roleIds;
-        }
+		if (realm == null) {
+			// same again, no realm => no roles
+			return roleIds;
+		}
 
-        Set<Role> roles = realm.getRoles();
-        for (Role role : roles) {
-            roleIds.add(role.getId());
-        }
+		Set<Role> roles = realm.getRoles();
+		for (Role role : roles) {
+			roleIds.add(role.getId());
+		}
 
-        return roleIds;
-    }
+		return roleIds;
+	}
 
 	/**
 	 * {@inheritDoc}
