@@ -10004,7 +10004,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 
 			if (!this.getInheritedGroups().isEmpty()) {
-				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s becuase content %s already inherits group access.", roleId, this.getReference());
+				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s already inherits group access.", roleId, this.getReference()));
 			}
 
 			try {
