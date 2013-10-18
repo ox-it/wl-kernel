@@ -50,14 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanner;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -8953,7 +8946,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isPubView(String id)
 	{
-		User anon = userDirectoryService.getAnonymousUser()
+		User anon = userDirectoryService.getAnonymousUser();
 		return m_securityService.unlock(anon, AUTH_RESOURCE_READ, getReference(id));
 	}
 
@@ -8976,15 +8969,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public void setPubView(String id, boolean pubview)
 	{
-		setRoleView(id, AuthzGroupService.ANON_ROLE, pubview);
+		try {
+			setRoleView(id, AuthzGroupService.ANON_ROLE, pubview);
+		} catch (AuthzPermissionException e) {
+			// Catching to prevent breaking the existing implementation
+			M_log.warn("BaseContentService#setPubView: Did not have permission to create a realm for " + getReference(id));
+		}
 	}
 
 	/**
 	 * @inheritDoc
 	 * @see org.sakaiproject.content.api.ContentHostingService#setRoleView(String, String, boolean)
 	 */
-	public void setRoleView(String id, String roleId, boolean grantAccess) {
-		// TODO: check efficiency here -ggolden
+	public void setRoleView(String id, String roleId, boolean grantAccess) throws AuthzPermissionException {
 
 		String ref = getReference(id);
 
@@ -9003,10 +9000,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				try
 				{
 					edit = m_authzGroupService.addAuthzGroup(ref);
-				}
-				catch (Exception ee)
-				{
-				   M_log.warn("Failed to add AZG ("+ref+") for pubview: " + ee);
+				} catch (GroupIdInvalidException e1) {
+					M_log.warn("BaseContentService#setRoleView: Failed to add AZG (" + ref + "): " + e1);
+				} catch (GroupAlreadyDefinedException e1) {
+					M_log.warn("BaseContentService#setRoleView: Failed to add AZG (" + ref + "): " + e1);
 				}
 			}
 		}
@@ -9097,11 +9094,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (GroupNotDefinedException e)
 			{
-				// TODO: IdUnusedException
-			}
-			catch (AuthzPermissionException e)
-			{
-				// TODO: PermissionException
+				M_log.error("BaseContentService#setRoleView: The group we were using stopped existing: " + e);
 			}
 		}
 	}

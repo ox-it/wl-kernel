@@ -31,6 +31,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1595,7 +1596,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @param grantAccess
 	 *        The desired access setting - true gives access and false removes access.
 	 */
-	public void setRoleView(String id, String roleId, boolean grantAccess);
+	public void setRoleView(String id, String roleId, boolean grantAccess) throws AuthzPermissionException;
 
 	/**
 	 * Checks whether the given role is defined for the content.
