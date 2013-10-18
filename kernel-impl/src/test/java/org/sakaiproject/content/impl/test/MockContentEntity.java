@@ -250,6 +250,14 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		return this.inheritedGroupMap.keySet();
 	}
 
+	public Set<String> getRoleAccessIds() {
+		return new LinkedHashSet<String>();
+	}
+
+	public Set<String> getInheritedRoleAccessIds() {
+		return new LinkedHashSet<String>();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEntity#getReleaseDate()
 	 */

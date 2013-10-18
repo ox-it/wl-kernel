@@ -10056,7 +10056,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEntity#getRoleAccessIds() ()
 		 */
-		public Collection<String> getRoleAccessIds()
+		public Set<String> getRoleAccessIds()
 		{
 			return getRoleViews(this.m_id);
 		}
@@ -10065,9 +10065,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedRoleAccessIds() ()
 		 */
-		public Collection<String> getInheritedRoleAccessIds()
+		public Set<String> getInheritedRoleAccessIds()
 		{
-			Collection<String> roleIds = new ArrayList<String>();
+			Set<String> roleIds = new LinkedHashSet<String>();
 			if (isRootCollection(this.m_id)) {
 				// we are at the root so there is nothing to inherit
 				return roleIds;
