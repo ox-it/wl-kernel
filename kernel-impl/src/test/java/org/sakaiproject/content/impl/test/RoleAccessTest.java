@@ -10,27 +10,32 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.*;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 
 public class RoleAccessTest extends SakaiKernelTestBase {
 
     private static final Log log = LogFactory.getLog(RoleAccessTest.class);
 
-    protected static final String IMAGES_COLLECTION = "/private/images/";
-    protected static final String PHOTOS_COLLECTION = "/private/images/photos/";
+    protected static final String SITE_ID           = "site-id";
+    protected static final String IMAGES_COLLECTION = String.format("/group/%s/images/", SITE_ID);
+    protected static final String PHOTOS_COLLECTION = String.format("/group/%s/images/photos/", SITE_ID);
     protected static final String TEST_ROLE         = "com.roles.test";
     protected static final String TEST_ROLE_2       = "net.roles.test";
 
     protected ContentHostingService _chs;
     protected AuthzGroupService _ags;
+    protected SiteService _ss;
 
     protected ContentCollectionEdit collectionEdit;
+    protected String _groupReference; 
 
     public static Test suite()
     {
@@ -52,7 +57,7 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         return setup;
     }
 
-    public void setUp() throws IdUsedException, IdInvalidException, InconsistentException, PermissionException {
+    public void setUp() throws IdUsedException, IdInvalidException, InconsistentException, PermissionException, IdUnusedException {
         _chs = org.sakaiproject.content.cover.ContentHostingService.getInstance();
         _ags = org.sakaiproject.authz.cover.AuthzGroupService.getInstance();
 
@@ -60,6 +65,13 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         Session session = sm.getCurrentSession();
         session.setUserEid("admin");
         session.setUserId("admin");
+
+        _ss = org.sakaiproject.site.cover.SiteService.getInstance();
+        Site newSite = _ss.addSite(SITE_ID, (String) null);
+        Group group = newSite.addGroup();
+        group.setTitle(".group");
+        _groupReference = group.getReference();
+        _ss.save(newSite);
 
         collectionEdit = _chs.addCollection(IMAGES_COLLECTION);
         _chs.commitCollection(collectionEdit);
@@ -73,6 +85,7 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         _ags.removeAuthzGroup(_chs.getReference(PHOTOS_COLLECTION));
         _chs.removeCollection(IMAGES_COLLECTION);
         _ags.removeAuthzGroup(_chs.getReference(IMAGES_COLLECTION));
+        _ss.removeSite(_ss.getSite(SITE_ID));
     }
 
     public void testAddAndRemoveRoleAccess() throws IdUnusedException, PermissionException, InUseException, TypeException, InconsistentException {
@@ -131,7 +144,8 @@ public class RoleAccessTest extends SakaiKernelTestBase {
 
     public void testRoleAccessFailsWhenGroupAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
         collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
-        collectionEdit.setGroupAccess(Collections.singleton(".anon"));
+        // TODO relies on their being a working site to work with. There isn't one currently.
+        collectionEdit.setGroupAccess(Collections.singleton(_groupReference));
         _chs.commitCollection(collectionEdit);
 
         collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
