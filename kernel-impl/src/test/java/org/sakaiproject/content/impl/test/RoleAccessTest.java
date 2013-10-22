@@ -114,17 +114,32 @@ public class RoleAccessTest extends SakaiKernelTestBase {
     }
 
     public void testGetInheritedAccessRoleIds() throws IdUnusedException, PermissionException, InUseException, TypeException, InconsistentException, IdInvalidException, IdUsedException, ServerOverloadException, AuthzPermissionException {
-        collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
-        collectionEdit.addRoleAccess(TEST_ROLE);
-        _chs.commitCollection(collectionEdit);
-
         collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
         collectionEdit.addRoleAccess(TEST_ROLE_2);
+        _chs.commitCollection(collectionEdit);
+
+        collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
+        collectionEdit.addRoleAccess(TEST_ROLE);
         _chs.commitCollection(collectionEdit);
 
         ContentCollection collection = _chs.getCollection(PHOTOS_COLLECTION);
         assertTrue(collection.getInheritedRoleAccessIds().contains(TEST_ROLE));
         assertFalse(collection.getInheritedRoleAccessIds().contains(TEST_ROLE_2));
+    }
+
+    public void testRoleAccessFailsWhenRoleAccessInInherited() throws IdUnusedException, PermissionException, InUseException, TypeException, IdInvalidException, IdUsedException, ServerOverloadException, AuthzPermissionException, InconsistentException {
+        collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
+        collectionEdit.addRoleAccess(TEST_ROLE);
+        _chs.commitCollection(collectionEdit);
+
+        collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
+        try {
+            collectionEdit.addRoleAccess(TEST_ROLE_2);
+            fail();
+        } catch (InconsistentException e) {
+            // instead we should go here
+        }
+        _chs.commitCollection(collectionEdit);
     }
 
     public void testGroupAccessFailsWhenRoleAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
@@ -144,7 +159,6 @@ public class RoleAccessTest extends SakaiKernelTestBase {
 
     public void testRoleAccessFailsWhenGroupAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
         collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
-        // TODO relies on their being a working site to work with. There isn't one currently.
         collectionEdit.setGroupAccess(Collections.singleton(_groupReference));
         _chs.commitCollection(collectionEdit);
 
