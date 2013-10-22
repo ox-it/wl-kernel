@@ -47,7 +47,6 @@ import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -1703,8 +1702,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 				roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
 			}
 
-			if (userId.startsWith(ContentHostingService.DUMMY_USER_PREFIX)) {
-				String roleId = userId.substring(ContentHostingService.DUMMY_USER_PREFIX.length());
+			if (userId.startsWith(DUMMY_USER_PREFIX)) {
+				String roleId = userId.substring(DUMMY_USER_PREFIX.length());
 				roles.add(roleId);
 			}
 		}

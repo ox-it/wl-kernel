@@ -42,7 +42,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -148,7 +147,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.ibm.icu.impl.duration.impl.DataRecord.ECountVariant;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
@@ -9104,7 +9102,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
 	 */
 	public boolean isRoleView(final String id, final String roleId) {
-		String dummyUserId = DUMMY_USER_PREFIX + roleId;
+		String dummyUserId = AuthzGroupService.DUMMY_USER_PREFIX + roleId;
 		return m_securityService.unlock(dummyUserId, AUTH_RESOURCE_READ, getReference(id));
 	}
 
@@ -10004,7 +10002,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 
 			if (!this.getInheritedGroups().isEmpty()) {
-				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s already inherits group access.", roleId, this.getReference()));
+				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s inherits group access.", roleId, this.getReference()));
 			}
 
 			try {
