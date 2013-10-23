@@ -335,11 +335,11 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#clearPublicAccess()
 	 */
-	public void clearPublicAccess() throws InconsistentException
+	public void clearPublicAccess() throws PermissionException
 	{
 		if(! this.isPublic)
 		{
-			throw new InconsistentException(entityId);
+			throw new PermissionException(null, null, entityId);
 		}
 		this.isPublic = false;
 		this.accessMode = AccessMode.INHERITED;

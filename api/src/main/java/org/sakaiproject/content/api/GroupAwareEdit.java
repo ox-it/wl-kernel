@@ -62,7 +62,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 * Removes the public access set to the resource by removing the anon role through removeRoleAccess.
 	 * @throws PermissionException if the current user doesn't have permission to remove the anon role.
 	 */
-	public void clearPublicAccess() throws InconsistentException;
+	public void clearPublicAccess() throws PermissionException;
 
 	/**
 	 * Add access to the resource for the specified role

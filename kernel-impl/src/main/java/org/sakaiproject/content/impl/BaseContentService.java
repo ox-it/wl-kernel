@@ -9979,10 +9979,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * @inheritDoc
 		 */
-		public void clearPublicAccess() throws InconsistentException {
+		public void clearPublicAccess() throws PermissionException {
 			try {
 				removeRoleAccess(AuthzGroupService.ANON_ROLE);
-			} catch (PermissionException e) {
+			} catch (InconsistentException e) {
 				M_log.error("BasicGroupAwareEdit#clearPublicAccess: the anon role was not defined: " + e);
 			}
 		}
