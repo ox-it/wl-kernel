@@ -9135,11 +9135,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return roleIds;
 		}
 
-		if (realm == null) {
-			// same again, no realm => no roles
-			return roleIds;
-		}
-
 		Set<Role> roles = realm.getRoles();
 		for (Role role : roles) {
 			roleIds.add(role.getId());
