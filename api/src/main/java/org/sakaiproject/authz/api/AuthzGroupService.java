@@ -68,7 +68,8 @@ public interface AuthzGroupService extends EntityProducer
 	/** Standard role name for the auth. role. */
 	static final String AUTH_ROLE = ".auth";
 
-	/** The string to prepend to the role id to form the dummy user id for role checks */
+	/** The string to prepend to the role id to form the dummy user id for role checks
+	 *  We check role access buy using a dummy user rather than loading the roles and iterating through them and to take advantage of caching. */
 	String DUMMY_USER_PREFIX = "dummy";
 
 	/**
