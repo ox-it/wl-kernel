@@ -1702,7 +1702,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 				roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
 			}
 
-			if (userId.startsWith(DUMMY_USER_PREFIX)) {
+			if (userId.startsWith(DUMMY_USER_PREFIX) && !DUMMY_USER_PREFIX.equals(userId)) {
 				String roleId = userId.substring(DUMMY_USER_PREFIX.length());
 				roles.add(roleId);
 			}
