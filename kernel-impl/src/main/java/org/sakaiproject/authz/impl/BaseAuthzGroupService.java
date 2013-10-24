@@ -1705,6 +1705,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			// A dummy user is created to test role access instead of loading all of the roles and iterating over them.
 			if (userId.startsWith(DUMMY_USER_PREFIX) && !DUMMY_USER_PREFIX.equals(userId)) {
 				String roleId = userId.substring(DUMMY_USER_PREFIX.length());
+				roles.remove(ANON_ROLE);
 				roles.add(roleId);
 			}
 		}

@@ -96,22 +96,25 @@ public class RoleViewTest extends SakaiKernelTestBase {
         _chs.setPubView(PHOTOS_COLLECTION, true);
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).contains(AuthzGroupService.ANON_ROLE));
         assertTrue(_chs.isPubView(PHOTOS_COLLECTION));
+        assertTrue(_chs.isRoleView(PHOTOS_COLLECTION, AuthzGroupService.ANON_ROLE));
 
         _chs.setPubView(PHOTOS_COLLECTION, false);
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
         assertFalse(_chs.isPubView(PHOTOS_COLLECTION));
+        assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, AuthzGroupService.ANON_ROLE));
     }
 
     public void testRoleView() throws AuthzPermissionException {
+        _chs.setPubView(PHOTOS_COLLECTION, true);
         assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, TEST_ROLE));
-        assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
+        assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).size() == 1);
 
         _chs.setRoleView(PHOTOS_COLLECTION, TEST_ROLE, true);
         assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).contains(TEST_ROLE));
         assertTrue(_chs.isRoleView(PHOTOS_COLLECTION, TEST_ROLE));
 
         _chs.setRoleView(PHOTOS_COLLECTION, TEST_ROLE, false);
-        assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).isEmpty());
+        assertTrue(_chs.getRoleViews(PHOTOS_COLLECTION).size() == 1);
         assertFalse(_chs.isRoleView(PHOTOS_COLLECTION, TEST_ROLE));
     }
 
