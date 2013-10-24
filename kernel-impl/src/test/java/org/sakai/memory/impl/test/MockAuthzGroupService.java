@@ -144,7 +144,15 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		return false;
 	}
 
-	public boolean isAllowed(String userId, String function, Collection azGroups) {
+	public String encodeDummyUserForRole(String roleId) throws IllegalArgumentException {
+		return roleId;
+	}
+
+	public String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException {
+		return dummyUserId;
+	}
+
+    public boolean isAllowed(String userId, String function, Collection azGroups) {
 		// TODO Auto-generated method stub
 		return false;
 	}
