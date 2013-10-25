@@ -95,7 +95,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 * The dummy prefix used to encode and decode the the dummy user id for a role.
 	 * Randomly generated on server startup, should not be too long as it will be cached often.
 	 */
-	protected String dummyUserPrefix;
+	private String dummyUserPrefix;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
