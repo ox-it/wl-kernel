@@ -311,6 +311,27 @@ public interface AuthzGroupService extends EntityProducer
 	boolean isAllowed(String userId, String function, Collection<String> azGroups);
 
 	/**
+	 * Encode the role id to form the dummy user id that will be used to perform role checks.
+	 * We check role access by performing an authz check against a dummy so that we don't have to load
+	 * all of the roles and iterate through them and also to take advantage of caching.
+	 * 
+	 * @param roleId the string id of the role to encode
+	 * @return a dummy user id which will pass authz checks for this role
+	 * @throws IllegalArgumentException if no roleId is provided
+	 */
+	String encodeDummyUserForRole(String roleId) throws IllegalArgumentException;
+
+	/**
+	 * Decodes the dummy user id to provide the original roleId as encoded by encodeDummyUserForRole(String)
+	 * @see AuthzGroupService#encodeDummyUserForRole(String)
+	 * 
+	 * @param dummyUserId the string id of the dummy user to decode
+	 * @return the decoded role, will return <code>null</code> if it could not be decoded.
+	 * @throws IllegalArgumentException if no dummy user id is provided.
+	 */
+	String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException;
+
+	/**
 	 * Get the set of user ids of users who are allowed to perform the function in the named AuthzGroups.
 	 * 
 	 * @param function
