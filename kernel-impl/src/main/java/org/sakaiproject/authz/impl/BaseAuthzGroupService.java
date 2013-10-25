@@ -961,7 +961,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			throw new IllegalArgumentException("BaseAuthzGroupService.decodeRoleFromDummyUser: No dummy user ID provided");
 		}
 		if (!dummyUserId.startsWith(this.dummyUserPrefix) || dummyUserId.equals(this.dummyUserPrefix)) {
-			throw new IllegalArgumentException("BaseAuthzGroupService.decodeRoleFromDummyUser: Dummy user ID was not encoded correctly");
+			return null;
 		}
 		return dummyUserId.replaceFirst(this.dummyUserPrefix, "");
 	}
@@ -1719,20 +1719,17 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		{
 
 			// A dummy user is created to test role access instead of loading all of the roles and iterating over them.
-			try {
-				String roleId = decodeRoleFromDummyUser(userId);
+			String roleId = decodeRoleFromDummyUser(userId);
+			if (roleId != null){
 				roles.remove(ANON_ROLE);
 				roles.add(roleId);
-				return roles;
-			} catch (IllegalArgumentException e) {
-				// then continue as normal since we are not using a dummy user 
-			}
-
-			roles.add(AUTH_ROLE);
-			// Get additional roles from provider
-			if (m_roleProvider != null)
-			{
-				roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+			} else {
+				roles.add(AUTH_ROLE);
+				// Get additional roles from provider
+				if (m_roleProvider != null)
+				{
+					roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+				}
 			}
 		}
 		return roles;

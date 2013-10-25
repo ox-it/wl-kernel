@@ -29,7 +29,7 @@ public class DummyUserEncodingTest extends SakaiKernelTestBase {
         _secretPrefix = _ags.encodeDummyUserForRole("DropMe").replaceAll("DropMe", "");
     }
 
-    public void testEncodingThrowsExceptions() {
+    public void testInvalidEncoding() {
         try {
             _ags.encodeDummyUserForRole("");
             fail();
@@ -45,20 +45,23 @@ public class DummyUserEncodingTest extends SakaiKernelTestBase {
         }
     }
 
-    public void testDecodingThrowsExceptions() {
+    public void testInvalidDecoding() {
         try {
-            _ags.decodeRoleFromDummyUser("notEncoded");
+            _ags.decodeRoleFromDummyUser(null);
             fail();
         } catch (IllegalArgumentException e) {
             // should get here
         }
 
         try {
-            _ags.decodeRoleFromDummyUser(_secretPrefix);
+            _ags.decodeRoleFromDummyUser("");
             fail();
         } catch (IllegalArgumentException e) {
             // should get here
         }
+
+        assertNull(_ags.decodeRoleFromDummyUser(_secretPrefix));
+        assertNull(_ags.decodeRoleFromDummyUser("YouNeverEncodedMe"));
     }
 
     public void testCanGetBackToWhereWeStarted() {

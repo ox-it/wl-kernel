@@ -9102,6 +9102,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @see org.sakaiproject.content.api.ContentHostingService#isRoleView(String, String)
 	 */
 	public boolean isRoleView(final String id, final String roleId) {
+		if(roleId == null) {
+			return false;
+		}
 		String dummyUserId = m_authzGroupService.encodeDummyUserForRole(roleId);
 		return m_securityService.unlock(dummyUserId, AUTH_RESOURCE_READ, getReference(id));
 	}

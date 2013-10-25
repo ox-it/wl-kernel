@@ -326,8 +326,8 @@ public interface AuthzGroupService extends EntityProducer
 	 * @see AuthzGroupService#encodeDummyUserForRole(String)
 	 * 
 	 * @param dummyUserId the string id of the dummy user to decode
-	 * @return the decoded role
-	 * @throws IllegalArgumentException if no dummy user id is provided or if it was not encoded correctly.
+	 * @return the decoded role, will return <code>null</code> if it could not be decoded.
+	 * @throws IllegalArgumentException if no dummy user id is provided.
 	 */
 	String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException;
 
