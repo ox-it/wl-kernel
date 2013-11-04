@@ -223,13 +223,15 @@ public class ContentCopyImpl implements ContentCopy {
 				// Copy across the availability information
 				newCollection.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
 
-				// Copy the permissions accross
+				// Copy the permissions across
 				try{
 					AuthzGroup oldRealm = ags.getAuthzGroup(resource.getReference());
-					ags.save(ags.newAuthzGroup(newCollectionId, oldRealm, null));
+					ags.addAuthzGroup(newCollection.getReference(), oldRealm, null);
 				} catch (GroupNotDefinedException e) {
 					// do nothing - this case is expected to be common
 				} catch (GroupAlreadyDefinedException e) {
+					log.warn("A realm is already defined for new collection: " + newCollectionId);
+				} catch (GroupIdInvalidException e) {
 					log.warn("A realm is already defined for new collection: " + newCollectionId);
 				} catch (AuthzPermissionException e) {
 					log.warn("Did not have permission to set Realm for the new collection: "+ newCollectionId);
@@ -425,7 +427,7 @@ public class ContentCopyImpl implements ContentCopy {
 	 * This just finds the site collection for a resource. It just walks up the
 	 * tree.
 	 * 
-	 * @param resource
+	 * @param resourceId
 	 *            The resource.
 	 * @return The site collection which contains this resource.
 	 */
