@@ -574,11 +574,11 @@ public class Web
 		try
 		{
 			if ( agent != null && agent.indexOf("MSIE")>=0 )
-				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
+				fileName = java.net.URLEncoder.encode(fileName, "UTF8").replace("+", "%20");
 			else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
 				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
 			else
-				fileName = java.net.URLEncoder.encode(fileName, "UTF8");
+				fileName = java.net.URLEncoder.encode(fileName, "UTF8").replace("+", "%20");
 		}
 		catch (java.io.UnsupportedEncodingException e)
 		{
