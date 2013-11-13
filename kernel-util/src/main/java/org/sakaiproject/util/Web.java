@@ -597,9 +597,10 @@ public class Web
 	 * and a full UTF-8 version. This allows browser that understand the full version to use that and
 	 * for mainly IE 8 the old limited one.
 	 * @param filename The filename to encode
+	 * @param isDownload Whether the file is a download, will use "attachment" if true and "inline" if false.
 	 * @return The value of the content disposition header specifying it's inline content.
 	 */
-	public static String buildContentDisposition(String filename) {
+	public static String buildContentDisposition(String filename, boolean isDownload) {
 		try {
 			// This will replace all non US-ASCII characters with '?'
 			// Although this behaviour is unspecified doing it manually is overkill (too much work).
@@ -609,7 +610,7 @@ public class Web
 					.replace("\"", "\\\"");
 			String utf8Filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
 			return new StringBuilder()
-					.append("inline; ")
+					.append(isDownload ? "attachment; " : "inline; ")
 					.append("filename=\"").append(iso8859Filename).append("\"; ")
 							// For sensible browser give them a full UTF-8 encoded string.
 					.append("filename*=UTF-8''").append(utf8Filename)
