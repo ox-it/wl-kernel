@@ -497,6 +497,11 @@ public class BasicEmailService implements EmailService
 			// Content-Type: text/plain; charset=windows-1252; format=flowed
 			String contentTypeHeader = null;
 
+			// If we need to force the container to use a certain multipart subtype
+			//    e.g. 'alternative'
+			// then sneak it through in the additionalHeaders
+			String multipartSubtype = null;
+
 			// set the additional headers on the message
 			// but treat Content-Type specially as we need to check the charset
 			// and we already dealt with the message id
@@ -508,6 +513,8 @@ public class BasicEmailService implements EmailService
 						contentTypeHeader = header;
 					else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
 						msg.addHeaderLine(header);
+					else if (header.toLowerCase().startsWith("multipart-subtype: "))
+						multipartSubtype = header.substring(header.indexOf(":") + 1).trim();
 				}
 			}
 
@@ -578,7 +585,7 @@ public class BasicEmailService implements EmailService
 				int colonPos = contentTypeHeader.indexOf(":");
 				contentType = contentTypeHeader.substring(colonPos + 1).trim();
 			}
-			setContent(content, attachments, msg, contentType, charset);
+			setContent(content, attachments, msg, contentType, charset, multipartSubtype);
 
 			// if we have a full Content-Type header, set it NOW
 			// (after setting the body of the message so that format=flowed is preserved)
@@ -1166,15 +1173,10 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Sets the content for a message. Also attaches files to the message.
-	 * 
-	 * @param content
-	 * @param attachments
-	 * @param msg
-	 * @param charset
 	 * @throws MessagingException
 	 */
 	protected void setContent(String content, List<Attachment> attachments, MimeMessage msg,
-			String contentType, String charset) throws MessagingException
+			String contentType, String charset, String multipartSubtype) throws MessagingException
 	{
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
 		if (attachments != null && attachments.size() > 0)
@@ -1200,7 +1202,7 @@ public class BasicEmailService implements EmailService
 		else
 		{
 			// create a multipart container
-			Multipart multipart = new MimeMultipart();
+			Multipart multipart = (multipartSubtype != null) ? new MimeMultipart(multipartSubtype) : new MimeMultipart();
 
 			// create a body part for the message text
 			MimeBodyPart msgBodyPart = new MimeBodyPart();
