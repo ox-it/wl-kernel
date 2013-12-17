@@ -1234,6 +1234,15 @@ public class BasicEmailService implements EmailService
 	{
 		FileDataSource source = new FileDataSource(attachment.getFile());
 		MimeBodyPart attachPart = new MimeBodyPart();
+
+		if (attachment.getContentTypeHeader() != null) {
+			attachPart.setHeader("Content-Type", attachment.getContentTypeHeader());
+		}
+
+		if (attachment.getContentDispositionHeader() != null) {
+			attachPart.setHeader("Content-Disposition", attachment.getContentDispositionHeader());
+		}
+
 		attachPart.setDataHandler(new DataHandler(source));
 		attachPart.setFileName(attachment.getFilename());
 		return attachPart;
