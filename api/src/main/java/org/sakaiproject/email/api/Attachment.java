@@ -33,10 +33,36 @@ public class Attachment
 	private final File file;
 	private final String filename;
 
+	/**
+	 * The Content-Type and Content-Disposition MIME headers to be sent with the attachment.
+	 * Can be <code>null</code>.
+	 */
+	private final String contentType;
+	private final String contentDisposition;
+	public enum ContentDisposition {INLINE, ATTACHMENT}
+
 	public Attachment(File file, String filename)
 	{
 		this.file = file;
 		this.filename = filename;
+		this.contentType = null;
+		this.contentDisposition = null;
+	}
+
+	/**
+	 * Creates an Attachment with some of the MIME headers specified.
+	 *
+	 * @param file        the file
+	 * @param filename    the filename
+	 * @param contentType the Content-Type header, can be <code>null</code>
+	 * @param disposition the Content-Disposition header, can be <code>null</code>
+	 */
+	public Attachment(File file, String filename, String contentType, ContentDisposition disposition)
+	{
+		this.file = file;
+		this.filename = filename;
+		this.contentType = contentType;
+		this.contentDisposition = disposition == null ? null : disposition.toString().toLowerCase();
 	}
 
 	/**
@@ -58,4 +84,26 @@ public class Attachment
 	{
 		return filename;
 	}
+
+
+	/**
+	 * The Content-Type MIME header for the attachment, can be <code>null</code>.
+	 *
+	 * @return the Content-Type header
+	 */
+	public String getContentTypeHeader()
+    {
+        return contentType;
+    }
+
+	/**
+	 * The Content-Disposition MIME header for the attachment, can be <code>null</code>.
+	 *
+	 * @return the Content-Disposition header
+	 */
+	public String getContentDispositionHeader()
+    {
+        return contentDisposition;
+    }
+
 }
