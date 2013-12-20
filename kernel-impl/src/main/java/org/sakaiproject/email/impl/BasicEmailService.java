@@ -511,10 +511,10 @@ public class BasicEmailService implements EmailService
 				{
 					if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
 						contentTypeHeader = header;
-					else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
-						msg.addHeaderLine(header);
 					else if (header.toLowerCase().startsWith("multipart-subtype: "))
 						multipartSubtype = header.substring(header.indexOf(":") + 1).trim();
+					else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
+						msg.addHeaderLine(header);
 				}
 			}
 
@@ -1237,6 +1237,9 @@ public class BasicEmailService implements EmailService
 		FileDataSource source = new FileDataSource(attachment.getFile());
 		MimeBodyPart attachPart = new MimeBodyPart();
 
+		attachPart.setDataHandler(new DataHandler(source));
+		attachPart.setFileName(attachment.getFilename());
+
 		if (attachment.getContentTypeHeader() != null) {
 			attachPart.setHeader("Content-Type", attachment.getContentTypeHeader());
 		}
@@ -1245,8 +1248,6 @@ public class BasicEmailService implements EmailService
 			attachPart.setHeader("Content-Disposition", attachment.getContentDispositionHeader());
 		}
 
-		attachPart.setDataHandler(new DataHandler(source));
-		attachPart.setFileName(attachment.getFilename());
 		return attachPart;
 	}
 
