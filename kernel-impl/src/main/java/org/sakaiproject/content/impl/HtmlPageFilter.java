@@ -90,7 +90,7 @@ public class HtmlPageFilter implements ContentFilter {
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 		StringBuilder header = new StringBuilder();
-		if ("strict".equals(addHtml)) {
+		if ("standards".equals(addHtml)) {
 			header.append(doctype);
 		}
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));

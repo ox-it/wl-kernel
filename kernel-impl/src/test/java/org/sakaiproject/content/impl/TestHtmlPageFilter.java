@@ -69,8 +69,8 @@ public class TestHtmlPageFilter {
 	}
 
 	@Test
-	public void testIsFilteredStrict() {
-		make("text/html", "strict");
+	public void testIsFilteredStandards() {
+		make("text/html", "standards");
 		assertTrue(filter.isFiltered(cr));
 	}
 
