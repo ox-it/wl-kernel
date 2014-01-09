@@ -69,7 +69,8 @@ public class HtmlPageFilter implements ContentFilter {
 
 	public boolean isFiltered(ContentResource resource) {
 		String addHtml = resource.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		return enabled && ("text/html".equals(resource.getContentType())) && ((addHtml == null) || (!addHtml.equals("no") || addHtml.equals("yes")));
+		boolean isHtml = "text/html".equals(resource.getContentType());
+		return enabled && isHtml && !("no".equals(addHtml));
 	}
 
 	public ContentResource wrap(final ContentResource content) {
