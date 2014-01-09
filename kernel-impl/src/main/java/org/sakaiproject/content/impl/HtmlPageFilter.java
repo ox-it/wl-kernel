@@ -41,6 +41,8 @@ public class HtmlPageFilter implements ContentFilter {
 "  </head>\n" +
 "  <body>\n";
 
+	private String doctype = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n";
+
 	private String footerTemplate = "\n" +
 "  </body>\n" +
 "</html>\n";
@@ -86,10 +88,14 @@ public class HtmlPageFilter implements ContentFilter {
 
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
-		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups);
+		StringBuilder header = new StringBuilder();
+		if ("strict".equals(addHtml)) {
+			header.append(doctype);
+		}
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
 		final String footer = footerTemplate;
 
-		return new WrappedContentResource(content, header, footer, detectHtml);
+		return new WrappedContentResource(content, header.toString(), footer, detectHtml);
 	}
 
 	private String getTitle(final ContentResource content) {
