@@ -129,7 +129,6 @@ public interface EmailService
 	/**
 	 * Sends a single message to a set of users.
 	 * 
-	 * @deprecated
 	 * @param message
 	 *            {@link EmailMessage} that contains the parameters to create a message to the
 	 *            specified recipients.
@@ -150,8 +149,6 @@ public interface EmailService
 	 * @param message
 	 *            {@link EmailMessage} that contains the parameters to create a message to the
 	 *            specified recipients.
-	 * @param messagingException
-	 *            Whether or not to throw a messaging exception
 	 * @throws AddressValidationException
 	 *             If any addresses are found to be invalid that prevent all the messages from being send.
 	 *             Examples are reply-to address and from address.. This is checked when
@@ -162,6 +159,6 @@ public interface EmailService
 	 *         {@link javax.mail.internet.InternetAddress}.
 	 */
 
-	List<EmailAddress> send(EmailMessage message, boolean messagingException) throws AddressValidationException,
+	List<EmailAddress> sendMessagingException(EmailMessage message) throws AddressValidationException,
 			NoRecipientsException, MessagingException;
 }

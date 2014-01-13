@@ -442,7 +442,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
+	private void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) throws MessagingException
 			{
@@ -507,11 +507,6 @@ public class BasicEmailService implements EmailService
 		// Content-Type: text/plain; charset=windows-1252; format=flowed
 		String contentTypeHeader = null;
 
-		// If we need to force the container to use a certain multipart subtype
-		//    e.g. 'alternative'
-		// then sneak it through in the additionalHeaders
-		String multipartSubtype = null;
-
 		// set the additional headers on the message
 		// but treat Content-Type specially as we need to check the charset
 		// and we already dealt with the message id
@@ -521,8 +516,6 @@ public class BasicEmailService implements EmailService
 			{
 				if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
 					contentTypeHeader = header;
-				else if (header.toLowerCase().startsWith(EmailHeaders.MULTIPART_SUBTYPE.toLowerCase() + ": "))
-					multipartSubtype = header.substring(header.indexOf(":") + 1).trim();
 				else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
 					msg.addHeaderLine(header);
 			}
@@ -595,7 +588,7 @@ public class BasicEmailService implements EmailService
 			int colonPos = contentTypeHeader.indexOf(":");
 			contentType = contentTypeHeader.substring(colonPos + 1).trim();
 		}
-		setContent(content, attachments, msg, contentType, charset, multipartSubtype);
+		setContent(content, attachments, msg, contentType, charset);
 
 		// if we have a full Content-Type header, set it NOW
 		// (after setting the body of the message so that format=flowed is preserved)
@@ -924,14 +917,13 @@ public class BasicEmailService implements EmailService
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
-	 * For temporary backward compatibility
 	 */
 	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException,
 	NoRecipientsException
 	{
 		List<EmailAddress> addresses = new ArrayList<EmailAddress>();
 		try {
-			addresses = send(msg,true);
+			addresses = sendMessagingException(msg);
 		}
 		catch (MessagingException e) {
 			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
@@ -943,7 +935,7 @@ public class BasicEmailService implements EmailService
 	 * 
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
 	 */
-	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
+	public List<EmailAddress> sendMessagingException(EmailMessage msg) throws AddressValidationException,
 			NoRecipientsException, MessagingException
 	{
 		ArrayList<EmailAddress> invalids = new ArrayList<EmailAddress>();
@@ -1039,18 +1031,9 @@ public class BasicEmailService implements EmailService
 		headers.add(contentType);
 
 		// send the message
-		try {
-			sendMailMessagingException(from, actual, msg.getSubject(),
-					msg.getBody(), headerTo, replyTo, headers,
-					msg.getAttachments());
-		} catch (MessagingException e) {
-			// Just log it, if user doesn't want it thrown
-			if (messagingException == false) {
-				M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
-			} else {
-				throw e;
-			}
-		}
+		sendMailMessagingException(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
+				.getAttachments());
+
 		return invalids;
 	}
 
@@ -1205,10 +1188,15 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Sets the content for a message. Also attaches files to the message.
+	 * 
+	 * @param content
+	 * @param attachments
+	 * @param msg
+	 * @param charset
 	 * @throws MessagingException
 	 */
 	protected void setContent(String content, List<Attachment> attachments, MimeMessage msg,
-			String contentType, String charset, String multipartSubtype) throws MessagingException
+			String contentType, String charset) throws MessagingException
 	{
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
 		if (attachments != null && attachments.size() > 0)
@@ -1234,7 +1222,7 @@ public class BasicEmailService implements EmailService
 		else
 		{
 			// create a multipart container
-			Multipart multipart = (multipartSubtype != null) ? new MimeMultipart(multipartSubtype) : new MimeMultipart();
+			Multipart multipart = new MimeMultipart();
 
 			// create a body part for the message text
 			MimeBodyPart msgBodyPart = new MimeBodyPart();
@@ -1259,7 +1247,8 @@ public class BasicEmailService implements EmailService
 
 	/**
 	 * Attaches a file as a body part to the multipart message
-	 *
+	 * 
+	 * @param multipart
 	 * @param attachment
 	 * @throws MessagingException
 	 */
@@ -1267,18 +1256,8 @@ public class BasicEmailService implements EmailService
 	{
 		DataSource source = attachment.getDataSource();
 		MimeBodyPart attachPart = new MimeBodyPart();
-
 		attachPart.setDataHandler(new DataHandler(source));
 		attachPart.setFileName(attachment.getFilename());
-
-		if (attachment.getContentTypeHeader() != null) {
-			attachPart.setHeader("Content-Type", attachment.getContentTypeHeader());
-		}
-
-		if (attachment.getContentDispositionHeader() != null) {
-			attachPart.setHeader("Content-Disposition", attachment.getContentDispositionHeader());
-		}
-
 		return attachPart;
 	}
 
