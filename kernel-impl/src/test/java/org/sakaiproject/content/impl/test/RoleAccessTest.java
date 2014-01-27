@@ -17,8 +17,8 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class RoleAccessTest extends SakaiKernelTestBase {
 
@@ -127,14 +127,14 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         assertFalse(collection.getInheritedRoleAccessIds().contains(TEST_ROLE_2));
     }
 
-    public void testRoleAccessFailsWhenRoleAccessInInherited() throws IdUnusedException, PermissionException, InUseException, TypeException, IdInvalidException, IdUsedException, ServerOverloadException, AuthzPermissionException, InconsistentException {
+    public void testRoleAccessFailsWhenAlreadyInherited() throws Exception {
         collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
         collectionEdit.addRoleAccess(TEST_ROLE);
         _chs.commitCollection(collectionEdit);
 
         collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
         try {
-            collectionEdit.addRoleAccess(TEST_ROLE_2);
+            collectionEdit.addRoleAccess(TEST_ROLE);
             fail();
         } catch (InconsistentException e) {
             // instead we should go here
@@ -142,19 +142,33 @@ public class RoleAccessTest extends SakaiKernelTestBase {
         _chs.commitCollection(collectionEdit);
     }
 
-    public void testGroupAccessFailsWhenRoleAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
+    public void testRoleAccessDoesNotFailWhenGeneralRoleAccessIsInherited() throws Exception {
         collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
         collectionEdit.addRoleAccess(TEST_ROLE);
         _chs.commitCollection(collectionEdit);
 
         collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
         try {
-            collectionEdit.setGroupAccess(new ArrayList());
-            fail("Should have triggered an Inconsistent Exception because role access is inherited.");
-        } catch (InconsistentException e) {
-            // instead we should go here
+            collectionEdit.addRoleAccess(TEST_ROLE_2);
+        } finally {
+            _chs.commitCollection(collectionEdit);
         }
+    }
+
+    public void testGroupAccessDoesNotFailWhenRoleAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
+
+        List<String> groupsList = Collections.singletonList(_groupReference);
+
+        collectionEdit = _chs.editCollection(IMAGES_COLLECTION);
+        collectionEdit.addRoleAccess(TEST_ROLE);
         _chs.commitCollection(collectionEdit);
+
+        collectionEdit = _chs.editCollection(PHOTOS_COLLECTION);
+        try {
+            collectionEdit.setGroupAccess(groupsList);
+        } finally {
+            _chs.commitCollection(collectionEdit);
+        }
     }
 
     public void testRoleAccessFailsWhenGroupAccessIsInherited() throws IdUnusedException, TypeException, InUseException, PermissionException, InconsistentException {
