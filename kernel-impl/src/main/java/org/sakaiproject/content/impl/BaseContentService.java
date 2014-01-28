@@ -10002,7 +10002,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s inherits group access.", roleId, this.getReference()));
 			}
 
-			if (!getInheritedRoleAccessIds().isEmpty()) {
+			if (getInheritedRoleAccessIds().contains(roleId)) {
 				throw new InconsistentException(String.format("BasicGroupAwareEdit#addRoleAccess: could not assign role %s because content %s inherits role access.", roleId, this.getReference()));
 			}
 
@@ -10086,11 +10086,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException 
 		{
 			if (groups == null || groups.isEmpty())
-			{
-				throw new InconsistentException(this.getReference());
-			}
-
-			if(!getInheritedRoleAccessIds().isEmpty())
 			{
 				throw new InconsistentException(this.getReference());
 			}
