@@ -9138,7 +9138,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		Set<Role> roles = realm.getRoles();
 		for (Role role : roles) {
-			roleIds.add(role.getId());
+			if(role.isAllowed(AUTH_RESOURCE_READ)) {
+				roleIds.add(role.getId());
+			}
 		}
 
 		return roleIds;
