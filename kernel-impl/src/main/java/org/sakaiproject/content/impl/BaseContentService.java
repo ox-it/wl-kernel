@@ -9031,19 +9031,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				try
 				{
 					role = edit.addRole(roleId);
-					// moved from below as part of NPE cleanup -AZ
-					if (!role.isAllowed(AUTH_RESOURCE_READ))
-		            {
-		                role.allowFunction(AUTH_RESOURCE_READ);
-		                changed = true;
-				}
 				}
 				catch (RoleAlreadyDefinedException ignore)
 				{
-				    role = null;
+					role = null;
 				}
 			}
 
+			if (!role.isAllowed(AUTH_RESOURCE_READ))
+			{
+				role.allowFunction(AUTH_RESOURCE_READ);
+				changed = true;
+			}
 		}
 
 		// align the realm with our negative setting
