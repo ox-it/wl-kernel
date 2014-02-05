@@ -9031,19 +9031,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				try
 				{
 					role = edit.addRole(roleId);
-					// moved from below as part of NPE cleanup -AZ
-					if (!role.isAllowed(AUTH_RESOURCE_READ))
-		            {
-		                role.allowFunction(AUTH_RESOURCE_READ);
-		                changed = true;
 				}
-				}
-				catch (RoleAlreadyDefinedException ignore)
+				catch (RoleAlreadyDefinedException e)
 				{
-				    role = null;
+					throw new IllegalStateException("BaseContentService#setRoleView: Received RoleAlreadyDefined on non-existent role", e);
 				}
 			}
 
+			if (!role.isAllowed(AUTH_RESOURCE_READ))
+			{
+				role.allowFunction(AUTH_RESOURCE_READ);
+				changed = true;
+			}
 		}
 
 		// align the realm with our negative setting
@@ -9139,7 +9138,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		Set<Role> roles = realm.getRoles();
 		for (Role role : roles) {
-			roleIds.add(role.getId());
+			if(role.isAllowed(AUTH_RESOURCE_READ)) {
+				roleIds.add(role.getId());
+			}
 		}
 
 		return roleIds;
