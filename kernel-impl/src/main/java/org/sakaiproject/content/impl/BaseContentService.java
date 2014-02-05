@@ -9032,9 +9032,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					role = edit.addRole(roleId);
 				}
-				catch (RoleAlreadyDefinedException ignore)
+				catch (RoleAlreadyDefinedException e)
 				{
-					role = null;
+					throw new IllegalStateException("BaseContentService#setRoleView: Received RoleAlreadyDefined on non-existent role", e);
 				}
 			}
 
