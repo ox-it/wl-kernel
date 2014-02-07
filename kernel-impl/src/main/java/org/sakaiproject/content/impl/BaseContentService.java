@@ -424,6 +424,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/** Dependency: ContentCopy. */
 	protected ContentCopy m_contentCopy = null;
 
+	/** Dependency: CollectionAccessFormatter. */
+	protected CollectionAccessFormatter m_collectionAccessFormatter = null;
+
 	/**
 	 * Dependency: ContentCopy.
 	 * 
@@ -433,6 +436,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void setContentCopy(ContentCopy service)
 	{
 		m_contentCopy = service;
+	}
+
+	/**
+	 * Dependency: CollectionAccessFormatter.
+	 *
+	 * @param service
+	 *        The CollectionAccessFormatter.
+	 */
+	public void setCollectionAccessFormatter(CollectionAccessFormatter service)
+	{
+		m_collectionAccessFormatter = service;
 	}
 
 	/**
@@ -7100,8 +7114,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		try
 		{
 			// use the helper
-			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false), this,
-					m_siteService);
+			m_collectionAccessFormatter.format(collection, ref, req, res, rb, this);
 
 			// track event
 			// eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
