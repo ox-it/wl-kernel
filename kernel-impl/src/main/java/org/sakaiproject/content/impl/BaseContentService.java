@@ -3035,14 +3035,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 	}
 
-	protected void cacheEntities(List<? extends ContentEntity> entities)
+	protected void cacheEntities(List<ContentEntity> entities)
 	{
 		if(entities == null)
 		{
 			return;
 		}
 
-		for(ContentEntity entity : entities)
+		for(ContentEntity entity : (List<ContentEntity>) entities)
 		{
 			if(entity == null)
 			{
@@ -11224,9 +11224,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * 
 		 * @return a List of the full objects of the members of the collection.
 		 */
-		public List<ContentEntity> getMemberResources()
+		public List getMemberResources()
 		{
-			List<ContentEntity> mbrs = (List<ContentEntity>) threadLocalManager.get("members@" + this.m_id);
+			List mbrs = (List) threadLocalManager.get("members@" + this.m_id);
 			if(mbrs == null)
 			{
 				mbrs = new ArrayList();
@@ -13063,7 +13063,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * Get a list of all getCollections within a collection.
 		 */
-		public List<ContentCollectionEdit> getCollections(ContentCollection collection);
+		public List getCollections(ContentCollection collection);
 
 		/**
 		 * Keep a new collection.
@@ -13104,7 +13104,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/**
 		 * Get a list of all resources within a collection.
 		 */
-		public List<ContentResourceEdit> getResources(ContentCollection collection);
+		public List getResources(ContentCollection collection);
 
 		/**
 		 * 
