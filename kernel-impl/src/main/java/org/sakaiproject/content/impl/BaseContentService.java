@@ -130,18 +130,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.CopyrightException;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdLengthException;
-import org.sakaiproject.exception.IdUniquenessException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -7823,24 +7812,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void updateEntityReferences(String toContext, Map transversalMap){
 		//TODO: is there any content that needs reference updates?
 		String fromContext = (String) transversalMap.get("/fromContext");
-		String fromSiteId = siteIdExtract(fromContext);
 		String thisKey = null;
-		try {					
-			Vector targetResourceList = new Vector();
-			String targetContext = "/group/"+toContext+"/";
-//			List thisTargetResourceList = getAllResources(targetContext);
+		try {
 			List thisTargetResourceList = getAllResources(fromContext);
 			Iterator sourceResourceIterator = thisTargetResourceList.iterator();
-			String tId = null;
-			String rContent = null;
+			String tId;
+			String rContent;
 			while(sourceResourceIterator.hasNext()){
 				ContentResource thisContentResource = (ContentResource) sourceResourceIterator.next();
 				tId = thisContentResource.getId();
 				String sourceType = thisContentResource.getContentType();
-				boolean contentChanged = false;
-				String targetId = null;
 				if(sourceType.startsWith("text/html")){
-//					String oldReference = siteIdSplice(tId, fromSiteId);
 					String oldReference = tId;
 					tId = siteIdSplice(tId, toContext);
 					ContentResource oldSiteContentResource = getResource(oldReference);
@@ -7853,7 +7835,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						if(!oldValue.equals("/fromContext")){
 							String newValue = "";
 							newValue = (String) transversalMap.get(oldValue);
-							targetId = (String) transversalMap.get(oldValue);
 							if(newValue.length()>0){
 								rContent = linkMigrationHelper.migrateOneLink(oldValue, newValue, rContent);
 								}
@@ -7892,8 +7873,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.warn(this + thisKey, e3);
 		} catch (ServerOverloadException e4) {
 			M_log.warn(this + thisKey, e4);
-//		}catch(OverQuotaException e5){
-//			M_log.warn(this + thisKey, e5);
 		}
 		
 	}
@@ -7979,34 +7958,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// Now do the copy.
 			m_contentCopy.copyReferences(ctx);
 
+			// Now optionally hide the collection:
 			return ctx.getCopyResults();
 		}
 		return Collections.emptyMap();
 	}
 
-	/**
-	 * Hide imported content -- SAK-23305
-	 * @param edit Object either a ContentResourceEdit or ContentCollectionEdit object
-	 */
-	private void hideImportedContent(ContentEntity edit)
-	{
-		if (m_serverConfigurationService.getBoolean("content.import.hidden", false))
-		{
-			if (edit instanceof GroupAwareEdit)
-			{
-				String containingCollectionId = edit.getContainingCollection().getId();
-				/*
-				 * If this is "reuse content" during worksite setup, the site collection at this time is
-				 * /group/!admin/ for all content including ones in the folders, so count how many "/" in
-				 * the collection ID. If <= 3, then it's a top-level item and needs to be hidden.
-				 */
-				int slashcount = StringUtils.countMatches(containingCollectionId, "/");
-				if (slashcount <= 3)
-				{
-					((GroupAwareEdit)edit).setHidden();
-				}
-		}
-	}
+
 
 	/**
 	 * {@inheritDoc}
