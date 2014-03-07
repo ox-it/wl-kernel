@@ -99,6 +99,21 @@ public class ContentCopyTest extends TestCase {
 		assertEquals("/group/old/img.png", basicCtx.popResource());
 	}
 	
+	public void testPlainText() {
+		// Plain text copy only happens when it's an auto generated ID.
+		ContentCopyContext fullContext = contentCopy.createCopyContext("818c36fc-1b99-467e-005b-f88aa2cc3776", "new", false);
+		assertEquals("My URL: /access/content/group/new/file.txt", contentCopy.convertContent(fullContext, "My URL: /access/content/group/818c36fc-1b99-467e-005b-f88aa2cc3776/file.txt", "text/plain", null));
+	}
+	
+	public void testFailingAnnouncement() {
+		// Site ID is only 35 characters to make sure we catch it on URL parsing code.
+		// The problem with this one is the missing quotes
+		ContentCopyContext announcementExample = contentCopy.createCopyContext("36e31e17-3384-4b2a-80a4-ce7c570a342", "******", true);
+		String content = "<a href=/access/content/group/36e31e17-3384-4b2a-80a4-ce7c570a342/Picture%201.png target=\"_blank\" >/access/content/group/36e31e17-3384-4b2a-80a4-ce7c570a342/Picture%201.png</a>&nbsp";
+		assertTrue(contentCopy.convertContent(announcementExample, content, "text/html", null).indexOf("*****") != -1);
+		
+	}
+	
 	/**
 	 * Check that when processing the source we get the correct response.
 	 */
