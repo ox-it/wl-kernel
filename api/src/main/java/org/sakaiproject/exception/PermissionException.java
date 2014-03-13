@@ -26,7 +26,7 @@ package org.sakaiproject.exception;
  * PermissionException indicates an invalid unlock attempt by a user for a lock and a resource.
  * </p>
  */
-public class PermissionException extends Exception
+public class PermissionException extends SakaiException
 {
 	/** The id of the user. */
 	private String m_user = null;
@@ -54,9 +54,6 @@ public class PermissionException extends Exception
 		return m_lock;
 	}
 
-	/** The resource id. */
-	private String m_resource = null;
-
 	/**
 	 * Access the resource id.
 	 * 
@@ -64,7 +61,7 @@ public class PermissionException extends Exception
 	 */
 	public String getResource()
 	{
-		return m_resource;
+		return getId();
 	}
 
 	/**
@@ -79,10 +76,18 @@ public class PermissionException extends Exception
 	 */
 	public PermissionException(String user, String lock, String resource)
 	{
-		super("user=" + user + " lock=" + lock + " resource=" + resource);
+		super(resource);
 		m_user = user;
 		m_lock = lock;
-		m_resource = resource;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMessage()
+	{
+		return "user=" + m_user + " lock=" + m_lock + " resource=" + getResource();
+}
 
 }
