@@ -32,11 +32,11 @@ public interface DbAuthzGroupSql
 {
 	String getCountRealmFunctionSql();
 
-	String getCountRealmRoleFunctionEndSql(Set<String> roleIds, String inClause);
+	String getCountRealmRoleFunctionEndSql(Set<Integer> roleIds, String inClause);
 
-	String getCountRealmRoleFunctionSql(Set<String> roleIds);
+	String getCountRealmRoleFunctionSql(Set<Integer> roleIds);
 
-	String getCountRealmRoleFunctionSql(Set<String> roleIds, String inClause);
+	String getCountRealmRoleFunctionSql(Set<Integer> roleIds, String inClause);
 
 	String getCountRealmRoleSql();
 	
