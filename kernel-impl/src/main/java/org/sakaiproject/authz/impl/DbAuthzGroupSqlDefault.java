@@ -35,14 +35,14 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "select count(1) from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
 	}
 
-	public String getCountRealmRoleFunctionEndSql(Set<String> roleIds, String inClause)
+	public String getCountRealmRoleFunctionEndSql(Set<Integer> roleIds, String inClause)
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append(" and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) ");
 		sql.append(" and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? ");
 				// granted in any of the grant or role realms
 		sql.append(" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) ");
-		Iterator<String> rolesIt = roleIds.iterator();
+		Iterator<Integer> rolesIt = roleIds.iterator();
 		if (rolesIt.hasNext())
 		{
 			sql.append(" or ROLE_KEY in (");
@@ -59,7 +59,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return sql.toString();
 	}
 
-	public String getCountRealmRoleFunctionSql(Set<String> roleIds)
+	public String getCountRealmRoleFunctionSql(Set<Integer> roleIds)
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append("select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE ");
@@ -67,7 +67,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		sql.append("       MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), SAKAI_REALM REALMS, SAKAI_REALM_FUNCTION FUNCTIONS ");
 		sql.append("where ");
 				// our criteria
-		Iterator<String> rolesIt = roleIds.iterator();
+		Iterator<Integer> rolesIt = roleIds.iterator();
 		if (rolesIt.hasNext())
 		{
 			sql.append("  (MAINTABLE.ROLE_KEY in(");
@@ -86,7 +86,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return sql.toString();
 	}
 
-	public String getCountRealmRoleFunctionSql(Set<String> roleIds, String inClause)
+	public String getCountRealmRoleFunctionSql(Set<Integer> roleIds, String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN " + "where  REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")"
 				+ getCountRealmRoleFunctionEndSql(roleIds, inClause);

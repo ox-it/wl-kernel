@@ -337,7 +337,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				public Object readSqlResultRecord(ResultSet result) {
 					try {
 						String name = result.getString(1);
-						String key = result.getString(2);
+						Integer key = result.getInt(2);
 						RealmRole realmRole = new RealmRole(name, key);
 						m_roleNameCache.add(realmRole);
 					}
@@ -364,7 +364,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					try
 					{
 						String name = result.getString(1);
-						String key = result.getString(2);
+						Integer key = result.getInt(2);
 						RealmRole realmRole = new RealmRole(name, key);
 						m_roleNameCache.add(realmRole);
 					}
@@ -1624,17 +1624,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if ((lock == null) || (realmId == null)) return false;
 
 			Set<String> roles = getEmptyRoles(userId);
+			Set<Integer> roleIds = new HashSet<Integer>();
+			for(String role: roles) {
+				roleIds.add(getRealmRoleKey(role));
+			}
 
 			if (M_log.isDebugEnabled())
 				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
 						" roles="+ StringUtils.join(roles, ','));
 
-			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roles);
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds);
 			Object[] fields = new Object[3 + roles.size()];
 			int pos = 0;
-			for (String role : roles)
+			for (Integer roleId : roleIds)
 			{
-				fields[pos++] = getRealmRoleKey(role);
+				fields[pos++] = roleId;
 			}
 			fields[pos++] = userId;
 			fields[pos++] = lock;
@@ -1700,7 +1704,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 						+ " roles="+ StringUtils.join(roles, ','));
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
-			Set<String> roleIds = new HashSet<String>();
+			Set<Integer> roleIds = new HashSet<Integer>();
 			for(String role : roles) {
 				roleIds.add(getRealmRoleKey(role));
 			}
@@ -1746,7 +1750,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				fields[pos++] = realmId;
 			}
 
-			for (String roleId : roleIds)
+			for (Integer roleId : roleIds)
 			{
 				fields[pos++] = roleId;
 			}
@@ -3065,7 +3069,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		return bindParameter;
 	}
 	
-	private String getRealmRoleKey(String roleName) {
+	private Integer getRealmRoleKey(String roleName) {
 		Iterator<RealmRole> itr = m_roleNameCache.iterator();
 		while (itr.hasNext()) {
 			RealmRole realmRole = (RealmRole) itr.next();
@@ -3078,13 +3082,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	
 	class RealmRole implements Comparable<RealmRole>{
 		private String name;
-		private String key;
+		private Integer key;
 		
 		RealmRole(String name) {
 			this.name = name;
 		}
 		
-		RealmRole(String name, String key) {
+		RealmRole(String name, Integer key) {
 			this.name = name;
 			this.key = key;
 		}
@@ -3097,11 +3101,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			this.name = name;
 		}
 		
-		public String getKey() {
+		public Integer getKey() {
 			return key;
 		}
 		
-		public void setKey(String key) {
+		public void setKey(Integer key) {
 			this.key = key;
 		}
 		
