@@ -85,12 +85,15 @@ public class HtmlPageFilter implements ContentFilter {
 
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
-        String forcePopups = getForcePopupsOnMixedContent();
+		String forcePopups = getForcePopupsOnMixedContent();
 
+		// yes = quirks mode (no doctype)
+		// auto = standards mode
+		// standards = standards mode
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 		StringBuilder header = new StringBuilder();
-		if ("standards".equals(addHtml)) {
+		if (!("yes".equals(addHtml))) {
 			header.append(doctype);
 		}
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
@@ -123,15 +126,15 @@ public class HtmlPageFilter implements ContentFilter {
 		return siteSkin;
 	}
 
-    // Fix for mixed content blocked in Firefox and IE
-    // This event is added to every page (through headscripts.js);
-    private String getForcePopupsOnMixedContent() {
+	// Fix for mixed content blocked in Firefox and IE
+	// This event is added to every page (through headscripts.js);
+	private String getForcePopupsOnMixedContent() {
 
-        String jsTrigger = "";
-        if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
-            jsTrigger = "fixMixedContentOnLoad()";
-        }
-        return jsTrigger;
-    }
+		String jsTrigger = "";
+		if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+			jsTrigger = "fixMixedContentOnLoad()";
+		}
+		return jsTrigger;
+	}
 
 }
