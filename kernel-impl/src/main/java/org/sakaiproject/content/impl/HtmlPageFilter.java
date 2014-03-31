@@ -87,10 +87,13 @@ public class HtmlPageFilter implements ContentFilter {
 		String siteSkin = getSiteSkin(entity);
         String forcePopups = getForcePopupsOnMixedContent();
 
+		// yes = quirks mode (no doctype)
+		// auto = standards mode
+		// standards = standards mode
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 		StringBuilder header = new StringBuilder();
-		if ("standards".equals(addHtml)) {
+		if (!("yes".equals(addHtml))) {
 			header.append(doctype);
 		}
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
