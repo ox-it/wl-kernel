@@ -145,6 +145,12 @@ import org.xml.sax.SAXException;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.mime.MimeTypes;
+
 /**
  * <p>
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
@@ -210,6 +216,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	protected long m_dropBoxQuota = 0;
 
 	private boolean m_useSmartSort = true;
+
+	private boolean m_useMimeMagic = true;
+
+	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
 
 	static
 	{
@@ -917,6 +927,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             m_dropBoxQuota = Long.parseLong(m_serverConfigurationService.getString("content.dropbox.quota", Long.toString(m_dropBoxQuota)));
 
 			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
+
+			// magic
+			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
 
             int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
             int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
@@ -5856,6 +5869,55 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new OverQuotaException(edit.getReference());
 		}
 		
+		TikaInputStream tikastream=null;
+		if (m_useMimeMagic && DETECTOR != null) {
+			ContentResourceEdit edit3=null;
+			try {
+				edit3 = editResource(edit.getId());
+				tikastream = TikaInputStream.get(edit3.streamContent());
+				final Metadata metadata = new Metadata();
+				//This might not want to be set as it would advise the detector
+//				metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
+				String match = DETECTOR.detect(tikastream,metadata).toString();
+				if (match != null) {
+					if (!StringUtils.isEmpty(match) && !match.equals(edit3.getContentType())) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Magic: Setting content type to "+match);
+						}
+						edit3.setContentType(match);
+						commitResourceEdit(edit3, priority);
+					}
+				}
+			} catch (IOException e) {
+				M_log.warn("IOException when trying to get the resource's data: " + e);
+			} catch (PermissionException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (IdUnusedException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (TypeException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (InUseException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			}
+			finally {
+				//safety first!
+				if (edit3 != null && edit3.isActiveEdit()) {
+					((BaseCollectionEdit) edit3).closeEdit();
+				}
+				if (tikastream != null) {
+					try {
+						tikastream.close();
+					}
+					catch (IOException e) {
+						M_log.warn("IOException when trying to close the resource's data: " + e);
+					}
+				}
+			}
+		}
 		
 		if(! readyToUseFilesizeColumn())
 		{
