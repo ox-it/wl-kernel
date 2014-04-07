@@ -62,7 +62,7 @@ public class WrappedContentResource extends AbstractContentResource {
 			stream = null;
 			return bytes;
 		} catch (IOException e) {
-			throw new ServerOverloadException("IO propblem: "+ e.getMessage());
+			throw new ServerOverloadException("IO problem: "+ e.getMessage());
 		}
 	}
 	

@@ -22,7 +22,6 @@ package org.sakaiproject.content.impl;
 
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Set;
 import java.util.Stack;
 
 import org.sakaiproject.content.api.ContentCollection;
@@ -104,14 +103,6 @@ public class AbstractContentResource implements ContentResource{
 
 	public Collection getInheritedGroups() {
 		return wrapped.getInheritedGroups();
-	}
-
-	public Set<String> getRoleAccessIds() {
-		return wrapped.getRoleAccessIds();
-	}
-
-	public Set<String> getInheritedRoleAccessIds() {
-		return wrapped.getInheritedRoleAccessIds();
 	}
 
 	public Collection getInheritedGroupObjects() {

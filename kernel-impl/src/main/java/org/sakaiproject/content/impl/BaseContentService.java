@@ -6748,6 +6748,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * Process the access request for a resource.
 	 * 
 	 * @param req
+	 * @param req
 	 * @param res
 	 * @param ref
 	 * @param copyrightAcceptedRefs
