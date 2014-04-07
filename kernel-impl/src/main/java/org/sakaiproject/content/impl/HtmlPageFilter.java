@@ -98,11 +98,11 @@ public class HtmlPageFilter implements ContentFilter {
 			return content;
 		}
 		Reference contentRef = entityManager.newReference(content.getReference());
-		Reference siteRef = entityManager.newReference("/site/"+ contentRef.getContext());
+		Reference siteRef = entityManager.newReference(contentRef.getContext());
 		Entity entity = siteRef.getEntity();
 
 		String addHtml = content.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-
+		
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
         String forcePopups = getForcePopupsOnMixedContent();
