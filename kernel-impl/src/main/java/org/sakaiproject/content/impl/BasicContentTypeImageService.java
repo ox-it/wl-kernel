@@ -315,7 +315,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	{
 		String extension = DEFAULT_EXTENSION;
 		
-		if (contentType != null && m_contentTypeExtensions.getIsValid(contentType.toLowerCase()))
+		if (contentType != null && m_contentTypeExtensions != null && m_contentTypeExtensions.getIsValid(contentType.toLowerCase()))
 		{
 			extension = m_contentTypeExtensions.getString(contentType.toLowerCase());
 			
@@ -362,11 +362,13 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public String getContentType(String extension)
 	{
-		String type = m_contentTypes.getProperty(extension.toLowerCase());
+		String type = UNKNOWN_TYPE;
+		if (m_contentTypes != null) {
+			type = m_contentTypes.getProperty(extension.toLowerCase());
 
-		// if not there, use the UNKNOWN_TYPE
-		if (type == null) type = UNKNOWN_TYPE;
-
+			// if not there, use the UNKNOWN_TYPE
+			if (type == null) type = UNKNOWN_TYPE;
+		}
 		return type;
 
 	} // getContentTypeDisplayName
