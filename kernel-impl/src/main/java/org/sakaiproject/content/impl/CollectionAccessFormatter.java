@@ -214,7 +214,9 @@ public class CollectionAccessFormatter
 					URI contentUri = new URI(contentUrl);
 					URI relativeUri = baseUri.relativize(contentUri);
 					contentUrl = relativeUri.toString();
-					
+
+					final String hiddenClass = content.isHidden() ? " inactive" : "";
+
 					if (isCollection)
 					{
 						// Folder
@@ -223,7 +225,7 @@ public class CollectionAccessFormatter
 							desc = "";
 						else
 							desc = "<div class=\"textPanel\">" +  desc + "</div>";
-						out.println("<li class=\"folder\"><a href=\"" + contentUrl + "\">"
+						out.println("<li class=\"folder" + hiddenClass + "\"><a href=\"" + contentUrl + "\">"
 								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 								+ "</a>" + desc + "</li>");
 					}
@@ -236,8 +238,8 @@ public class CollectionAccessFormatter
 						else
 							desc = "<div class=\"textPanel\">" + formattedText.escapeHtml(desc) + "</div>";
 						String resourceType = content.getResourceType().replace('.', '_');
-						out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
-								+ resourceType+"\">"
+						out.println("<li class=\"file" + hiddenClass + "\"><a href=\"" + contentUrl + "\" target=_blank class=\""
+								+ resourceType + "\">"
 								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 								+ "</a>" + desc + "</li>");
 					}
