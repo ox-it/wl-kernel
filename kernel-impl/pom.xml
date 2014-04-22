@@ -88,6 +88,25 @@
       <artifactId>sakai-kernel-storage-util</artifactId>
       <version>${project.version}</version>
     </dependency>
+	<!-- Resource MIME type identification -->
+	<!-- http://mvnrepository.com/artifact/jmimemagic/jmimemagic -->
+
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-core</artifactId>
+		<version>1.5</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+		<version>1.5</version>
+		<exclusions>
+			<exclusion>
+				<groupId>de.l3s.boilerpipe</groupId>
+				<artifactId>boilerpipe</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
     
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
@@ -294,12 +313,6 @@
         <artifactId>sakai-kernel-util</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
-      <!-- bjones86 - join notification email sending -->
-      <dependency>
-        <groupId>org.sakaiproject.emailtemplateservice</groupId>
-        <artifactId>emailtemplateservice-api</artifactId>
-    </dependency>
 
   </dependencies>
-</project>
+  </project>
