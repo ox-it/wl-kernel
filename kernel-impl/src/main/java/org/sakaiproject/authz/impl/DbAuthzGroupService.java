@@ -1626,17 +1626,14 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if ((lock == null) || (realmId == null)) return false;
 
 			Set<String> roles = getEmptyRoles(userId);
-			Set<Integer> roleIds = new HashSet<Integer>();
-			for(String role: roles) {
-				roleIds.add(getRealmRoleKey(role));
-			}
+			Set<Integer> roleIds = getRealmRoleKeys(roles);
 
 			if (M_log.isDebugEnabled())
 				M_log.debug("isAllowed: userId=" + userId + " lock=" + lock + " realm=" + realmId+
 						" roles="+ StringUtils.join(roles, ','));
 
 			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds);
-			Object[] fields = new Object[3 + roles.size()];
+			Object[] fields = new Object[3 + roleIds.size()];
 			int pos = 0;
 			for (Integer roleId : roleIds)
 			{
@@ -1706,10 +1703,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 						+ " roles="+ StringUtils.join(roles, ','));
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
-			Set<Integer> roleIds = new HashSet<Integer>();
-			for(String role : roles) {
-				roleIds.add(getRealmRoleKey(role));
-			}
+			Set<Integer> roleIds = getRealmRoleKeys(roles);
 
 			// any of the grant or role realms
 			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(roleIds, inClause);
@@ -2986,6 +2980,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
         }
 
 	} // DbStorage
+
+	private Set<Integer> getRealmRoleKeys(Set<String> roles) {
+		Set<Integer> roleIds = new HashSet<Integer>();
+		for(String role: roles) {
+			Integer realmRoleKey = getRealmRoleKey(role);
+			// If the role hasn't yet been used then it won't exist and so we can't lookup it's ID.
+			if (realmRoleKey != null) {
+				roleIds.add(realmRoleKey);
+			}
+		}
+		return roleIds;
+	}
 
 	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs. */
 	protected final static int MAX_IN_CLAUSE = 99;
