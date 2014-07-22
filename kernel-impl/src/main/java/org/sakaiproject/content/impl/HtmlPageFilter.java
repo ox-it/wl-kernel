@@ -117,7 +117,7 @@ public class HtmlPageFilter implements ContentFilter {
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 		StringBuilder header = new StringBuilder();
-		if ("standards".equals(addHtml)) {
+		if ("standards".equals(addHtml) || addHtml.equals("auto")) {
 			header.append(doctype);
 		}
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
