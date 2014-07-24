@@ -1544,14 +1544,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 
 	/**
-	 * Check whether the resource is hidden.
+	 * Check whether the resource is hidden from the current user.
 	 * @param id
 	 * @return
 	 * @throws IdUnusedException
 	 */
 	protected boolean availabilityCheck(String id) throws IdUnusedException
 	{
-		// item is available if avaialability checks are <b>NOT</b> enabled OR if it's in /attachment
+		// item is available if availability checks are <b>NOT</b> enabled OR if it's in /attachment
 		boolean available = (! m_availabilityChecksEnabled) || isAttachmentResource(id);
 
 		GroupAwareEntity entity = null;
@@ -1636,11 +1636,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 
 	/**
-	 * Determine whether an entity is available to this user at this time, taking into account whether the item is hidden and the user's 
-	 * status with respect to viewing hidden entities in this context.
-	 * @param entityId
-	 * @return true if the item is not hidden or it's hidden but the user has permissions to view hidden items in this context (site? folder? group?), 
-	 * and false otherwise. 
+	 * Determine whether an entity is available to this user at this time, taking into account whether the item is
+	 * hidden and the user's* status with respect to viewing hidden entities in this context.
+	 * Hidden in this context means that it's got the hidden flag set or it's time limited.
+	 * @param entityId The ID of the entity.
+	 * @return true if the item is not hidden or it's hidden but the user has permissions to view hidden items in this
+	 * context (site? folder? group?), and false otherwise.
 	 */
 	public boolean isAvailable(String entityId)
 	{
@@ -1667,35 +1668,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	protected boolean unlockCheck(String lock, String id)
 	{
-		boolean isAllowed = m_securityService.isSuperUser();
-		if(! isAllowed)
-		{
-			lock = convertLockIfDropbox(lock, id);
-
-			// make a reference from the resource id, if specified
-			String ref = null;
-			if (id != null)
-			{
-				ref = getReference(id);
-			}
-
-			isAllowed = ref != null && m_securityService.unlock(lock, ref);
-
-			if(isAllowed && lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox.")) && m_availabilityChecksEnabled)
-			{
-				try 
-				{
-					isAllowed = availabilityCheck(id);
-				} 
-				catch (IdUnusedException e) 
-				{
-					// ignore because we would have caught this earlier.
-					M_log.debug("BaseContentService.unlockCheck(" + lock + "," + id + ") IdUnusedException " + e);
-				}
-			}	
+		try {
+			unlock(lock, id);
+			return true;
+		} catch (PermissionException pe) {
+			return false;
 		}
-
-		return isAllowed;
 
 	} // unlockCheck
 
@@ -1728,11 +1706,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	protected void unlock(String lock, String id) throws PermissionException
 	{
-		if(m_securityService.isSuperUser())
-		{
-			return;
-		}
-
 		lock = convertLockIfDropbox(lock, id);
 
 		// make a reference from the resource id, if specified
@@ -1749,7 +1722,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		boolean available = false;
 		try 
 		{
-			available = availabilityCheck(id);
+			// This came over from unlockCheck.
+			if(lock != null && (lock.startsWith("content.") || lock.startsWith("dropbox."))) {
+				available = availabilityCheck(id);
+			}
 		} 
 		catch (IdUnusedException e) 
 		{
@@ -2555,12 +2531,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		String currentUser = sessionManager.getCurrentSessionUserId();
 		String owner = "";
-		
-		//Supper users always have the permission
-		if (m_securityService.isSuperUser()) {
-			return true;
-		}
-		
+
 		try
 		{
 			ResourceProperties props = getProperties(id);
@@ -10073,12 +10044,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						groupRefs.add(group.getReference());
 					}
 				}
-
-				if(m_securityService.isSuperUser())
-				{
-					rv.addAll(groups);
-				}
-				else if(m_securityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && entity != null && unlockCheck(function, entity.getId()))
+				if(m_securityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && entity != null && unlockCheck(function, entity.getId()))
 				{
 					rv.addAll(groups);
 				}
