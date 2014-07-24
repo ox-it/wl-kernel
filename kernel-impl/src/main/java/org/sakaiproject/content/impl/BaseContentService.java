@@ -127,7 +127,6 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.SingleStorageUser;
-import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
@@ -1729,7 +1728,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		} 
 		catch (IdUnusedException e) 
 		{
-			// ignore. this was checked earlier in the call
 		}
 		if(! available)
 		{
@@ -2465,45 +2463,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean allowUpdate(String id)
 	{
-		String currentUser = sessionManager.getCurrentSessionUserId();
-		String owner = "";
-
-		if (m_securityService.isSuperUser(currentUser)) {
-			//supper users should always get a 404 rather than a permission exception
-			return true;
-		}
-		
-		try
-		{
-			ResourceProperties props = getProperties(id);
-			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
-		}
-		catch (PermissionException e ) 
-		{
-			// PermissionException can be thrown if not AUTH_RESOURCE_READ
-			return false;
-		} catch (IdUnusedException e) {
-			//Also non admin users should get a permission exception is the resource doesn't exist
-			return false;
-		} 
-
 		// check security to delete any collection
 		if ( unlockCheck(AUTH_RESOURCE_WRITE_ANY, id) )
 			return true;
 
 		// check security to delete own collection
-		else if ( currentUser != null && currentUser.equals(owner) 
-				&& unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
-			return true;
-
-		// check security to delete own collection for anonymous users
-		else if ( currentUser == null && owner == null && 
-				unlockCheck(AUTH_RESOURCE_WRITE_OWN, id) )
-			return true;
-
-		// otherwise not authorized
 		else
-			return false;
+			return allowOwner(id, AUTH_RESOURCE_WRITE_OWN);
 
 	} // allowUpdate
 
@@ -2528,7 +2494,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	protected boolean allowRemove(String id)
 	{
-		
+
+		// check security to delete any collection
+		if ( unlockCheck(AUTH_RESOURCE_REMOVE_ANY, id) )
+			return true;
+
+		// check security to delete own collection
+		else
+			return allowOwner(id, AUTH_RESOURCE_REMOVE_OWN);
+
+	} // allowRemove
+
+	/**
+	 * This checks to see if some permission checks should pass because the current
+	 * user is the creator
+	 * @param id
+	 * @param permission
+	 * @return
+	 */
+	private boolean allowOwner(String id, String permission) {
+
 		String currentUser = sessionManager.getCurrentSessionUserId();
 		String owner = "";
 
@@ -2537,31 +2522,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			ResourceProperties props = getProperties(id);
 			owner = props.getProperty(ResourceProperties.PROP_CREATOR);
 		}
-		catch ( Exception e ) 
+		catch ( PermissionException e )
 		{
 			// PermissionException can be thrown if not RESOURCE_AUTH_READ
 			return false;
 		}
+		catch (IdUnusedException e)
+		{
+			// Carry on as sysadmin checks can still go on.
+		}
 
-		// check security to delete any collection
-		if ( unlockCheck(AUTH_RESOURCE_REMOVE_ANY, id) )
-			return true;
-
-		// check security to delete own collection
-		else if ( currentUser != null && currentUser.equals(owner) && 
-				unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+		if ( currentUser != null && currentUser.equals(owner) &&
+				unlockCheck(permission, id) )
 			return true;
 
 		// check security to delete own collection for anonymous users
-		else if ( currentUser == null && owner == null && 
-				unlockCheck(AUTH_RESOURCE_REMOVE_OWN, id) )
+		else if ( currentUser == null && owner == null &&
+				unlockCheck(permission, id) )
 			return true;
 
 		// otherwise not authorized
 		else
 			return false;
-
-	} // allowRemove
+	}
 
 	/**
 	 * Remove just a collection. It must be empty.
@@ -4139,16 +4122,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
 
-		// check security 
-		if ( ! allowRemoveResource(id) )
-			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
-					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
-
 		// check for existance
 		if (!m_storage.checkResource(id))
 		{
 			throw new IdUnusedException(id);
 		}
+
+		// check security 
+		if ( ! allowRemoveResource(id) )
+			throw new PermissionException(sessionManager.getCurrentSessionUserId(), 
+					AUTH_RESOURCE_REMOVE_ANY, getReference(id));
 
 		// ignore the cache - get the collection with a lock from the info store
 		BaseResourceEdit resource = (BaseResourceEdit) m_storage.editResource(id);
