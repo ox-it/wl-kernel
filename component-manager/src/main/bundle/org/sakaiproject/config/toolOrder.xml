@@ -35,6 +35,7 @@
 		<tool id = "sakai.sections" />
 		<tool id = "sakai.site.roster" />
 		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
 
 	</category>
 
@@ -63,6 +64,7 @@
 		<tool id = "sakai.sections" />
 		<tool id = "sakai.site.roster" />
 		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
 
 	</category>
 
@@ -114,6 +116,7 @@
       <toolCategory id="manage">
          <name><![CDATA[Manage]]></name>
    		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
          <tool id = "sakai.sections" />
          <tool id = "sakai.site.roster" />
       </toolCategory>
