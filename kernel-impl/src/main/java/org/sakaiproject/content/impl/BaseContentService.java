@@ -5788,6 +5788,32 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		boolean hasContentTypeAlready = hasContentType(edit.getId());
 
+		
+        //use magic to fix mimetype
+        //Don't process for special TYPE_URL type
+        String currentContentType = edit.getContentType();
+        m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+        if (m_useMimeMagic && !hasContentTypeAlready && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType)) {
+            try{
+                //we have to make the stream resetable so tika can read some of it and reset for saving.
+                //Also have to give the tika stream to the edit object since tika can invalidate the original 
+                //stream and replace it with a new stream.
+                TikaInputStream buff = TikaInputStream.get(edit.streamContent());
+                edit.setContent(buff);
+                final Metadata metadata = new Metadata();
+                //This might not want to be set as it would advise the detector
+                metadata.set(Metadata.RESOURCE_NAME_KEY, edit.getId());
+                metadata.set(Metadata.CONTENT_TYPE, currentContentType);
+                String newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
+                if (M_log.isDebugEnabled()) {
+                    M_log.debug("Magic: Setting content type from " + currentContentType + " to " + newmatch);
+                }
+                edit.setContentType(newmatch);
+            } catch (IOException e) {
+				M_log.warn("IOException when trying to get the resource's data: " + e);
+			} 
+        }
+        
 		commitResourceEdit(edit, priority);
 
         // Queue up content for virus scanning
@@ -5819,62 +5845,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				e1.printStackTrace();
 			}
 			throw new OverQuotaException(edit.getReference());
-		}
-		
-		TikaInputStream tikastream=null;
-		// magic
-		m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-		if (m_useMimeMagic && DETECTOR != null && !hasContentTypeAlready) {
-			ContentResourceEdit edit3=null;
-			try {
-				edit3 = editResource(edit.getId());
-				String oldmatch = edit3.getContentType();
-				//Don't process for speical TYPE_URL type
-				if (!ResourceProperties.TYPE_URL.equals(oldmatch)) {
-					tikastream = TikaInputStream.get(edit3.streamContent());
-					final Metadata metadata = new Metadata();
-					//This might not want to be set as it would advise the detector
-					metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
-					String newmatch = DETECTOR.detect(tikastream,metadata).toString();
-					if (newmatch != null) {
-						if (!StringUtils.isEmpty(newmatch) && !newmatch.equals(oldmatch)) {
-							if (M_log.isDebugEnabled()) {
-								M_log.debug("Magic: Setting content type from "+ oldmatch +" to "+newmatch);
-							}
-							edit3.setContentType(newmatch);
-							commitResourceEdit(edit3, priority);
-						}
-					}
-				}
-			} catch (IOException e) {
-				M_log.warn("IOException when trying to get the resource's data: " + e);
-			} catch (PermissionException e1) {
-				// we're unlikely to see this at this point
-				e1.printStackTrace();
-			} catch (IdUnusedException e1) {
-				// we're unlikely to see this at this point
-				e1.printStackTrace();
-			} catch (TypeException e1) {
-				// we're unlikely to see this at this point
-				e1.printStackTrace();
-			} catch (InUseException e1) {
-				// we're unlikely to see this at this point
-				e1.printStackTrace();
-			}
-			finally {
-				//safety first!
-				if (edit3 != null && edit3.isActiveEdit()) {
-					cancelResource(edit3);
-				}
-				if (tikastream != null) {
-					try {
-						tikastream.close();
-					}
-					catch (IOException e) {
-						M_log.warn("IOException when trying to close the resource's data: " + e);
-					}
-				}
-			}
 		}
 		
 		if(! readyToUseFilesizeColumn())
