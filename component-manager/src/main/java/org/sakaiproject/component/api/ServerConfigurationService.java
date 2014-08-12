@@ -97,6 +97,14 @@ public interface ServerConfigurationService
 	String getHelpUrl(String helpContext);
 
 	/**
+	 * Access the URL to the Contact Us service on the server.
+	 *
+	 * @return The URL to the Contact Us service on the server.
+	 * @param siteId
+	 */
+	String getFeedbackUrl(String siteId);
+
+	/**
 	 * Access the URL to the access service on the server - append any additional path to the end.
 	 * 
 	 * @return The URL to the access service on the server.

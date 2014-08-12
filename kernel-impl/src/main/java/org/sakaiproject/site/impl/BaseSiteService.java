@@ -1689,6 +1689,18 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public ToolConfiguration findToolBySiteId(String siteId)
+	{
+		if (siteId == null)
+			return null;
+
+		return storage().findToolBySiteId(siteId);
+	}
+
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public SitePage findPage(String id)
@@ -3009,6 +3021,19 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @return The ToolConfiguration that has this id, if one is defined, else return null.
 		 */
 		public ToolConfiguration findTool(String id);
+
+
+
+		/**
+		 * Access the ToolConfiguration that has this id, if one is defined, else return null. The tool may be on any SitePage in any site.
+		 *
+		 * @param siteId
+		 *        The id of the tool.
+		 * @return The ToolConfiguration that has this id, if one is defined, else return null.
+		 */
+		public ToolConfiguration findToolBySiteId(String siteId);
+
+
 
 		/**
 		 * Access the Site id for the tool with this id.
