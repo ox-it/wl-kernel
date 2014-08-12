@@ -401,6 +401,14 @@ public class SiteService
 		return service.findTool(param0);
 	}
 
+	public static org.sakaiproject.site.api.ToolConfiguration findToolBySiteId(java.lang.String siteId)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.findToolBySiteId(siteId);
+	}
+
 	public static org.sakaiproject.site.api.SitePage findPage(java.lang.String param0)
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();
