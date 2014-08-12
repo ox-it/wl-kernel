@@ -5831,7 +5831,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.warn("commitResource(): closed ContentResourceEdit", e);
 			return;
 		}
-		
+
+		boolean hasContentTypeAlready = hasContentType(edit.getId());
+
 		commitResourceEdit(edit, priority);
 
         // Queue up content for virus scanning
@@ -5868,7 +5870,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		TikaInputStream tikastream=null;
 		// magic
 		m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-		if (m_useMimeMagic && DETECTOR != null) {
+		if (m_useMimeMagic && DETECTOR != null && !hasContentTypeAlready) {
 			ContentResourceEdit edit3=null;
 			try {
 				edit3 = editResource(edit.getId());
@@ -5927,6 +5929,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 	} // commitResource
+    
+    private boolean hasContentType(String resourceId) {
+
+        String contentType = null;
+
+        try {
+            contentType = getResource(resourceId).getContentType();
+        } catch (PermissionException e) {
+        } catch (IdUnusedException e) {
+        } catch (TypeException e) {
+        }
+
+        return contentType != null && !contentType.isEmpty();
+    }
 
     /**
 	 * This timer task is run by the timer thread based on the period set above
