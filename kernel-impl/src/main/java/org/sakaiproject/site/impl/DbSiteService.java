@@ -1404,64 +1404,6 @@ public abstract class DbSiteService extends BaseSiteService
 			return rv;
 		}
 
-
-
-		/**
-		 * Access the ToolConfiguration that has this siteid, if one is defined, else return null. The tool may be on any SitePage in the site.
-		 *
-		 * @param siteId
-		 *        The siteid of the tool.
-		 * @return The ToolConfiguration that has this siteid, if one is defined, else return null.
-		 */
-		public ToolConfiguration findToolBySiteId(final String siteId)
-		{
-			String sql = siteServiceSql.getToolFields3Sql();
-
-			Object fields[] = new Object[1];
-			fields[0] = siteId;
-
-			List found = m_sql.dbRead(sql, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-
-						// get the fields
-						String toolId = result.getString(1);
-						String pageId = result.getString(2);
-						String title = result.getString(4);
-						String layout = result.getString(5);
-						int pageOrder = result.getInt(6);
-
-						// make the tool
-						BaseToolConfiguration tool = new BaseToolConfiguration(DbSiteService.this,toolId, toolId, title, layout, pageId, siteId, null, pageOrder);
-
-						return tool;
-					}
-					catch (SQLException e)
-					{
-						M_log.warn("findToolBySiteId: " + siteId + " : " + e);
-						return null;
-					}
-				}
-			});
-
-			if (found.size() > 1)
-			{
-				M_log.warn("findToolBySiteId: multiple results for tool id: " + siteId);
-			}
-
-			ToolConfiguration rv = null;
-			if (found.size() > 0)
-			{
-				rv = (ToolConfiguration) found.get(0);
-			}
-
-			return rv;
-		}
-
-
 		/**
 		 * {@inheritDoc}
 		 */

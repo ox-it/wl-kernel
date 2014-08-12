@@ -736,17 +736,6 @@ public interface SiteService extends EntityProducer
 	 */
 	ToolConfiguration findTool(String id);
 
-
-	/**
-	 * Access the ToolConfiguration that has this siteid, if one is defined, else return null. The tool may be on any Site and on any SitePage.
-	 *
-	 * @param siteId
-	 *        The siteId of the tool.
-	 * @return The ToolConfiguration that has this siteid, if one is defined, else return null.
-	 */
-	ToolConfiguration findToolBySiteId(String siteId);
-
-
 	/**
 	 * Access the Page that has this id, if one is defined, else return null. The page may be on any Site.
 	 * 
