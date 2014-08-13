@@ -385,14 +385,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
     /**
      * {@inheritDoc}
-     * @param siteId
-     */
-    public String getFeedbackUrl(String siteId) {
-        return getPortalUrl() + "/site/" + siteId  + "/page/contact_us";
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public String getPortalUrl()
     {

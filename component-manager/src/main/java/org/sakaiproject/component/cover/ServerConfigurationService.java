@@ -128,14 +128,6 @@ public class ServerConfigurationService
 		return service.getHelpUrl(param0);
 	}
 
-	public static java.lang.String getFeedbackUrl(String siteId)
-	{
-		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
-		if (service == null) return null;
-
-		return service.getFeedbackUrl(siteId);
-	}
-
 	public static java.lang.String getPortalUrl()
 	{
 		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
