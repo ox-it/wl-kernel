@@ -1860,6 +1860,10 @@ public class BaseSite implements Site
 		return getAzg().hasRole(userId, role);
 	}
 
+	public boolean hasAnonRole() {
+		return getAzg().getRole(AuthzGroupService.ANON_ROLE)!=null;
+	}
+
 	public boolean isAllowed(String userId, String function)
 	{
 		return getAzg().isAllowed(userId, function);
