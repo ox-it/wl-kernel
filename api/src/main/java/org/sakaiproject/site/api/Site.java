@@ -117,6 +117,9 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	/** @return the role name given to users who join a joinable site. */
 	String getJoinerRole();
 
+	/** @return true if site has .anon role */
+	boolean hasAnonRole();
+
 	/** @return the skin to use for this site. */
 	String getSkin();
 
