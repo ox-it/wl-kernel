@@ -2314,7 +2314,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 					// Fix for mixed content blocked in Firefox and IE
 					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
 						out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
-						out.println("<script type=\"text/javascript\" language=\"JavaScript\">fixMixedContentOnLoad()</script>");
 					}
 
 					out.println("<title>");
@@ -2331,7 +2330,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 					}
 
 					out.println(description);
-					out.println("</div></body></html>");
+					out.println("</div></body>");
+					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+						out.println("<script type=\"text/javascript\" language=\"JavaScript\">fixMixedContentReferences()</script>");
+					}
+					out.println("</html>");
 				}
 				catch (Exception t)
 				{
