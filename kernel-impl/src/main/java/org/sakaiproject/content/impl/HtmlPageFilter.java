@@ -59,15 +59,18 @@ public class HtmlPageFilter implements ContentFilter {
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n" +
-"    <script type=\"text/javascript\" language=\"JavaScript\">{3}</script>\n" +
 "    <style>body '{ padding: 5px !important; }'</style>\n" +
 "  </head>\n" +
 "  <body>\n";
 
 	private String doctype = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n";
 
+  // We do the re-writing of the page in the footer because if we do it in any form of event based (onload, DOMContentLoaded)
+  // then it doesn't reliably fire in IE9 (possibly others). Putting it at the end of the DOM means it fires early
+  // and the user can view youtube videos without having to allow insecure content, but they still get the warning.
 	private String footerTemplate = "\n" +
 "  </body>\n" +
+"    <script type=\"text/javascript\" language=\"JavaScript\">{3}</script>\n" +
 "</html>\n";
 
 	public void setEntityManager(EntityManager entityManager) {
@@ -112,7 +115,7 @@ public class HtmlPageFilter implements ContentFilter {
 		
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
-        String forcePopups = getForcePopupsOnMixedContent();
+		String fixMixedContent = getFixMixedContent();
 
 		// yes = quirks mode (no doctype)
 		// auto = standards mode
@@ -123,8 +126,8 @@ public class HtmlPageFilter implements ContentFilter {
 		if (addHtml == null || "standards".equals(addHtml) || "auto".equals(addHtml)) {
 			header.append(doctype);
 		}
-		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, forcePopups));
-		final String footer = footerTemplate;
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title));
+		final String footer = MessageFormat.format(footerTemplate, fixMixedContent);
 		return new WrappedContentResource(content, header, footer, detectHtml);
 	}
 
@@ -147,15 +150,16 @@ public class HtmlPageFilter implements ContentFilter {
 		return siteSkin;
 	}
 
-    // Fix for mixed content blocked in Firefox and IE
-    // This event is added to every page (through headscripts.js);
-    private String getForcePopupsOnMixedContent() {
+	// Fix for mixed content blocked in Firefox and IE
+	// This event is added to every page (through headscripts.js);
+	private String getFixMixedContent() {
 
-        String jsTrigger = "";
-        if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
-            jsTrigger = "fixMixedContentOnLoad()";
-        }
-        return jsTrigger;
-    }
+		String jsTrigger = "";
+    // This originally just fixed new links, but now it also re-writes youtube URLs and more.
+		if (serverConfigurationService.getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+			jsTrigger = "fixMixedContentReferences()";
+		}
+		return jsTrigger;
+	}
 
 }
