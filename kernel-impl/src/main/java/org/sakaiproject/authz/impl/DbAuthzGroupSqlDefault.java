@@ -65,12 +65,12 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		sql.append("select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE ");
 		sql.append("       LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND ");
 		sql.append("       MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), SAKAI_REALM REALMS, SAKAI_REALM_FUNCTION FUNCTIONS ");
-		sql.append("where ");
+		sql.append("where (");
 				// our criteria
 		Iterator<Integer> rolesIt = roleIds.iterator();
 		if (rolesIt.hasNext())
 		{
-			sql.append("  (MAINTABLE.ROLE_KEY in(");
+			sql.append("  MAINTABLE.ROLE_KEY in(");
 			sql.append("?");
 			rolesIt.next();
 			while(rolesIt.hasNext())
