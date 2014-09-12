@@ -70,7 +70,7 @@ public class HtmlPageFilter implements ContentFilter {
   // and the user can view youtube videos without having to allow insecure content, but they still get the warning.
 	private String footerTemplate = "\n" +
 "  </body>\n" +
-"    <script type=\"text/javascript\" language=\"JavaScript\">{3}</script>\n" +
+"    <script type=\"text/javascript\" language=\"JavaScript\">{0}</script>\n" +
 "</html>\n";
 
 	public void setEntityManager(EntityManager entityManager) {
