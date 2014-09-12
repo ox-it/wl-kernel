@@ -164,4 +164,14 @@ public interface EmailService
 
 	List<EmailAddress> send(EmailMessage message, boolean messagingException) throws AddressValidationException,
 			NoRecipientsException, MessagingException;
+
+	/**
+	 * Configuration: smtp mail envelope return address.
+	 *
+	 * @param value
+	 *        The smtp mail from address string.
+	 */
+	public void setSmtpFrom(String value);
+
+    String getSmtpFrom();
 }

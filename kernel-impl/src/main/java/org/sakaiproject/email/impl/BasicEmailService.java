@@ -252,6 +252,15 @@ public class BasicEmailService implements EmailService
 	/** Configuration: optional smtp mail envelope return address. */
 	protected String m_smtpFrom = null;
 
+
+	/**
+	 * Return smtp mail envelope return address.
+	 */
+	public String getSmtpFrom()
+	{
+		return m_smtpFrom;
+	}
+
 	/**
 	 * Configuration: smtp mail envelope return address.
 	 * 
