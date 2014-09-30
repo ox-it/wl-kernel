@@ -23,7 +23,19 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>
+    <powermock.version>1.5.6</powermock.version>
   </properties>
+  <repositories>
+    <repository>
+      <!-- Newer versions of mockito -->
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintry</id>
+      <name>bintray</name>
+      <url>http://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -80,6 +92,25 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- So we can mock static cover -->
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
