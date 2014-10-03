@@ -59,10 +59,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.*;
 
 /**
  * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the
@@ -747,6 +744,9 @@ public class RequestFilter implements Filter
 
 					
 				}
+                catch (ClosingException se) {
+                    closingRedirect(req, resp);
+                }
 				catch (RuntimeException t)
 				{
 					M_log.warn("", t);
@@ -794,7 +794,46 @@ public class RequestFilter implements Filter
 		}
 	}
 
-	/**
+    /**
+     * This is called when a request is made to a node that is in the process of closing down
+     * and so we don't want to allow new session to be created.
+     * @param req The servlet request.
+     * @param res The servlet response.
+     */
+    protected void closingRedirect(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        // We should avoid redirecting on non get methods as the body will be lost.
+        if (!"GET".equals(req.getMethod())) {
+            M_log.warn("Non GET request for "+ req.getPathInfo());
+        }
+
+        // We could check that we aren't in a redirect loop here, but if the load balancer doesn't know that
+        // a node is no longer responding to new sessions it may still be sending it new clients, and so after
+        // a couple of redirects it should hop off this node.
+        String value = "";
+        // set the cookie
+        Cookie c = new Cookie(cookieName, value);
+        c.setPath("/");
+        // Delete the cookie
+        c.setMaxAge(0);
+        if (cookieDomain != null)
+        {
+           c.setDomain(cookieDomain);
+        }
+        if (req.isSecure() == true)
+        {
+           c.setSecure(true);
+        }
+        addCookie(res, c);
+
+        // We want the non-decoded ones so we don't have to re-encode.
+        StringBuilder url = new StringBuilder(req.getRequestURI());
+        if (req.getQueryString() != null) {
+            url.append("?").append(req.getQueryString());
+        }
+        res.sendRedirect(url.toString());
+    }
+
+    /**
 	 * If any of these files exist, delete them.
 	 * 
 	 * @param tempFiles

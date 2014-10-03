@@ -39,19 +39,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.mutable.MutableLong;
+import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.tool.api.*;
 import org.springframework.util.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionAttributeListener;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.SessionStore;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 /**
  * <p>
@@ -92,8 +86,9 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	protected Set<String> clusterableTools = new HashSet<String>();
 
 	/** Salt for predictable session IDs */
-	protected byte[] salt = null; 
-	
+	protected byte[] salt = null;
+
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -110,6 +105,8 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+
+    protected abstract ClusterService clusterManager();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -322,7 +319,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 * @inheritDoc
 	 */
 	public Session startSession(String id)
-	{				
+	{
+		if (isClosing()) {
+			throw new ClosingException();
+		}
 		// create a non portable session object if this is a clustered environment
 		NonPortableSession nPS = new MyNonPortableSession();
 		
@@ -455,6 +455,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		activeusers.remove(null);
 
 		return activeusers.size();
+	}
+
+	protected boolean isClosing()
+    {
+		return ClusterService.Status.CLOSING.equals(clusterManager().getStatus());
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
