@@ -505,7 +505,7 @@ public class SakaiClusterService implements ClusterService
 									updateOurStatus(serverIdInstance);
 									m_updateStatus = false;
 								}
-								else
+								if(!m_updateStatus || m_maintenanceCheckerStop)
 								{
 									throw e;
 								}
