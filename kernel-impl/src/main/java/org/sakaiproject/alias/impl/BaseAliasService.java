@@ -628,10 +628,13 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	public List<Alias> getAliases(String target)
 	{
 		List<Alias> allForTarget = null;
-		boolean found = false;
 		if (m_targetCache != null)
 		{
-			allForTarget = (List<Alias>)m_targetCache.get(target);
+			List<Alias> cacheCopy = (List<Alias>)m_targetCache.get(target);
+			if (cacheCopy != null) {
+				// Create a copy to return to the user
+				allForTarget = new ArrayList<Alias>(cacheCopy);
+			}
 		}
 		if (allForTarget == null)
 		{
@@ -639,8 +642,10 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			if (m_targetCache != null)
 			{
 				Collection dependRefs = null;
+				List<Alias> cacheCopy = null;
 				if (allForTarget != null)
 				{
+					cacheCopy = new ArrayList<Alias>(allForTarget);
 					dependRefs = new ArrayList(allForTarget.size());
 					// Need to cache against a set of references.
 					for(Alias alias: (List<Alias>)allForTarget)
@@ -648,8 +653,8 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 						dependRefs.add(alias.getReference());
 					}
 				}
-
-				m_targetCache.put(target, allForTarget, target, dependRefs);
+				// Create a copy to put in the cache.
+				m_targetCache.put(target, cacheCopy, target, dependRefs);
 			}
 		}
 		
