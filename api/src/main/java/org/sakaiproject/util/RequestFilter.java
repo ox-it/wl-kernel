@@ -809,11 +809,12 @@ public class RequestFilter implements Filter
         // We could check that we aren't in a redirect loop here, but if the load balancer doesn't know that
         // a node is no longer responding to new sessions it may still be sending it new clients, and so after
         // a couple of redirects it should hop off this node.
-        String value = DOT + getCookieSuffix();
+        String value = "";
         // set the cookie
         Cookie c = new Cookie(cookieName, value);
         c.setPath("/");
-        c.setMaxAge(-1);
+        // Delete the cookie
+        c.setMaxAge(0);
         if (cookieDomain != null)
         {
            c.setDomain(cookieDomain);
