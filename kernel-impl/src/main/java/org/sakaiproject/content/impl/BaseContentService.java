@@ -6833,7 +6833,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 				ArrayList<Range> ranges = parseRange(req, res, len);
 				res.addHeader("Accept-Ranges", "bytes");
-				res.addHeader("Cache-Control", "max-age=0, no-cache, no-store");
+				// To allow IE8 to download files the order matters
+				res.addHeader("Cache-Control", "max-age=0, no-store, no-cache");
 
 		        if (req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
 		        	
