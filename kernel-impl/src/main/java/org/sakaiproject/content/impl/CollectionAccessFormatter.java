@@ -176,7 +176,7 @@ public class CollectionAccessFormatter
 			// Iterate through content items
 
 			URI baseUri = new URI(x.getUrl());
-						
+			String hiddenClass = x.isHidden()? "inactive" : "" ;
 			for (ContentEntity content : members) {
 
 				ResourceProperties properties = content.getProperties();
@@ -215,7 +215,9 @@ public class CollectionAccessFormatter
 					URI relativeUri = baseUri.relativize(contentUri);
 					contentUrl = relativeUri.toString();
 
-					final String hiddenClass = content.isHidden() ? " inactive" : "";
+					if(content.isHidden()) {
+						hiddenClass="inactive";
+					}
 
 					if (isCollection)
 					{
