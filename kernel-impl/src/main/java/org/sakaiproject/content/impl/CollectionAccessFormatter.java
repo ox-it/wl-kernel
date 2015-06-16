@@ -176,9 +176,10 @@ public class CollectionAccessFormatter
 			// Iterate through content items
 
 			URI baseUri = new URI(x.getUrl());
+			String hiddenClassParent = x.isAvailable() ? "" : " inactive";
 			String hiddenClass;
 			for (ContentEntity content : members) {
-				hiddenClass = x.isAvailable() ? "" : " inactive";
+				hiddenClass = hiddenClassParent;
 				ResourceProperties properties = content.getProperties();
 				boolean isCollection = content.isCollection();
 				String xs = content.getId();
