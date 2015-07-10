@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,10 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
 
 @SuppressWarnings({ "deprecation", "restriction" })
 public class ZipContentUtil {
@@ -92,11 +97,12 @@ public class ZipContentUtil {
 					}
 				}
 			}
-			
-			
+
+
 			// Store the compressed archive in the repository
 			String resourceId = reference.getId().substring(0,reference.getId().lastIndexOf(Entity.SEPARATOR));
-			String resourceName = extractName(resourceId);			
+			String resourceName = extractName(resourceId);
+			String originalResourceName = resourceName;
 			String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
 			if(homeCollectionId != null && homeCollectionId.equals(reference.getId())){
 				//place the zip file into the home folder of the resource tool
@@ -107,6 +113,7 @@ public class ZipContentUtil {
 					resourceName = homeName;
 				}				
 			}
+
 			int count = 0;
 			ContentResourceEdit resourceEdit = null;
 			while(true){
@@ -394,8 +401,36 @@ public class ZipContentUtil {
 	 * @param out
 	 * @throws Exception
 	 */
-	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
-		String filename = resource.getId().substring(rootId.length(),resource.getId().length());				
+	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
+		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
+
+		//Inorder to have username as the folder name rather than having eids
+		if(filename != null && filename.length()>0) {
+			String filenameArr[] = filename.split(Entity.SEPARATOR);
+			if (filenameArr.length > 1) {
+				ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId+filenameArr[0]+Entity.SEPARATOR);
+				ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+				String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+				try {
+					String uniqueId = UserDirectoryService.getUser(filenameArr[0]).getDisplayId();
+					filename = displayName +"("+uniqueId+")"+ Entity.SEPARATOR + filenameArr[1];
+				}catch(UserNotDefinedException e) {
+					LOG.warn("Not able to find user for id:"+filenameArr[0]);
+				}
+			}
+			else {
+				ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId);
+				ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+				String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+				try {
+					String uniqueId = UserDirectoryService.getUser(extractName(rootId)).getDisplayId();
+					filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[0];
+				}catch(UserNotDefinedException e) {
+					LOG.warn("Not able to find user for id:"+extractName(rootId));
+				}
+			}
+		}
+
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
