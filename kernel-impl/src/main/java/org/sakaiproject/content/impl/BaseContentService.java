@@ -46,6 +46,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasService;
@@ -203,6 +205,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private boolean m_useSmartSort = true;
 
 	private boolean m_useMimeMagic = true;
+
+	List <String> m_ignoreExtensions = null;
+	List <String> m_ignoreMimeTypes = null;
 
 	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
 	
@@ -5791,6 +5796,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
         //Don't process for special TYPE_URL type
         String currentContentType = edit.getContentType();
         m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+		m_ignoreExtensions = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions")));
+		m_ignoreMimeTypes = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes")));
         if (m_useMimeMagic && !hasContentTypeAlready && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType)) {
             try{
                 //we have to make the stream resetable so tika can read some of it and reset for saving.
@@ -5802,7 +5809,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 //This might not want to be set as it would advise the detector
                 metadata.set(Metadata.RESOURCE_NAME_KEY, edit.getId());
                 metadata.set(Metadata.CONTENT_TYPE, currentContentType);
-                String newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
+                String newmatch = "";
+				//If we are ignoring the content for this extension, don't give it any data
+				if (m_ignoreExtensions != null && m_ignoreExtensions.contains(FilenameUtils.getExtension(edit.getId()))) {
+					newmatch = DETECTOR.detect(null, metadata).toString();
+				}
+				else {
+					newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
+					//Redetect without the content as we're ignoring this mime type
+					if (m_ignoreMimeTypes != null && m_ignoreMimeTypes.contains(newmatch)) {
+						newmatch = DETECTOR.detect(null, metadata).toString();
+					}
+				}
                 if (M_log.isDebugEnabled()) {
                     M_log.debug("Magic: Setting content type from " + currentContentType + " to " + newmatch);
                 }
