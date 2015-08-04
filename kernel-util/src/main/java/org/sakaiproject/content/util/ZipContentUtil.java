@@ -116,10 +116,12 @@ public class ZipContentUtil {
 
 			int count = 0;
 			ContentResourceEdit resourceEdit = null;
+			String displayName="";
 			while(true){
 				try{
 					String newResourceId = resourceId;
 					String newResourceName = resourceName;
+					displayName=newResourceName;
 					count++;
 					if(count > 1){
 						//previous naming convention failed, try another one
@@ -128,6 +130,18 @@ public class ZipContentUtil {
 					}
 					newResourceId += ZIP_EXTENSION;
 					newResourceName += ZIP_EXTENSION;
+
+					ContentCollectionEdit currentEdit;
+					if(reference.getId().split(Entity.SEPARATOR).length>3) {
+						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
+						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+						if (displayName != null && displayName.length() > 0) {
+							displayName += ZIP_EXTENSION;
+						}
+						else {
+							displayName = newResourceName;
+						}
+					}
 					resourceEdit = ContentHostingService.addResource(newResourceId);
 					//success, so keep track of name/id
 					resourceId = newResourceId;
@@ -143,7 +157,7 @@ public class ZipContentUtil {
 			resourceEdit.setContent(fis);
 			resourceEdit.setContentType(mime.getContentType(resourceId));
 			ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
-			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
+			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, displayName);
 			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
 		}
 		catch (PermissionException pE){
@@ -405,32 +419,32 @@ public class ZipContentUtil {
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
 
 		//Inorder to have username as the folder name rather than having eids
-		if(filename != null && filename.length()>0) {
-			String filenameArr[] = filename.split(Entity.SEPARATOR);
-			if (filenameArr.length > 1) {
-				ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId+filenameArr[0]+Entity.SEPARATOR);
-				ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
-				String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-				try {
-					String uniqueId = UserDirectoryService.getUser(filenameArr[0]).getDisplayId();
-					filename = displayName +"("+uniqueId+")"+ Entity.SEPARATOR + filenameArr[1];
-				}catch(UserNotDefinedException e) {
-					LOG.warn("Not able to find user for id:"+filenameArr[0]);
-				}
-			}
-			else {
-				ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId);
-				ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
-				String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-				try {
-					String uniqueId = UserDirectoryService.getUser(extractName(rootId)).getDisplayId();
-					filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[0];
-				}catch(UserNotDefinedException e) {
-					LOG.warn("Not able to find user for id:"+extractName(rootId));
+		if(rootId.indexOf("group-user")!=-1) {
+			if (filename != null && filename.length() > 0) {
+				String filenameArr[] = filename.split(Entity.SEPARATOR);
+				if (filenameArr.length > 1) {
+					ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId + filenameArr[0] + Entity.SEPARATOR);
+					ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+					String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+					try {
+						String uniqueId = UserDirectoryService.getUser(filenameArr[0]).getDisplayId();
+						filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[1];
+					} catch (UserNotDefinedException e) {
+						LOG.warn("Not able to find user for id:" + filenameArr[0]);
+					}
+				} else {
+					ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId);
+					ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+					String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+					try {
+						String uniqueId = UserDirectoryService.getUser(extractName(rootId)).getDisplayId();
+						filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[0];
+					} catch (UserNotDefinedException e) {
+						LOG.warn("Not able to find user for id:" + extractName(rootId));
+					}
 				}
 			}
 		}
-
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
