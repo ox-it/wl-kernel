@@ -9606,7 +9606,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// return the current user's sort name
-		return userDirectoryService.getCurrentUser().getSortName()+" ("+ userDirectoryService.getCurrentUser().getDisplayId()+")";
+		String displayId = userDirectoryService.getCurrentUser().getDisplayId();
+		if(displayId != null && displayId.length()>0) {
+			return userDirectoryService.getCurrentUser().getSortName()+" ("+ displayId+")";
+		}
+		else {
+			return userDirectoryService.getCurrentUser().getSortName();
+		}
+
 	}
 
 	/**
@@ -9720,7 +9727,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName()+" ("+ user.getDisplayId()+")");
+						String displayId = user.getDisplayId();
+						if(displayId != null && displayId.length()>0) {
+							props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName() + " (" + displayId + ")");
+						}
+						else {
+							props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						}
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						commitCollection(edit);
 					}
@@ -9821,7 +9834,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName()+" ("+ user.getDisplayId()+")");
+						String displayId = user.getDisplayId();
+						if(displayId != null && displayId.length()>0) {
+							props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName() + " (" + displayId + ")");
+						}
+						else {
+							props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						}
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
 						commitCollection(edit);
