@@ -9606,7 +9606,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// return the current user's sort name
-		return userDirectoryService.getCurrentUser().getSortName();
+		return userDirectoryService.getCurrentUser().getSortName()+" ("+ userDirectoryService.getCurrentUser().getDisplayId()+")";
 	}
 
 	/**
@@ -9720,7 +9720,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName()+" ("+ user.getDisplayId()+")");
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						commitCollection(edit);
 					}
@@ -9821,7 +9821,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName()+" ("+ user.getDisplayId()+")");
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
 						commitCollection(edit);
