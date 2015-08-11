@@ -429,17 +429,15 @@ public class ZipContentUtil {
 						collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId + filenameArr[0] + Entity.SEPARATOR);
 						props = collectionEdit.getPropertiesEdit();
 						displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-						uniqueId = UserDirectoryService.getUser(filenameArr[0]).getDisplayId();
-						filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[1];
+						filename = displayName + Entity.SEPARATOR + filenameArr[1];
 					} else {
 						collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId);
 						props = collectionEdit.getPropertiesEdit();
 						displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-						uniqueId = UserDirectoryService.getUser(extractName(rootId)).getDisplayId();
-						filename = displayName + "(" + uniqueId + ")" + Entity.SEPARATOR + filenameArr[0];
+						filename = displayName + Entity.SEPARATOR + filenameArr[0];
 					}
-				} catch (UserNotDefinedException e) {
-					LOG.warn("Not able to find user for id:" + extractName(rootId));
+				} catch (Exception e) {
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId));
 				}
 			}
 		}
