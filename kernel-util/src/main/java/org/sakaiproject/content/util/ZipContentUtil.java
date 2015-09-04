@@ -16,7 +16,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,10 +36,6 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
 
 @SuppressWarnings({ "deprecation", "restriction" })
 public class ZipContentUtil {
@@ -130,7 +125,7 @@ public class ZipContentUtil {
 					newResourceName += ZIP_EXTENSION;
 
 					ContentCollectionEdit currentEdit;
-					if(reference.getId().split(Entity.SEPARATOR).length>3) {
+					if(reference.getId().split(Entity.SEPARATOR).length>3 && reference.getId().indexOf("group-user")!=-1) {
 						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
 						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
 						if (displayName != null && displayName.length() > 0) {
@@ -415,31 +410,23 @@ public class ZipContentUtil {
 	 */
 	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
-
 		//Inorder to have username as the folder name rather than having eids
 		if(rootId.indexOf("group-user")!=-1 && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
-			if (filename != null && filename.length() > 0) {
 				try {
-					String filenameArr[] = filename.split(Entity.SEPARATOR);
-					ContentCollectionEdit collectionEdit;
-					ResourcePropertiesEdit props;
-					String displayName;
-					String uniqueId;
-					if (filenameArr.length > 1) {
-						collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId + filenameArr[0] + Entity.SEPARATOR);
-						props = collectionEdit.getPropertiesEdit();
-						displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-						filename = displayName + Entity.SEPARATOR + filenameArr[1];
-					} else {
-						collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(rootId);
-						props = collectionEdit.getPropertiesEdit();
-						displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
-						filename = displayName + Entity.SEPARATOR + filenameArr[0];
-					}
+					filename = getContainingFolderDisplayName(rootId, filename);
+				} catch(TypeException e){
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					return;
+				} catch(IdUnusedException e ){
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					return;
+				} catch(PermissionException e){
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					return;
 				} catch (Exception e) {
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId));
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					return;
 				}
-			}
 		}
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
@@ -454,7 +441,7 @@ public class ZipContentUtil {
 			}
 		}
 	}
-	
+
 	private String extractZipCollectionPrefix(ContentResource resource) {
 		String idPrefix = resource.getContainingCollection().getId() + 
 			extractZipCollectionName(resource) +
@@ -470,6 +457,30 @@ public class ZipContentUtil {
 	private String extractZipCollectionName(ContentResource resource) {
 		String tmp = extractName(resource.getId());
 		return tmp.substring(0, tmp.lastIndexOf("."));
+	}
+
+	private String getContainingFolderDisplayName(String rootId,String filename) throws IdUnusedException, TypeException, PermissionException {
+		//dont manipulate filename when you are a zip file from a root folder level
+		if(!(rootId.split("/").length > 3) && (filename.split("/").length<2) &&filename.endsWith(".zip")){
+			return filename;
+		}
+
+		String filenameArr[] = filename.split(Entity.SEPARATOR);
+
+		//return rootId when you you zip from sub folder level and gives something like "group-user/site-id/user-id/" when zipping from root folder level by using filenameArr
+		String contentEditStr = (rootId.split("/").length > 3)?rootId:rootId+filenameArr[0]+Entity.SEPARATOR;
+		ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(contentEditStr);
+		ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+		String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+
+		//returns displayname along with the filename for zipping from sub folder level
+		if(contentEditStr.equals(rootId)) {
+			return displayName +Entity.SEPARATOR+ filename;
+		}
+		else { // just replaces the user-id with the displayname and returns the filename
+			return filename.replaceFirst(filenameArr[0],displayName);
+		}
+
 	}
 
 }
