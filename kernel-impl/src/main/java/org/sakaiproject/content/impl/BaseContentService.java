@@ -9588,7 +9588,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// return the current user's sort name
-		return getDisplayName(null,true);
+		return getDisplayName(null);
 
 	}
 
@@ -9703,7 +9703,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME,getDisplayName(user,false));
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME,getDisplayName(user));
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						commitCollection(edit);
 					}
@@ -9804,7 +9804,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					{
 						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
 						ResourcePropertiesEdit props = edit.getPropertiesEdit();
-						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(user,false));
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(user));
 						props.addProperty(ResourceProperties.PROP_DESCRIPTION, rb.getString("use1"));
 						// props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
 						commitCollection(edit);
@@ -13869,8 +13869,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return macroName;
 	}
 
-	private String getDisplayName(User userIn,boolean isUserdir) {
-		User user = isUserdir?userDirectoryService.getCurrentUser():userIn ;
+	private String getDisplayName(User userIn) {
+		User user = (userIn!= null)?userDirectoryService.getCurrentUser():userIn ;
 		String displayId = user.getDisplayId();
 		if (displayId != null && displayId.length() > 0) {
 			return user.getSortName() + " (" + displayId + ")";
