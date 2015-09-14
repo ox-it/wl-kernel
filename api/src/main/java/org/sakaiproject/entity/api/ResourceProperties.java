@@ -52,6 +52,21 @@ public interface ResourceProperties extends Serializable
 	/** Property for the display name (description) (dead, from DAV:). [String] */
 	static final String PROP_DISPLAY_NAME = "DAV:displayname";
 
+	/** Property for the course name. [String] */
+	static final String PROP_COURSE_NAME = "DAV:coursename";
+
+	/** Property for the department name. [String] */
+	static final String PROP_DEPARTMENT = "DAV:department";
+
+	/** Property for the core / optional paper. [String] */
+	static final String PROP_CORE_OPTIONAL_PAPER = "DAV:paper";
+
+	/** Property for the academic year. [String] */
+	static final String PROP_ACADEMIC_YEAR = "DAV:academicyear";
+
+	/** Property for the term. [String] */
+	static final String PROP_TERM = "DAV:term";
+
 	/** Property for the original filename (automatic). [String] */
 	static final String PROP_ORIGINAL_FILENAME = "CHEF:originalfilename";
 
