@@ -88,6 +88,9 @@ public interface ResourceProperties extends Serializable
 	/** Property for long open description (user settable). [String] */
 	static final String PROP_DESCRIPTION = "CHEF:description";
 
+	/** Property for long open introduction (user settable). [String] */
+	static final String PROP_INTRODUCTION = "CHEF:introduction";
+
 	/** Property for calendar event types (user settable). [String] */
 	static final String PROP_CALENDAR_TYPE = "CHEF:calendar-type";
 
