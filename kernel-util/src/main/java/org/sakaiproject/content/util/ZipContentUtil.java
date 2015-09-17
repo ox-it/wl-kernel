@@ -415,16 +415,16 @@ public class ZipContentUtil {
 				try {
 					filename = getContainingFolderDisplayName(rootId, filename);
 				} catch(TypeException e){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 					return;
 				} catch(IdUnusedException e ){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 					return;
 				} catch(PermissionException e){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 					return;
 				} catch (Exception e) {
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId)+e.getStackTrace());
+					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
 					return;
 				}
 		}
