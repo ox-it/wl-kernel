@@ -125,7 +125,7 @@ public class ZipContentUtil {
 					newResourceName += ZIP_EXTENSION;
 
 					ContentCollectionEdit currentEdit;
-					if(reference.getId().split(Entity.SEPARATOR).length>3 && reference.getId().indexOf("group-user")!=-1) {
+					if(reference.getId().split(Entity.SEPARATOR).length>3 && ContentHostingService.isInDropbox(reference.getId())) {
 						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
 						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
 						if (displayName != null && displayName.length() > 0) {
@@ -411,22 +411,22 @@ public class ZipContentUtil {
 	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
 		//Inorder to have username as the folder name rather than having eids
-		if(rootId.indexOf("group-user")!=-1 && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
-				try {
-					filename = getContainingFolderDisplayName(rootId, filename);
-				} catch(TypeException e){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
-					return;
-				} catch(IdUnusedException e ){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
-					return;
-				} catch(PermissionException e){
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
-					return;
-				} catch (Exception e) {
-					LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
-					return;
-				}
+		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+			try {
+				filename = getContainingFolderDisplayName(rootId, filename);
+			} catch(TypeException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(IdUnusedException e ){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(PermissionException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch (Exception e) {
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			}
 		}
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
