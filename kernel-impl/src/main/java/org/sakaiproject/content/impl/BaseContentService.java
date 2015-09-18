@@ -13870,7 +13870,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	}
 
 	private String getDisplayName(User userIn) {
-		User user = (userIn!= null)?userDirectoryService.getCurrentUser():userIn ;
+		User user = (userIn== null)?userDirectoryService.getCurrentUser():userIn ;
 		String displayId = user.getDisplayId();
 		if (displayId != null && displayId.length() > 0) {
 			return user.getSortName() + " (" + displayId + ")";
