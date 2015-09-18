@@ -92,11 +92,11 @@ public class ZipContentUtil {
 					}
 				}
 			}
-			
-			
+
+
 			// Store the compressed archive in the repository
 			String resourceId = reference.getId().substring(0,reference.getId().lastIndexOf(Entity.SEPARATOR));
-			String resourceName = extractName(resourceId);			
+			String resourceName = extractName(resourceId);
 			String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
 			if(homeCollectionId != null && homeCollectionId.equals(reference.getId())){
 				//place the zip file into the home folder of the resource tool
@@ -109,10 +109,12 @@ public class ZipContentUtil {
 			}
 			int count = 0;
 			ContentResourceEdit resourceEdit = null;
+			String displayName="";
 			while(true){
 				try{
 					String newResourceId = resourceId;
 					String newResourceName = resourceName;
+					displayName=newResourceName;
 					count++;
 					if(count > 1){
 						//previous naming convention failed, try another one
@@ -121,6 +123,18 @@ public class ZipContentUtil {
 					}
 					newResourceId += ZIP_EXTENSION;
 					newResourceName += ZIP_EXTENSION;
+
+					ContentCollectionEdit currentEdit;
+					if(reference.getId().split(Entity.SEPARATOR).length>3 && ContentHostingService.isInDropbox(reference.getId())) {
+						currentEdit = (ContentCollectionEdit) ContentHostingService.getCollection(resourceId + Entity.SEPARATOR);
+						displayName = currentEdit.getProperties().getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+						if (displayName != null && displayName.length() > 0) {
+							displayName += ZIP_EXTENSION;
+						}
+						else {
+							displayName = newResourceName;
+						}
+					}
 					resourceEdit = ContentHostingService.addResource(newResourceId);
 					//success, so keep track of name/id
 					resourceId = newResourceId;
@@ -136,7 +150,7 @@ public class ZipContentUtil {
 			resourceEdit.setContent(fis);
 			resourceEdit.setContentType(mime.getContentType(resourceId));
 			ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
-			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
+			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, displayName);
 			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
 		}
 		catch (PermissionException pE){
@@ -394,8 +408,26 @@ public class ZipContentUtil {
 	 * @param out
 	 * @throws Exception
 	 */
-	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
-		String filename = resource.getId().substring(rootId.length(),resource.getId().length());				
+	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
+		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
+		//Inorder to have username as the folder name rather than having eids
+		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+			try {
+				filename = getContainingFolderDisplayName(rootId, filename);
+			} catch(TypeException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(IdUnusedException e ){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch(PermissionException e){
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			} catch (Exception e) {
+				LOG.warn("Unexpected error occurred when trying to create Zip archive:" + extractName(rootId), e.getCause());
+				return;
+			}
+		}
 		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
 		out.putNextEntry(zipEntry);
@@ -409,7 +441,7 @@ public class ZipContentUtil {
 			}
 		}
 	}
-	
+
 	private String extractZipCollectionPrefix(ContentResource resource) {
 		String idPrefix = resource.getContainingCollection().getId() + 
 			extractZipCollectionName(resource) +
@@ -425,6 +457,30 @@ public class ZipContentUtil {
 	private String extractZipCollectionName(ContentResource resource) {
 		String tmp = extractName(resource.getId());
 		return tmp.substring(0, tmp.lastIndexOf("."));
+	}
+
+	private String getContainingFolderDisplayName(String rootId,String filename) throws IdUnusedException, TypeException, PermissionException {
+		//dont manipulate filename when you are a zip file from a root folder level
+		if(!(rootId.split("/").length > 3) && (filename.split("/").length<2) &&filename.endsWith(".zip")){
+			return filename;
+		}
+
+		String filenameArr[] = filename.split(Entity.SEPARATOR);
+
+		//return rootId when you you zip from sub folder level and gives something like "group-user/site-id/user-id/" when zipping from root folder level by using filenameArr
+		String contentEditStr = (rootId.split("/").length > 3)?rootId:rootId+filenameArr[0]+Entity.SEPARATOR;
+		ContentCollectionEdit collectionEdit = (ContentCollectionEdit) ContentHostingService.getCollection(contentEditStr);
+		ResourcePropertiesEdit props = collectionEdit.getPropertiesEdit();
+		String displayName = props.getProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME);
+
+		//returns displayname along with the filename for zipping from sub folder level
+		if(contentEditStr.equals(rootId)) {
+			return displayName +Entity.SEPARATOR+ filename;
+		}
+		else { // just replaces the user-id with the displayname and returns the filename
+			return filename.replaceFirst(filenameArr[0],displayName);
+		}
+
 	}
 
 }
