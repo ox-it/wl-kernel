@@ -22,6 +22,7 @@
 package org.sakaiproject.user.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.UserEdit;
 
 /**
  * <p>
@@ -152,6 +153,14 @@ public class UserDirectoryService
 		if (service == null) return false;
 
 		return service.allowUpdateUser(param0);
+	}
+
+	public static org.sakaiproject.user.api.UserEdit updateUserId(java.lang.String param0)
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return null;
+
+		return service.updateUserId(param0);
 	}
 
 	public static org.sakaiproject.user.api.UserEdit editUser(java.lang.String param0)

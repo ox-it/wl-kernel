@@ -180,6 +180,15 @@ public interface UserDirectoryService extends EntityProducer
 	public boolean allowUpdateUserName(String id);
 
 	/**
+	 * Gets the UserEdit object from storage inorder to update the user Eid()
+	 *
+	 * @param eId
+	 *        The user id.
+	 * @return UserEdit object
+	 */
+	public UserEdit updateUserId(String eId);
+
+	/**
 	 * check permissions for editUser()
 	 *
 	 * @param id
