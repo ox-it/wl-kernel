@@ -818,7 +818,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public User getUserByEid(String eid) throws UserNotDefinedException
 	{
 		UserEdit user = null;
-
 		// clean up the eid
 		eid = cleanEid(eid);
 		if (eid == null) throw new UserNotDefinedException("null");
@@ -1202,7 +1201,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				throw new UserLockedException(id);
 			}
 		}
-
 		if(!locksSucceeded.contains(SECURE_UPDATE_USER_ANY) && !locksSucceeded.contains(SECURE_UPDATE_USER_OWN)) {
 
 			// current session does not have permission to edit all properties for this user
@@ -1972,6 +1970,48 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		checkAndEnsureMappedIdForProvidedUser(u);
 		return u;
 	}
+
+	public UserEdit updateUserId(String id)
+	{
+		try {
+			List<String> locksSucceeded = new ArrayList<String>();
+			String function = null;
+			if (id.equals(sessionManager().getCurrentSessionUserId()))
+			{
+				// own or any
+				List<String> locks = new ArrayList<String>();
+				locks.add(SECURE_UPDATE_USER_OWN);
+				locks.add(SECURE_UPDATE_USER_OWN_NAME);
+				locks.add(SECURE_UPDATE_USER_OWN_EMAIL);
+				locks.add(SECURE_UPDATE_USER_OWN_PASSWORD);
+				locks.add(SECURE_UPDATE_USER_OWN_TYPE);
+				locks.add(SECURE_UPDATE_USER_ANY);
+
+				locksSucceeded = unlock(locks, userReference(id));
+				function = SECURE_UPDATE_USER_OWN;
+			}
+			else
+			{
+				// just any
+				locksSucceeded.add(unlock(SECURE_UPDATE_USER_ANY, userReference(id)));
+				function = SECURE_UPDATE_USER_ANY;
+			}
+
+
+			UserEdit user = m_storage.edit(id);
+			String newEid = user.getEmail();
+			if(user == null) {
+				return null;
+			}
+			user.setEid(newEid);
+			user.setEmail(newEid);
+			return user;
+		} catch (UserPermissionException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * UserEdit implementation
