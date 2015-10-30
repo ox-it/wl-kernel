@@ -6,7 +6,7 @@
 CREATE TABLE SAKAI_SITE_GROUP (
        GROUP_ID             VARCHAR2(99) NOT NULL,
        SITE_ID              VARCHAR2(99) NOT NULL,
-       TITLE                VARCHAR2(99) NULL,
+       TITLE                VARCHAR2(255) NULL,
        DESCRIPTION          CLOB NULL
 );
 
