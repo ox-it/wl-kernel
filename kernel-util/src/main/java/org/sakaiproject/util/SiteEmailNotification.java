@@ -122,11 +122,11 @@ public class SiteEmailNotification extends EmailNotification
 				users.retainAll(users2);
 			}
 
-			//only use direct site members for the base list of users
-			refineToSiteMembers(users, site);
-
 			// add any other users
 			addSpecialRecipients(users, ref);
+
+			//only use direct site members for the base list of users
+			refineToSiteMembers(users, site);
 
 			return users;
 		}
